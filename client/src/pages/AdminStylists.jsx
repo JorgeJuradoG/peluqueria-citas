@@ -1,6 +1,65 @@
 import { useEffect, useState } from "react";
 import api from "../services/api";
 
+const DAYS = [
+  { value: 1, label: "Lunes" },
+  { value: 2, label: "Martes" },
+  { value: 3, label: "Miércoles" },
+  { value: 4, label: "Jueves" },
+  { value: 5, label: "Viernes" },
+  { value: 6, label: "Sábado" },
+  { value: 0, label: "Domingo" },
+];
+
+function WorkingHoursEditor({ workingHours, onSave }) {
+  const [rows, setRows] = useState(
+    workingHours.map(({ dayOfWeek, start, end }) => ({ dayOfWeek, start, end }))
+  );
+
+  function update(index, field, value) {
+    setRows(rows.map((r, i) => (i === index ? { ...r, [field]: value } : r)));
+  }
+
+  function addRow(dayOfWeek) {
+    setRows([...rows, { dayOfWeek, start: "09:00", end: "14:00" }]);
+  }
+
+  function removeRow(index) {
+    setRows(rows.filter((_, i) => i !== index));
+  }
+
+  return (
+    <div>
+      {DAYS.map((day) => (
+        <div key={day.value} className="mt-2 flex flex-wrap items-center gap-2">
+          <span className="w-24">{day.label}</span>
+          {rows.map((r, i) =>
+            r.dayOfWeek !== day.value ? null : (
+              <span key={i} className="flex items-center gap-1 rounded border px-2 py-1">
+                <input type="time" value={r.start}
+                  onChange={(e) => update(i, "start", e.target.value)} />
+                –
+                <input type="time" value={r.end}
+                  onChange={(e) => update(i, "end", e.target.value)} />
+                <button onClick={() => removeRow(i)} className="text-red-600">✕</button>
+              </span>
+            )
+          )}
+          <button onClick={() => addRow(day.value)} className="text-sm underline">
+            + franja
+          </button>
+        </div>
+      ))}
+      <button
+        onClick={() => onSave(rows)}
+        className="mt-3 rounded bg-black px-3 py-1 text-white"
+      >
+        Guardar horario
+      </button>
+    </div>
+  );
+}
+
 function StylistCard({ stylist, allServices, onChanged }) {
   const [newDay, setNewDay] = useState("");
   const [error, setError] = useState("");
@@ -74,7 +133,11 @@ function StylistCard({ stylist, allServices, onChanged }) {
           </li>
         ))}
       </ul>
-
+        <h3 className="mt-3 font-medium">Horario semanal</h3>
+        <WorkingHoursEditor
+            workingHours={stylist.workingHours}
+            onSave={(workingHours) => save({ workingHours })}
+          />
       {error && <p className="mt-2 text-red-600">{error}</p>}
     </li>
   );
