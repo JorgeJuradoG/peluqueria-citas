@@ -10,15 +10,27 @@ export default function Navbar() {
     navigate("/");
   }
 
+  const isStaff = user && (user.role === "admin" || user.role === "stylist");
+
   return (
     <nav className="flex items-center justify-between border-b px-6 py-3">
       <Link to="/" className="text-lg font-bold">Peluquería</Link>
+
       <div className="flex items-center gap-4">
         {user ? (
           <>
-            <span>Hola, {user.name} {(user.role === "admin" || user.role === "stylist") && (
-  <Link to="/agenda" className="underline">Agenda</Link>
-)} <Link to="/reservar" className="underline">Reservar</Link>   <Link to="/mis-citas" className="underline">Mis citas</Link></span>
+            <Link to="/reservar" className="underline">Reservar</Link>
+            <Link to="/mis-citas" className="underline">Mis citas</Link>
+
+            {isStaff && (
+              <Link to="/agenda" className="underline">Agenda</Link>
+            )}
+
+            {user.role === "admin" && (
+              <Link to="/admin/servicios" className="underline">Servicios</Link>
+            )}
+
+            <span>Hola, {user.name}</span>
             <button onClick={handleLogout} className="underline">Salir</button>
           </>
         ) : (
