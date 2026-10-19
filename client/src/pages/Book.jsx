@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../services/api";
-
+import useStylistSocket from "../hooks/useStylistSocket";
 function todayISO() {
   const d = new Date();
   const offset = d.getTimezoneOffset() * 60000;
@@ -44,9 +44,11 @@ export default function Book() {
     }
   }
 
-  useEffect(() => {
+  useEffect(() => { 
     loadSlots();
   }, [serviceId, stylistId, date]);
+  
+  useStylistSocket(stylistId, loadSlots);
 
   async function reserve(slot) {
     setMessage({ type: "", text: "" });
