@@ -2,7 +2,7 @@ import Appointment from "../models/Appointment.js";
 import Stylist from "../models/Stylist.js";
 import Service from "../models/Service.js";
 import { fitsInWorkingHours } from "../utils/availability.js";
-
+import { emitToStylist } from "../sockets/index.js";
 const ACTIVE_STATUSES = ["pending", "confirmed"];
 
 export async function createAppointment(req, res) {
@@ -54,7 +54,12 @@ export async function createAppointment(req, res) {
     start: startDate,
     end: endDate,
     notes,
-  });
+    });
+    emitToStylist(stylist._id, "appointment:created", {
+        stylistId: stylist._id,
+        start: appointment.start,
+        end: appointment.end,
+    });
   res.status(201).json(appointment);
 }
 
@@ -77,5 +82,12 @@ export async function cancelAppointment(req, res) {
   }
   appointment.status = "cancelled";
   await appointment.save();
+
+  emitToStylist(appointment.stylist, "appointment:cancelled", {
+    stylistId: appointment.stylist,
+    start: appointment.start,
+    end: appointment.end,
+        });
+        
   res.json(appointment);
 }

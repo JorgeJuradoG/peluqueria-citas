@@ -1,3 +1,5 @@
+import http from "http";
+import { initSockets } from "./sockets/index.js";
 import serviceRoutes from "./routes/serviceRoutes.js";
 import "dotenv/config";
 import express from "express";
@@ -25,9 +27,11 @@ app.use(notFound);
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 4000;
+const httpServer = http.createServer(app);
+initSockets(httpServer);
 
 connectDB().then(() => {
-  app.listen(PORT, () => {
-    console.log(`Servidor escuchando en http://localhost:4000`);
+  httpServer.listen(PORT, () => {
+    console.log(`Servidor escuchando en http://localhost:${PORT}`);
   });
 });

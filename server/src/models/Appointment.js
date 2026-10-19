@@ -20,4 +20,12 @@ const appointmentSchema = new mongoose.Schema(
 // Acelera la búsqueda de solapamientos por estilista y franja
 appointmentSchema.index({ stylist: 1, start: 1, end: 1 });
 
+appointmentSchema.index(
+  { stylist: 1, start: 1 },
+  {
+    unique: true,
+    partialFilterExpression: { status: { $in: ["pending", "confirmed"] } },
+  }
+);
+
 export default mongoose.model("Appointment", appointmentSchema);
