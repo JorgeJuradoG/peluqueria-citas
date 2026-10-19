@@ -28,37 +28,55 @@ export default function Login() {
     }
   }
 
-  const input = "w-full rounded border p-2";
 
-  return (
-    <div className="mx-auto max-w-sm">
+
+return (
+  <div className="mx-auto max-w-sm">
+    <div className="card">
       <h1 className="text-3xl font-bold">
-        {mode === "login" ? "Entrar" : "Crear cuenta"}
+        {mode === "login" ? "Bienvenido" : "Crear cuenta"}
       </h1>
+      <p className="mt-1 text-sm text-ink/60">
+        {mode === "login"
+          ? "Entra para reservar y gestionar tus citas."
+          : "Regístrate en unos segundos."}
+      </p>
 
-      <form onSubmit={handleSubmit} className="mt-4 space-y-3">
+      <form onSubmit={handleSubmit} className="mt-6 space-y-4">
         {mode === "register" && (
-          <input name="name" placeholder="Nombre" value={form.name}
-            onChange={handleChange} className={input} required />
+          <div>
+            <label className="label">Nombre</label>
+            <input name="name" value={form.name} onChange={handleChange}
+              className="input" required />
+          </div>
         )}
-        <input name="email" type="email" placeholder="Email" value={form.email}
-          onChange={handleChange} className={input} required />
-        <input name="password" type="password" placeholder="Contraseña (mín. 8)"
-          value={form.password} onChange={handleChange} className={input} required />
+        <div>
+          <label className="label">Email</label>
+          <input name="email" type="email" value={form.email}
+            onChange={handleChange} className="input" required />
+        </div>
+        <div>
+          <label className="label">Contraseña</label>
+          <input name="password" type="password" value={form.password}
+            onChange={handleChange} className="input" minLength={8} required />
+        </div>
 
-        {error && <p className="text-red-600">{error}</p>}
+        {error && (
+          <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>
+        )}
 
-        <button className="w-full rounded bg-black p-2 text-white">
+        <button className="btn-primary w-full">
           {mode === "login" ? "Entrar" : "Registrarme"}
         </button>
       </form>
 
       <button
         onClick={() => setMode(mode === "login" ? "register" : "login")}
-        className="mt-3 text-sm underline"
+        className="mt-4 text-sm text-gold-dark underline"
       >
         {mode === "login" ? "¿No tienes cuenta? Regístrate" : "¿Ya tienes cuenta? Entra"}
       </button>
     </div>
-  );
+  </div>
+);
 }

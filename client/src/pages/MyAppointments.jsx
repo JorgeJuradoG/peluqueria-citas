@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import api from "../services/api";
+import StatusBadge from "../components/StatusBadge";
 
 function formatDate(iso) {
   return new Date(iso).toLocaleString("es-ES", {
@@ -12,15 +14,9 @@ function formatDate(iso) {
   });
 }
 
-const STATUS_LABELS = {
-  pending: "Pendiente",
-  confirmed: "Confirmada",
-  cancelled: "Cancelada",
-  completed: "Completada",
-};
-
 export default function MyAppointments() {
   const [appointments, setAppointments] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   async function load() {
@@ -29,6 +25,8 @@ export default function MyAppointments() {
       setAppointments(data);
     } catch (err) {
       setError(err.response?.data?.message || "Error al cargar las citas");
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -46,33 +44,50 @@ export default function MyAppointments() {
     }
   }
 
-  const upcoming = (a) =>
+  const isUpcoming = (a) =>
     ["pending", "confirmed"].includes(a.status) && new Date(a.end) > new Date();
 
   return (
     <div>
-      <h1 className="text-3xl font-bold">Mis citas</h1>
-      {error && <p className="mt-3 text-red-600">{error}</p>}
+      <h1 className="text-4xl font-bold">Mis citas</h1>
 
-      {appointments.length === 0 && (
-        <p className="mt-4 text-gray-500">Todavía no tienes citas.</p>
+      {error && (
+        <p className="mt-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>
       )}
 
-      <ul className="mt-4 space-y-2">
+      {loading && <p className="mt-6 text-ink/50">Cargando...</p>}
+
+      {!loading && appointments.length === 0 && (
+        <div className="card mt-6 text-center">
+          <p className="text-ink/60">Todavía no tienes citas.</p>
+          <Link to="/reservar" className="btn-primary mt-4">Reservar ahora</Link>
+        </div>
+      )}
+
+      <ul className="mt-6 space-y-3">
         {appointments.map((a) => (
-          <li key={a._id} className="flex items-center justify-between rounded border p-3">
+          <li
+            key={a._id}
+            className={`card flex flex-wrap items-center justify-between gap-3 ${
+              isUpcoming(a) ? "" : "opacity-60"
+            }`}
+          >
             <div>
-              <p className="font-medium capitalize">{formatDate(a.start)}</p>
-              <p className="text-sm text-gray-600">
-                {a.service?.name} con {a.stylist?.user?.name} ·{" "}
-                {STATUS_LABELS[a.status]}
+              <p className="font-display text-lg font-semibold capitalize">
+                {formatDate(a.start)}
+              </p>
+              <p className="text-sm text-ink/60">
+                {a.service?.name} con {a.stylist?.user?.name} · {a.service?.price} €
               </p>
             </div>
-            {upcoming(a) && (
-              <button onClick={() => cancel(a._id)} className="text-red-600 underline">
-                Cancelar
-              </button>
-            )}
+            <div className="flex items-center gap-3">
+              <StatusBadge status={a.status} />
+              {isUpcoming(a) && (
+                <button onClick={() => cancel(a._id)} className="btn-danger">
+                  Cancelar
+                </button>
+              )}
+            </div>
           </li>
         ))}
       </ul>
