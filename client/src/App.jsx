@@ -8,6 +8,9 @@ import Book from "./pages/Book";
 import Agenda from "./pages/Agenda";
 import AdminServices from "./pages/AdminServices";
 import AdminStylists from "./pages/AdminStylists";
+import StatusBadge from "./components/StatusBadge";
+
+
 export default function App() {
   return (
     <>

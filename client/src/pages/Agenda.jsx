@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import api from "../services/api";
 import { useAuth } from "../context/AuthContext";
 import useStylistSocket from "../hooks/useStylistSocket";
+import StatusBadge from "../components/StatusBadge";
 
 function todayISO() {
   const d = new Date();
@@ -53,61 +54,58 @@ export default function Agenda() {
     load();
   }, [date, selectedStylist]);
 
-  // Tiempo real: se refresca cuando alguien reserva o cancela
   useStylistSocket(stylistId, load);
 
-  const field = "rounded border p-2";
+  return (
+    <div>
+      <h1 className="text-4xl font-bold">Agenda</h1>
 
-return (
-  <div>
-    <h1 className="text-4xl font-bold">Agenda</h1>
-
-    <div className="mt-6 flex flex-wrap gap-3">
-      {isAdmin && (
-        <select
+      <div className="mt-6 flex flex-wrap gap-3">
+        {isAdmin && (
+          <select
+            className="input max-w-xs"
+            value={selectedStylist}
+            onChange={(e) => setSelectedStylist(e.target.value)}
+          >
+            <option value="">Elige un estilista</option>
+            {stylists.map((s) => (
+              <option key={s._id} value={s._id}>{s.user.name}</option>
+            ))}
+          </select>
+        )}
+        <input
+          type="date"
           className="input max-w-xs"
-          value={selectedStylist}
-          onChange={(e) => setSelectedStylist(e.target.value)}
-        >
-          <option value="">Elige un estilista</option>
-          {stylists.map((s) => (
-            <option key={s._id} value={s._id}>{s.user.name}</option>
-          ))}
-        </select>
+          value={date}
+          onChange={(e) => setDate(e.target.value)}
+        />
+      </div>
+
+      {error && (
+        <p className="mt-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>
       )}
-      <input
-        type="date"
-        className="input max-w-xs"
-        value={date}
-        onChange={(e) => setDate(e.target.value)}
-      />
+
+      {!error && appointments.length === 0 && (
+        <p className="mt-6 text-ink/50">No hay citas este día.</p>
+      )}
+
+      <ul className="mt-6 space-y-3">
+        {appointments.map((a) => (
+          <li key={a._id} className="card flex items-center gap-4">
+            <div className="w-28 shrink-0 border-r border-sand pr-4 text-center">
+              <p className="font-display text-xl font-semibold">{formatTime(a.start)}</p>
+              <p className="text-xs text-ink/50">hasta {formatTime(a.end)}</p>
+            </div>
+            <div className="flex-1">
+              <p className="font-medium">{a.client?.name}</p>
+              <p className="text-sm text-ink/60">
+                {a.service?.name} · {a.service?.price} € · {a.client?.email}
+              </p>
+            </div>
+            <StatusBadge status={a.status} />
+          </li>
+        ))}
+      </ul>
     </div>
-
-    {error && (
-      <p className="mt-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>
-    )}
-
-    {!error && appointments.length === 0 && (
-      <p className="mt-6 text-ink/50">No hay citas este día.</p>
-    )}
-
-    <ul className="mt-6 space-y-3">
-      {appointments.map((a) => (
-        <li key={a._id} className="card flex items-center gap-4">
-          <div className="w-28 shrink-0 border-r border-sand pr-4 text-center">
-            <p className="font-display text-xl font-semibold">{formatTime(a.start)}</p>
-            <p className="text-xs text-ink/50">hasta {formatTime(a.end)}</p>
-          </div>
-          <div className="flex-1">
-            <p className="font-medium">{a.client?.name}</p>
-            <p className="text-sm text-ink/60">
-              {a.service?.name} · {a.service?.price} € · {a.client?.email}
-            </p>
-          </div>
-          <StatusBadge status={a.status} />
-        </li>
-      ))}
-    </ul>
-  </div>
-);
+  );
 }

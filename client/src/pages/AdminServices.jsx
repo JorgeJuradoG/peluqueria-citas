@@ -60,59 +60,78 @@ export default function AdminServices() {
     }
   }
 
-  const input = "rounded border p-2";
 
-  return (
-    <div>
-      <h1 className="text-3xl font-bold">Gestionar servicios</h1>
 
-      <form onSubmit={handleSubmit} className="mt-4 flex flex-wrap items-end gap-3">
-        <label className="flex flex-col text-sm">
-          Nombre
+return (
+  <div>
+    <h1 className="text-4xl font-bold">Gestionar servicios</h1>
+
+    <form onSubmit={handleSubmit} className="card mt-6">
+      <h2 className="text-xl font-semibold">
+        {editingId ? "Editar servicio" : "Nuevo servicio"}
+      </h2>
+      <div className="mt-4 grid gap-4 sm:grid-cols-3">
+        <div>
+          <label className="label">Nombre</label>
           <input name="name" value={form.name} onChange={handleChange}
-            className={input} required />
-        </label>
-        <label className="flex flex-col text-sm">
-          Duración (min)
+            className="input" required />
+        </div>
+        <div>
+          <label className="label">Duración (min)</label>
           <input name="durationMinutes" type="number" min="5" step="5"
             value={form.durationMinutes} onChange={handleChange}
-            className={`${input} w-28`} required />
-        </label>
-        <label className="flex flex-col text-sm">
-          Precio (€)
+            className="input" required />
+        </div>
+        <div>
+          <label className="label">Precio (€)</label>
           <input name="price" type="number" min="0" step="0.5"
             value={form.price} onChange={handleChange}
-            className={`${input} w-28`} required />
-        </label>
-        <button className="rounded bg-black px-4 py-2 text-white">
+            className="input" required />
+        </div>
+      </div>
+
+      {error && (
+        <p className="mt-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>
+      )}
+
+      <div className="mt-5 flex gap-3">
+        <button className="btn-primary">
           {editingId ? "Guardar cambios" : "Crear servicio"}
         </button>
         {editingId && (
-          <button type="button" onClick={cancelEdit} className="underline">
+          <button type="button" onClick={cancelEdit} className="btn-outline">
             Cancelar
           </button>
         )}
-      </form>
+      </div>
+    </form>
 
-      {error && <p className="mt-3 text-red-600">{error}</p>}
-
-      <ul className="mt-6 space-y-2">
-        {services.map((s) => (
-          <li key={s._id}
-            className={`flex items-center justify-between rounded border p-3 ${s.active ? "" : "opacity-50"}`}>
-            <span>
-              {s.name} · {s.durationMinutes} min · {s.price} €
-              {!s.active && " (desactivado)"}
-            </span>
-            <span className="flex gap-4">
-              <button onClick={() => startEdit(s)} className="underline">Editar</button>
-              <button onClick={() => toggleActive(s)} className="underline">
-                {s.active ? "Desactivar" : "Reactivar"}
-              </button>
-            </span>
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
+    <ul className="mt-6 space-y-3">
+      {services.map((s) => (
+        <li key={s._id}
+          className={`card flex flex-wrap items-center justify-between gap-3 ${
+            s.active ? "" : "opacity-50"
+          }`}>
+          <div>
+            <p className="font-display text-lg font-semibold">
+              {s.name}
+              {!s.active && (
+                <span className="ml-2 rounded-full bg-stone-200 px-2 py-0.5 font-sans text-xs font-medium text-stone-700">
+                  Desactivado
+                </span>
+              )}
+            </p>
+            <p className="text-sm text-ink/60">{s.durationMinutes} min · {s.price} €</p>
+          </div>
+          <div className="flex gap-2">
+            <button onClick={() => startEdit(s)} className="btn-outline">Editar</button>
+            <button onClick={() => toggleActive(s)} className="btn-outline">
+              {s.active ? "Desactivar" : "Reactivar"}
+            </button>
+          </div>
+        </li>
+      ))}
+    </ul>
+  </div>
+);
 }
