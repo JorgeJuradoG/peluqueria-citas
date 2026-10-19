@@ -3,6 +3,7 @@ import Navbar from "./components/Navbar";
 import Services from "./pages/Services";
 import Login from "./pages/Login";
 import ProtectedRoute from "./components/ProtectedRoute";
+import MyAppointments from "./pages/MyAppointments";
 import Book from "./pages/Book";
 
 export default function App() {
@@ -13,13 +14,8 @@ export default function App() {
         <Routes>
           <Route path="/" element={<Services />} />
           <Route path="/login" element={<Login />} />
-          <Route
-             path="/reservar"
-             element={
-            <ProtectedRoute>
-             <Book />
-            </ProtectedRoute>
-  }
+          <Route path="/reservar" element={<ProtectedRoute><Book /></ProtectedRoute>} />
+          <Route path="/mis-citas"element={<ProtectedRoute><MyAppointments /></ProtectedRoute> }
 />
         </Routes>
       </main>

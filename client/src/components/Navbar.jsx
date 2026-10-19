@@ -16,7 +16,7 @@ export default function Navbar() {
       <div className="flex items-center gap-4">
         {user ? (
           <>
-            <span>Hola, {user.name} <Link to="/reservar" className="underline">Reservar</Link></span>
+            <span>Hola, {user.name} <Link to="/reservar" className="underline">Reservar</Link>   <Link to="/mis-citas" className="underline">Mis citas</Link></span>
             <button onClick={handleLogout} className="underline">Salir</button>
           </>
         ) : (
