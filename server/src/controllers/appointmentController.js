@@ -1,6 +1,7 @@
 import Appointment from "../models/Appointment.js";
 import Stylist from "../models/Stylist.js";
 import Service from "../models/Service.js";
+import { fitsInWorkingHours } from "../utils/availability.js";
 
 const ACTIVE_STATUSES = ["pending", "confirmed"];
 
@@ -30,6 +31,10 @@ export async function createAppointment(req, res) {
   }
 
   const endDate = new Date(startDate.getTime() + service.durationMinutes * 60000);
+
+    if (!fitsInWorkingHours(stylist, startDate, endDate)) {
+    return res.status(400).json({ message: "Ese horario está fuera del horario del estilista" });
+    }
 
   // ¿Hay alguna cita activa del estilista que choque con esta franja?
   const overlap = await Appointment.findOne({
