@@ -33,3 +33,33 @@ export function fitsInWorkingHours(stylist, start, end) {
     (range) => start >= range.start && end <= range.end
   );
 }
+
+const SLOT_STEP_MINUTES = 15;
+
+export function getAvailableSlots({ stylist, service, localDay, appointments, now = new Date() }) {
+  const durationMs = service.durationMinutes * 60000;
+  const stepMs = SLOT_STEP_MINUTES * 60000;
+  const slots = [];
+
+  for (const range of workingRangesFor(stylist, localDay)) {
+    for (
+      let s = range.start.getTime();
+      s + durationMs <= range.end.getTime();
+      s += stepMs
+    ) {
+      const slotStart = new Date(s);
+      const slotEnd = new Date(s + durationMs);
+
+      if (slotStart <= now) continue;
+
+      const busy = appointments.some((a) => a.start < slotEnd && a.end > slotStart);
+      if (busy) continue;
+
+      slots.push({
+        start: slotStart.toISOString(),
+        label: DateTime.fromJSDate(slotStart, { zone: TZ }).toFormat("HH:mm"),
+      });
+    }
+  }
+  return slots;
+}

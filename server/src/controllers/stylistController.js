@@ -1,5 +1,9 @@
 import Stylist from "../models/Stylist.js";
 import User from "../models/User.js";
+import Service from "../models/Service.js";
+import Appointment from "../models/Appointment.js";
+import { DateTime } from "luxon";
+import { getAvailableSlots } from "../utils/availability.js";
 
 export async function getStylists(req, res) {
   const stylists = await Stylist.find({ active: true })
@@ -57,4 +61,41 @@ export async function updateStylist(req, res) {
 
   await stylist.save();
   res.json(stylist);
+}
+
+export async function getAvailability(req, res) {
+  const { date, serviceId } = req.query;
+  const TZ = process.env.SALON_TIMEZONE || "Europe/Madrid";
+
+  const localDay = DateTime.fromISO(String(date), { zone: TZ }).startOf("day");
+  if (!localDay.isValid) {
+    return res.status(400).json({ message: "Fecha inválida (usa formato AAAA-MM-DD)" });
+  }
+
+  const [stylist, service] = await Promise.all([
+    Stylist.findById(req.params.id),
+    Service.findById(serviceId),
+  ]);
+  if (!stylist || !stylist.active) {
+    return res.status(404).json({ message: "Estilista no encontrado" });
+  }
+  if (!service || !service.active) {
+    return res.status(404).json({ message: "Servicio no encontrado" });
+  }
+  if (!stylist.services.some((s) => s.equals(service._id))) {
+    return res.status(400).json({ message: "Este estilista no ofrece ese servicio" });
+  }
+
+  const dayStart = localDay.toJSDate();
+  const dayEnd = localDay.plus({ days: 1 }).toJSDate();
+
+  const appointments = await Appointment.find({
+    stylist: stylist._id,
+    status: { $in: ["pending", "confirmed"] },
+    start: { $lt: dayEnd },
+    end: { $gt: dayStart },
+  });
+
+  const slots = getAvailableSlots({ stylist, service, localDay, appointments });
+  res.json({ date: localDay.toISODate(), slots });
 }

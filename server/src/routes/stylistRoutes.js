@@ -4,6 +4,7 @@ import {
   getStylistById,
   createStylist,
   updateStylist,
+  getAvailability,
 } from "../controllers/stylistController.js";
 import { requireAuth, requireRole } from "../middlewares/auth.js";
 
@@ -14,5 +15,6 @@ router.get("/:id", getStylistById);
 
 router.post("/", requireAuth, requireRole("admin"), createStylist);
 router.put("/:id", requireAuth, requireRole("admin"), updateStylist);
+router.get("/:id/availability", getAvailability);
 
 export default router;
