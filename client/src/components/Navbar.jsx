@@ -1,5 +1,10 @@
-import { Link, useNavigate } from "react-router-dom";
+import { NavLink, Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+
+const linkClass = ({ isActive }) =>
+  `text-sm transition hover:text-gold-dark ${
+    isActive ? "font-semibold text-gold-dark" : "text-ink/70"
+  }`;
 
 export default function Navbar() {
   const { user, logout } = useAuth();
@@ -13,33 +18,33 @@ export default function Navbar() {
   const isStaff = user && (user.role === "admin" || user.role === "stylist");
 
   return (
-    <nav className="flex items-center justify-between border-b px-6 py-3">
-      <Link to="/" className="text-lg font-bold">Peluquería</Link>
+    <header className="sticky top-0 z-10 border-b border-sand bg-cream/90 backdrop-blur">
+      <nav className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-3 px-4 py-3">
+        <Link to="/" className="font-display text-2xl font-bold tracking-tight">
+          Peluquería<span className="text-gold">.</span>
+        </Link>
 
-      <div className="flex items-center gap-4">
-        {user ? (
-          <>
-            <Link to="/reservar" className="underline">Reservar</Link>
-            <Link to="/mis-citas" className="underline">Mis citas</Link>
-
-            {isStaff && (
-              <Link to="/agenda" className="underline">Agenda</Link>
-            )}
-
-            {user.role === "admin" && (
+        <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
+          {user ? (
+            <>
+              <NavLink to="/reservar" className={linkClass}>Reservar</NavLink>
+              <NavLink to="/mis-citas" className={linkClass}>Mis citas</NavLink>
+              {isStaff && <NavLink to="/agenda" className={linkClass}>Agenda</NavLink>}
+              {user.role === "admin" && (
                 <>
-              <Link to="/admin/servicios" className="underline">Servicios</Link>
-              <Link to="/admin/estilistas" className="underline">Estilistas</Link>
+                  <NavLink to="/admin/servicios" className={linkClass}>Servicios</NavLink>
+                  <NavLink to="/admin/estilistas" className={linkClass}>Estilistas</NavLink>
                 </>
-            )}
-
-            <span>Hola, {user.name}</span>
-            <button onClick={handleLogout} className="underline">Salir</button>
-          </>
-        ) : (
-          <Link to="/login" className="underline">Entrar</Link>
-        )}
-      </div>
-    </nav>
+              )}
+              <span className="hidden h-5 w-px bg-sand sm:block" />
+              <span className="text-sm text-ink/60">{user.name}</span>
+              <button onClick={handleLogout} className="btn-outline">Salir</button>
+            </>
+          ) : (
+            <Link to="/login" className="btn-primary">Entrar</Link>
+          )}
+        </div>
+      </nav>
+    </header>
   );
 }

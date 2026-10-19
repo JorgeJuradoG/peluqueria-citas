@@ -12,7 +12,7 @@ export default function App() {
   return (
     <>
       <Navbar />
-      <main className="mx-auto max-w-3xl p-6">
+      <main className="mx-auto max-w-5xl px-4 py-10">
         <Routes>
           <Route path="/" element={<Services />} />
           <Route path="/login" element={<Login />} />

@@ -1,1 +1,46 @@
 @import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", system-ui, sans-serif;
+  --font-display: "Playfair Display", Georgia, serif;
+  --color-ink: #1c1917;
+  --color-cream: #faf7f2;
+  --color-sand: #ece5d8;
+  --color-gold: #b08d57;
+  --color-gold-dark: #8f6f3f;
+}
+
+@layer base {
+  body {
+    @apply bg-cream font-sans text-ink antialiased;
+  }
+  h1, h2, h3 {
+    @apply font-display;
+  }
+}
+
+@utility btn {
+  @apply inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm font-medium
+         transition disabled:cursor-not-allowed disabled:opacity-50;
+}
+
+@utility btn-primary {
+  @apply btn bg-ink text-cream hover:bg-gold-dark;
+}
+
+@utility btn-outline {
+  @apply btn border border-ink/20 hover:border-gold hover:text-gold-dark;
+}
+
+@utility btn-danger {
+  @apply btn border border-red-200 text-red-700 hover:bg-red-50;
+}
+
+@utility card {
+  @apply rounded-xl border border-sand bg-white p-5 shadow-sm;
+}
+
+@utility input {
+  @apply w-full rounded-lg border border-ink/15 bg-white px-3 py-2 text-sm
+         outline-none transition focus:border-gold focus:ring-2 focus:ring-gold/30;
+}
