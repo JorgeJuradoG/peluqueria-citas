@@ -5,6 +5,7 @@ import Login from "./pages/Login";
 import ProtectedRoute from "./components/ProtectedRoute";
 import MyAppointments from "./pages/MyAppointments";
 import Book from "./pages/Book";
+import Agenda from "./pages/Agenda";
 
 export default function App() {
   return (
@@ -15,8 +16,8 @@ export default function App() {
           <Route path="/" element={<Services />} />
           <Route path="/login" element={<Login />} />
           <Route path="/reservar" element={<ProtectedRoute><Book /></ProtectedRoute>} />
-          <Route path="/mis-citas"element={<ProtectedRoute><MyAppointments /></ProtectedRoute> }
-/>
+          <Route path="/mis-citas" element={<ProtectedRoute><MyAppointments /></ProtectedRoute>} />
+          <Route path="/agenda" element={<ProtectedRoute roles={["admin", "stylist"]}><Agenda /></ProtectedRoute>} />
         </Routes>
       </main>
     </>

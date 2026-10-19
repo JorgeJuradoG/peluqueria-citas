@@ -47,20 +47,20 @@ export default function Book() {
   useEffect(() => { 
     loadSlots();
   }, [serviceId, stylistId, date]);
-  
+
   useStylistSocket(stylistId, loadSlots);
 
-  async function reserve(slot) {
-    setMessage({ type: "", text: "" });
-    try {
-      await api.post("/appointments", { stylistId, serviceId, start: slot.start });
-      setMessage({ type: "ok", text: `Cita reservada a las ${slot.label}` });
-      loadSlots();
-    } catch (err) {
-      setMessage({ type: "error", text: err.response?.data?.message || "No se pudo reservar" });
-      loadSlots();
-    }
+async function reserve(slot) {
+    if (!window.confirm(`¿Reservar a las ${slot.label}?`)) return;
+  setMessage({ type: "", text: "" });
+  try {
+    await api.post("/appointments", { stylistId, serviceId, start: slot.start });
+    navigate("/mis-citas");
+  } catch (err) {
+    setMessage({ type: "error", text: err.response?.data?.message || "No se pudo reservar" });
+    loadSlots();
   }
+}
 
   const field = "w-full rounded border p-2";
 

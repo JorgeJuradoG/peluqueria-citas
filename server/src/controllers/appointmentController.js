@@ -3,6 +3,7 @@ import Stylist from "../models/Stylist.js";
 import Service from "../models/Service.js";
 import { fitsInWorkingHours } from "../utils/availability.js";
 import { emitToStylist } from "../sockets/index.js";
+import { DateTime } from "luxon";
 const ACTIVE_STATUSES = ["pending", "confirmed"];
 
 export async function createAppointment(req, res) {
@@ -87,7 +88,42 @@ export async function cancelAppointment(req, res) {
     stylistId: appointment.stylist,
     start: appointment.start,
     end: appointment.end,
-        });
-        
+  });
+
   res.json(appointment);
 }
+
+export async function getAgenda(req, res) {
+  const TZ = process.env.SALON_TIMEZONE || "Europe/Madrid";
+  const localDay = DateTime.fromISO(String(req.query.date), { zone: TZ }).startOf("day");
+  if (!localDay.isValid) {
+    return res.status(400).json({ message: "Fecha inválida (usa formato AAAA-MM-DD)" });
+  }
+
+  let stylistId;
+  if (req.user.role === "admin") {
+    stylistId = req.query.stylistId;
+    if (!stylistId) {
+      return res.status(400).json({ message: "Falta stylistId" });
+    }
+  } else {
+    const profile = await Stylist.findOne({ user: req.user.id });
+    if (!profile) {
+      return res.status(404).json({ message: "No tienes perfil de estilista" });
+    }
+    stylistId = profile._id;
+  }
+
+  const appointments = await Appointment.find({
+    stylist: stylistId,
+    status: { $in: ACTIVE_STATUSES },
+    start: { $lt: localDay.plus({ days: 1 }).toJSDate() },
+    end: { $gt: localDay.toJSDate() },
+  })
+    .sort({ start: 1 })
+    .populate("client", "name email")
+    .populate("service", "name durationMinutes price");
+
+  res.json({ stylistId, appointments });
+}
+
