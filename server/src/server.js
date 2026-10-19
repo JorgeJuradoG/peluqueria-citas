@@ -6,6 +6,7 @@ import { connectDB } from "./config/db.js";
 import { notFound, errorHandler } from "./middlewares/errorHandler.js";
 import authRoutes from "./routes/authRoutes.js";
 import stylistRoutes from "./routes/stylistRoutes.js";
+import appointmentRoutes from "./routes/appointmentRoutes.js";
 const app = express();
 
 app.use(cors());
@@ -18,6 +19,7 @@ app.get("/api/health", (req, res) => {
 app.use("/api/auth", authRoutes);
 app.use("/api/services", serviceRoutes);
 app.use("/api/stylists", stylistRoutes);
+app.use("/api/appointments", appointmentRoutes);
 
 app.use(notFound);
 app.use(errorHandler);
