@@ -1,9 +1,10 @@
+import serviceRoutes from "./routes/serviceRoutes.js";
 import "dotenv/config";
-
 import express from "express";
 import cors from "cors";
 import { connectDB } from "./config/db.js";
-
+import { notFound, errorHandler } from "./middlewares/errorHandler.js";
+import authRoutes from "./routes/authRoutes.js";
 const app = express();
 
 app.use(cors());
@@ -13,10 +14,16 @@ app.get("/api/health", (req, res) => {
   res.json({ ok: true, message: "Servidor funcionando" });
 });
 
+app.use("/api/auth", authRoutes);
+app.use("/api/services", serviceRoutes);
+
+app.use(notFound);
+app.use(errorHandler);
+
 const PORT = process.env.PORT || 4000;
 
 connectDB().then(() => {
   app.listen(PORT, () => {
-    console.log(`Servidor escuchando en http://localhost:${PORT}`);
+    console.log(`Servidor escuchando en http://localhost:4000`);
   });
 });
