@@ -1,0 +1,21 @@
+# Dependencias
+node_modules
+
+# Variables de entorno (contienen secretos)
+.env
+.env.*
+!.env.example
+
+# Builds
+dist
+dist-ssr
+
+# Logs
+logs
+*.log
+
+# Editor / sistema
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
