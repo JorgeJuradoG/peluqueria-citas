@@ -7,6 +7,7 @@ import MyAppointments from "./pages/MyAppointments";
 import Book from "./pages/Book";
 import Agenda from "./pages/Agenda";
 import AdminServices from "./pages/AdminServices";
+import AdminStylists from "./pages/AdminStylists";
 export default function App() {
   return (
     <>
@@ -19,6 +20,7 @@ export default function App() {
           <Route path="/mis-citas" element={<ProtectedRoute><MyAppointments /></ProtectedRoute>} />
           <Route path="/agenda" element={<ProtectedRoute roles={["admin", "stylist"]}><Agenda /></ProtectedRoute>} />
           <Route path="/admin/servicios" element={<ProtectedRoute roles={["admin"]}><AdminServices /></ProtectedRoute>} />
+          <Route path="/admin/estilistas" element={<ProtectedRoute roles={["admin"]}><AdminStylists /></ProtectedRoute>} />
         </Routes>
       </main>
     </>
