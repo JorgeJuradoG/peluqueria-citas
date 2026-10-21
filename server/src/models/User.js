@@ -2,7 +2,13 @@ import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema(
   {
-    salon: { type: mongoose.Schema.Types.ObjectId, ref: "Salon", index: true },
+    salon: { type: mongoose.Schema.Types.ObjectId, 
+      ref: "Salon", 
+      index: true,
+      required: function() {
+        return this.role !== "superadmin"; // superadmins don't belong to a specific salon
+      },
+    },
     name: { type: String, required: true, trim: true },
     email: { type: String, required: true, lowercase: true, trim: true },
     phone: { type: String, trim: true, default: "" },

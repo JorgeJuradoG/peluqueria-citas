@@ -3,7 +3,7 @@ import jwt from "jsonwebtoken";
 import User from "../models/User.js";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const PASSWORD_RE = /^(?=.*[A-Za-z])(?=.*\d).{8,}$/; // 8+ caracteres, una letra y un número
+const PASSWORD_RE = /^(?=.*[A-Za-z])(?=.*\d).{8,}$/;
 const PHONE_RE = /^\+?[\d\s-]{9,15}$/;
 
 const PASSWORD_MSG = "La contraseña debe tener al menos 8 caracteres, una letra y un número";
@@ -48,7 +48,13 @@ export async function register(req, res) {
 
   // El rol NO se toma del body: todo registro público es "client"
   const passwordHash = await bcrypt.hash(password, 10);
-  const user = await User.create({ name, email, phone, passwordHash });
+  const user = await User.create({
+    salon: req.salon._id,
+    name,
+    email,
+    phone,
+    passwordHash,
+  });
 
   res.status(201).json({ token: signToken(user), user: publicUser(user) });
 }
@@ -57,7 +63,7 @@ export async function login(req, res) {
   const email = String(req.body.email || "").trim().toLowerCase();
   const password = String(req.body.password || "");
 
-  const user = await User.findOne({ email });
+  const user = await User.findOne({ salon: req.salon._id, email });
   const valid = user && (await bcrypt.compare(password, user.passwordHash));
 
   if (!valid) {
@@ -87,7 +93,6 @@ export async function updateMe(req, res) {
     return res.status(400).json({ message: "Teléfono no válido" });
   }
 
-  // Solo se permiten estos dos campos: ni rol ni email por esta vía
   user.name = name;
   user.phone = phone;
   await user.save();
@@ -102,7 +107,6 @@ export async function changePassword(req, res) {
   const user = await User.findById(req.user.id);
   if (!user) return res.status(404).json({ message: "Usuario no encontrado" });
 
-  // 400 (no 401) para que el frontend no lo confunda con una sesión caducada
   const ok = await bcrypt.compare(currentPassword, user.passwordHash);
   if (!ok) {
     return res.status(400).json({ message: "La contraseña actual no es correcta" });
@@ -114,12 +118,10 @@ export async function changePassword(req, res) {
     return res.status(400).json({ message: "La nueva contraseña debe ser distinta" });
   }
 
-    user.passwordHash = await bcrypt.hash(newPassword, 10);
-  // Invalida todos los tokens emitidos hasta ahora
+  user.passwordHash = await bcrypt.hash(newPassword, 10);
   user.tokenVersion = (user.tokenVersion ?? 0) + 1;
   await user.save();
 
-  // Devolvemos un token nuevo para que ESTA sesión siga abierta
   res.json({
     message: "Contraseña actualizada",
     token: signToken(user),

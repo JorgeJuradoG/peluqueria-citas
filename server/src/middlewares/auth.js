@@ -16,13 +16,17 @@ export async function requireAuth(req, res, next) {
     return res.status(401).json({ message: "Token inválido o expirado" });
   }
 
-  // El estado real del usuario manda: rol actual y versión de sesión
-  const user = await User.findById(payload.id).select("role tokenVersion");
+  const user = await User.findById(payload.id).select("role tokenVersion salon");
   if (!user || (payload.tv ?? 0) !== (user.tokenVersion ?? 0)) {
     return res.status(401).json({ message: "Sesión no válida. Vuelve a iniciar sesión" });
   }
 
-  req.user = { id: user._id.toString(), role: user.role };
+  // Una cuenta solo funciona en SU peluquería
+  if (String(user.salon) !== String(req.salon._id)) {
+    return res.status(403).json({ message: "Esta cuenta pertenece a otra peluquería" });
+  }
+
+  req.user = { id: user._id.toString(), role: user.role, salon: user.salon.toString() };
   next();
 }
 

@@ -11,10 +11,21 @@ const workingHoursSchema = new mongoose.Schema(
   { _id: false }
 );
 
+workingHoursSchema.pre("validate", function () {
+  if (this.start && this.end && this.start >= this.end) {
+    this.invalidate("end", "La hora de fin debe ser posterior a la de inicio");
+  }
+});
+
 const stylistSchema = new mongoose.Schema(
   {
+    salon: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Salon",
+      required: true,
+      index: true,
+    },
     user: {
-      salon: { type: mongoose.Schema.Types.ObjectId, ref: "Salon", index: true },
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
@@ -28,12 +39,5 @@ const stylistSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
-
-// Validación: la hora de fin debe ser posterior a la de inicio
-workingHoursSchema.pre("validate", function () {
-  if (this.start && this.end && this.start >= this.end) {
-    this.invalidate("end", "La hora de fin debe ser posterior a la de inicio");
-  }
-});
 
 export default mongoose.model("Stylist", stylistSchema);

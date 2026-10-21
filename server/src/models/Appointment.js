@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 
 const appointmentSchema = new mongoose.Schema(
   {
-    salon: { type: mongoose.Schema.Types.ObjectId, ref: "Salon", index: true },
+    salon: { type: mongoose.Schema.Types.ObjectId, ref: "Salon", required: true, index: true },
     client: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
     stylist: { type: mongoose.Schema.Types.ObjectId, ref: "Stylist", required: true },
     service: { type: mongoose.Schema.Types.ObjectId, ref: "Service", required: true },

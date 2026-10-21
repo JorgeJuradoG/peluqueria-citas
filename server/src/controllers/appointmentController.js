@@ -8,6 +8,7 @@ import { DateTime } from "luxon";
 const ACTIVE_STATUSES = ["pending", "confirmed"];
 
 export async function createAppointment(req, res) {
+  const salon = req.salon._id;
   const { stylistId, serviceId, start, notes } = req.body;
 
   const startDate = new Date(start);
@@ -19,8 +20,8 @@ export async function createAppointment(req, res) {
   }
 
   const [stylist, service] = await Promise.all([
-    Stylist.findById(stylistId),
-    Service.findById(serviceId),
+    Stylist.findOne({ _id: stylistId, salon }),
+    Service.findOne({ _id: serviceId, salon }),
   ]);
   if (!stylist || !stylist.active) {
     return res.status(404).json({ message: "Estilista no encontrado" });
@@ -40,8 +41,8 @@ export async function createAppointment(req, res) {
       .json({ message: "Ese horario está fuera del horario del estilista" });
   }
 
-  // ¿Hay alguna cita activa del estilista que choque con esta franja?
   const overlap = await Appointment.findOne({
+    salon,
     stylist: stylist._id,
     status: { $in: ACTIVE_STATUSES },
     start: { $lt: endDate },
@@ -52,6 +53,7 @@ export async function createAppointment(req, res) {
   }
 
   const appointment = await Appointment.create({
+    salon,
     client: req.user.id,
     stylist: stylist._id,
     service: service._id,
@@ -70,7 +72,10 @@ export async function createAppointment(req, res) {
 }
 
 export async function getMyAppointments(req, res) {
-  const appointments = await Appointment.find({ client: req.user.id })
+  const appointments = await Appointment.find({
+    salon: req.salon._id,
+    client: req.user.id,
+  })
     .sort({ start: 1 })
     .populate("service", "name durationMinutes price")
     .populate({ path: "stylist", populate: { path: "user", select: "name" } });
@@ -78,7 +83,10 @@ export async function getMyAppointments(req, res) {
 }
 
 export async function cancelAppointment(req, res) {
-  const appointment = await Appointment.findById(req.params.id);
+  const appointment = await Appointment.findOne({
+    _id: req.params.id,
+    salon: req.salon._id,
+  });
   if (!appointment) {
     return res.status(404).json({ message: "Cita no encontrada" });
   }
@@ -99,12 +107,12 @@ export async function cancelAppointment(req, res) {
 }
 
 export async function getAgenda(req, res) {
+  const salon = req.salon._id;
   const TZ = process.env.SALON_TIMEZONE || "Europe/Madrid";
   let rangeStart;
   let rangeEnd;
 
   if (req.query.from && req.query.to) {
-    // Rango (vista semanal)
     rangeStart = new Date(String(req.query.from));
     rangeEnd = new Date(String(req.query.to));
     if (isNaN(rangeStart) || isNaN(rangeEnd) || rangeEnd <= rangeStart) {
@@ -114,7 +122,6 @@ export async function getAgenda(req, res) {
       return res.status(400).json({ message: "El rango máximo es de 35 días" });
     }
   } else {
-    // Un solo día (vista lista)
     const localDay = DateTime.fromISO(String(req.query.date), { zone: TZ }).startOf("day");
     if (!localDay.isValid) {
       return res.status(400).json({ message: "Fecha inválida (usa formato AAAA-MM-DD)" });
@@ -123,22 +130,25 @@ export async function getAgenda(req, res) {
     rangeEnd = localDay.plus({ days: 1 }).toJSDate();
   }
 
-  let stylistId;
+  let stylist;
   if (req.user.role === "admin") {
-    stylistId = req.query.stylistId;
-    if (!stylistId) {
+    if (!req.query.stylistId) {
       return res.status(400).json({ message: "Falta stylistId" });
     }
+    stylist = await Stylist.findOne({ _id: req.query.stylistId, salon });
+    if (!stylist) {
+      return res.status(404).json({ message: "Estilista no encontrado" });
+    }
   } else {
-    const profile = await Stylist.findOne({ user: req.user.id });
-    if (!profile) {
+    stylist = await Stylist.findOne({ user: req.user.id, salon });
+    if (!stylist) {
       return res.status(404).json({ message: "No tienes perfil de estilista" });
     }
-    stylistId = profile._id;
   }
 
   const appointments = await Appointment.find({
-    stylist: stylistId,
+    salon,
+    stylist: stylist._id,
     status: { $in: [...ACTIVE_STATUSES, "completed"] },
     start: { $lt: rangeEnd },
     end: { $gt: rangeStart },
@@ -147,23 +157,23 @@ export async function getAgenda(req, res) {
     .populate("client", "name email")
     .populate("service", "name durationMinutes price");
 
-  res.json({ stylistId, appointments });
+  res.json({ stylistId: stylist._id, appointments });
 }
 
 export async function updateAppointmentStatus(req, res) {
+  const salon = req.salon._id;
   const { status } = req.body;
   if (!["completed", "cancelled"].includes(status)) {
     return res.status(400).json({ message: "Estado no permitido" });
   }
 
-  const appointment = await Appointment.findById(req.params.id);
+  const appointment = await Appointment.findOne({ _id: req.params.id, salon });
   if (!appointment) {
     return res.status(404).json({ message: "Cita no encontrada" });
   }
 
-  // El admin puede con todas; el estilista solo con las suyas
   if (req.user.role !== "admin") {
-    const profile = await Stylist.findOne({ user: req.user.id });
+    const profile = await Stylist.findOne({ user: req.user.id, salon });
     if (!profile || !appointment.stylist.equals(profile._id)) {
       return res.status(403).json({ message: "Esta cita no es tuya" });
     }
@@ -186,7 +196,8 @@ export async function updateAppointmentStatus(req, res) {
 }
 
 export async function rescheduleAppointment(req, res) {
-  const appointment = await Appointment.findById(req.params.id);
+  const salon = req.salon._id;
+  const appointment = await Appointment.findOne({ _id: req.params.id, salon });
   if (!appointment) {
     return res.status(404).json({ message: "Cita no encontrada" });
   }
@@ -208,8 +219,8 @@ export async function rescheduleAppointment(req, res) {
   }
 
   const [stylist, service] = await Promise.all([
-    Stylist.findById(appointment.stylist),
-    Service.findById(appointment.service),
+    Stylist.findOne({ _id: appointment.stylist, salon }),
+    Service.findOne({ _id: appointment.service, salon }),
   ]);
   if (!stylist || !stylist.active || !service) {
     return res.status(404).json({ message: "Estilista o servicio no disponible" });
@@ -224,7 +235,8 @@ export async function rescheduleAppointment(req, res) {
   }
 
   const overlap = await Appointment.findOne({
-    _id: { $ne: appointment._id }, // ignora la propia cita
+    _id: { $ne: appointment._id },
+    salon,
     stylist: stylist._id,
     status: { $in: ACTIVE_STATUSES },
     start: { $lt: newEnd },
@@ -238,13 +250,11 @@ export async function rescheduleAppointment(req, res) {
   appointment.end = newEnd;
   await appointment.save();
 
-  // Misma sala: un solo evento basta para que todos recarguen sus huecos
   emitToStylist(stylist._id, "appointment:updated", {
     stylistId: stylist._id,
     start: appointment.start,
     end: appointment.end,
   });
-
 
   res.json(appointment);
 }

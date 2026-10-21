@@ -9,6 +9,9 @@ import { notFound, errorHandler } from "./middlewares/errorHandler.js";
 import authRoutes from "./routes/authRoutes.js";
 import stylistRoutes from "./routes/stylistRoutes.js";
 import appointmentRoutes from "./routes/appointmentRoutes.js";
+import { resolveSalon } from "./middlewares/salon.js";
+
+
 const app = express();
 
 app.use(cors());
@@ -17,7 +20,7 @@ app.use(express.json());
 app.get("/api/health", (req, res) => {
   res.json({ ok: true, message: "Servidor funcionando" });
 });
-
+app.use("/api", resolveSalon);
 app.use("/api/auth", authRoutes);
 app.use("/api/services", serviceRoutes);
 app.use("/api/stylists", stylistRoutes);
