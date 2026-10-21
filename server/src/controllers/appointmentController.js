@@ -95,9 +95,27 @@ export async function cancelAppointment(req, res) {
 
 export async function getAgenda(req, res) {
   const TZ = process.env.SALON_TIMEZONE || "Europe/Madrid";
-  const localDay = DateTime.fromISO(String(req.query.date), { zone: TZ }).startOf("day");
-  if (!localDay.isValid) {
-    return res.status(400).json({ message: "Fecha inválida (usa formato AAAA-MM-DD)" });
+  let rangeStart;
+  let rangeEnd;
+
+  if (req.query.from && req.query.to) {
+    // Rango (vista semanal)
+    rangeStart = new Date(String(req.query.from));
+    rangeEnd = new Date(String(req.query.to));
+    if (isNaN(rangeStart) || isNaN(rangeEnd) || rangeEnd <= rangeStart) {
+      return res.status(400).json({ message: "Rango de fechas inválido" });
+    }
+    if (rangeEnd - rangeStart > 35 * 24 * 3600 * 1000) {
+      return res.status(400).json({ message: "El rango máximo es de 35 días" });
+    }
+  } else {
+    // Un solo día (vista lista)
+    const localDay = DateTime.fromISO(String(req.query.date), { zone: TZ }).startOf("day");
+    if (!localDay.isValid) {
+      return res.status(400).json({ message: "Fecha inválida (usa formato AAAA-MM-DD)" });
+    }
+    rangeStart = localDay.toJSDate();
+    rangeEnd = localDay.plus({ days: 1 }).toJSDate();
   }
 
   let stylistId;
@@ -117,8 +135,8 @@ export async function getAgenda(req, res) {
   const appointments = await Appointment.find({
     stylist: stylistId,
     status: { $in: ACTIVE_STATUSES },
-    start: { $lt: localDay.plus({ days: 1 }).toJSDate() },
-    end: { $gt: localDay.toJSDate() },
+    start: { $lt: rangeEnd },
+    end: { $gt: rangeStart },
   })
     .sort({ start: 1 })
     .populate("client", "name email")
@@ -126,4 +144,3 @@ export async function getAgenda(req, res) {
 
   res.json({ stylistId, appointments });
 }
-
