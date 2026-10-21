@@ -14,6 +14,7 @@ const workingHoursSchema = new mongoose.Schema(
 const stylistSchema = new mongoose.Schema(
   {
     user: {
+      salon: { type: mongoose.Schema.Types.ObjectId, ref: "Salon", index: true },
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,

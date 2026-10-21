@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 
 const serviceSchema = new mongoose.Schema(
   {
+    salon: { type: mongoose.Schema.Types.ObjectId, ref: "Salon", index: true },
     name: { type: String, required: true, trim: true },
     durationMinutes: { type: Number, required: true, min: 5 },
     price: { type: Number, required: true, min: 0 },

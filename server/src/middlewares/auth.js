@@ -1,6 +1,7 @@
 import jwt from "jsonwebtoken";
+import User from "../models/User.js";
 
-export function requireAuth(req, res, next) {
+export async function requireAuth(req, res, next) {
   const header = req.headers.authorization || "";
   const [type, token] = header.split(" ");
 
@@ -8,13 +9,21 @@ export function requireAuth(req, res, next) {
     return res.status(401).json({ message: "Token requerido" });
   }
 
+  let payload;
   try {
-    const payload = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = { id: payload.id, role: payload.role };
-    next();
+    payload = jwt.verify(token, process.env.JWT_SECRET);
   } catch {
-    res.status(401).json({ message: "Token inválido o expirado" });
+    return res.status(401).json({ message: "Token inválido o expirado" });
   }
+
+  // El estado real del usuario manda: rol actual y versión de sesión
+  const user = await User.findById(payload.id).select("role tokenVersion");
+  if (!user || (payload.tv ?? 0) !== (user.tokenVersion ?? 0)) {
+    return res.status(401).json({ message: "Sesión no válida. Vuelve a iniciar sesión" });
+  }
+
+  req.user = { id: user._id.toString(), role: user.role };
+  next();
 }
 
 export function requireRole(...roles) {

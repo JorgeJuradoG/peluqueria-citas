@@ -10,7 +10,7 @@ const PASSWORD_MSG = "La contraseña debe tener al menos 8 caracteres, una letra
 
 function signToken(user) {
   return jwt.sign(
-    { id: user._id, role: user.role },
+    { id: user._id, role: user.role, tv: user.tokenVersion ?? 0 },
     process.env.JWT_SECRET,
     { expiresIn: process.env.JWT_EXPIRES_IN || "7d" }
   );
@@ -114,8 +114,15 @@ export async function changePassword(req, res) {
     return res.status(400).json({ message: "La nueva contraseña debe ser distinta" });
   }
 
-  user.passwordHash = await bcrypt.hash(newPassword, 10);
+    user.passwordHash = await bcrypt.hash(newPassword, 10);
+  // Invalida todos los tokens emitidos hasta ahora
+  user.tokenVersion = (user.tokenVersion ?? 0) + 1;
   await user.save();
 
-  res.json({ message: "Contraseña actualizada" });
+  // Devolvemos un token nuevo para que ESTA sesión siga abierta
+  res.json({
+    message: "Contraseña actualizada",
+    token: signToken(user),
+    user: publicUser(user),
+  });
 }

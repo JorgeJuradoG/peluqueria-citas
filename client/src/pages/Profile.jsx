@@ -8,6 +8,7 @@ const ROLE_LABELS = { client: "Cliente", stylist: "Estilista", admin: "Administr
 
 function PasswordForm() {
   const toast = useToast();
+  const { saveSession } = useAuth();
   const [form, setForm] = useState({ currentPassword: "", newPassword: "", confirm: "" });
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
@@ -24,10 +25,11 @@ function PasswordForm() {
     }
     setSaving(true);
     try {
-      await api.put("/auth/password", {
+      const { data } = await api.put("/auth/password", {
         currentPassword: form.currentPassword,
         newPassword: form.newPassword,
       });
+      saveSession(data); // token nuevo: esta sesión sigue abierta
       toast.success("Contraseña actualizada");
       setForm({ currentPassword: "", newPassword: "", confirm: "" });
     } catch (err) {
@@ -43,18 +45,39 @@ function PasswordForm() {
       <div className="mt-4 grid gap-4 sm:grid-cols-3">
         <div>
           <label className="label">Actual</label>
-          <input name="currentPassword" type="password" value={form.currentPassword}
-            onChange={handleChange} autoComplete="current-password" className="input" required />
+          <input
+            name="currentPassword"
+            type="password"
+            value={form.currentPassword}
+            onChange={handleChange}
+            autoComplete="current-password"
+            className="input"
+            required
+          />
         </div>
         <div>
           <label className="label">Nueva</label>
-          <input name="newPassword" type="password" value={form.newPassword}
-            onChange={handleChange} autoComplete="new-password" className="input" required />
+          <input
+            name="newPassword"
+            type="password"
+            value={form.newPassword}
+            onChange={handleChange}
+            autoComplete="new-password"
+            className="input"
+            required
+          />
         </div>
         <div>
           <label className="label">Repite la nueva</label>
-          <input name="confirm" type="password" value={form.confirm}
-            onChange={handleChange} autoComplete="new-password" className="input" required />
+          <input
+            name="confirm"
+            type="password"
+            value={form.confirm}
+            onChange={handleChange}
+            autoComplete="new-password"
+            className="input"
+            required
+          />
         </div>
       </div>
       <p className="mt-2 text-xs text-ink/50">
@@ -162,13 +185,23 @@ export default function Profile() {
         <div className="mt-4 grid gap-4 sm:grid-cols-2">
           <div>
             <label className="label">Nombre</label>
-            <input name="name" value={form.name} onChange={handleChange}
-              className="input" required />
+            <input
+              name="name"
+              value={form.name}
+              onChange={handleChange}
+              className="input"
+              required
+            />
           </div>
           <div>
             <label className="label">Teléfono</label>
-            <input name="phone" type="tel" value={form.phone} onChange={handleChange}
-              className="input" />
+            <input
+              name="phone"
+              type="tel"
+              value={form.phone}
+              onChange={handleChange}
+              className="input"
+            />
           </div>
           <div className="sm:col-span-2">
             <label className="label">Email</label>
