@@ -15,7 +15,8 @@ import AdminServices from "./pages/AdminServices";
 import AdminStylists from "./pages/AdminStylists";
 import AdminHome from "./pages/AdminHome";
 import NotFound from "./pages/NotFound";
-
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 
 
 
@@ -38,6 +39,8 @@ function SalonApp() {
         <Routes>
           <Route path="/" element={<Services />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/recuperar" element={<ForgotPassword />} />
+          <Route path="/restablecer" element={<ResetPassword />} />
           <Route path="/reservar" element={<ProtectedRoute><Book /></ProtectedRoute>} />
           <Route path="/mis-citas" element={<ProtectedRoute><MyAppointments /></ProtectedRoute>} />
           <Route path="/perfil" element={<ProtectedRoute><Profile /></ProtectedRoute>} />

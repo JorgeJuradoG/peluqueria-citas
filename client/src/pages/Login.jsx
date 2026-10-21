@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Navigate, useLocation, useNavigate } from "react-router-dom";
+import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -164,6 +164,14 @@ export default function Login() {
             autoComplete={mode === "login" ? "current-password" : "new-password"}
             hint={mode === "register" ? "Mínimo 8 caracteres, con una letra y un número." : ""}
           />
+
+          {mode === "login" && (
+            <p className="-mt-2 text-right">
+              <Link to="/recuperar" className="text-sm text-gold-dark underline">
+                ¿Olvidaste tu contraseña?
+              </Link>
+            </p>
+          )}
 
           {mode === "register" && (
             <PasswordField

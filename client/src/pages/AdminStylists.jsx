@@ -12,27 +12,15 @@ const DAYS = [
   { value: 0, label: "Domingo" },
 ];
 
-const PASSWORD_RE = /^(?=.*[A-Za-z])(?=.*\d).{8,}$/;
-
-// Contraseña temporal legible (sin caracteres ambiguos como 0/O o 1/l)
-function generatePassword() {
-  const alphabet = "abcdefghjkmnpqrstuvwxyzABCDEFGHJKMNPQRSTUVWXYZ23456789";
-  let pwd = "";
-  do {
-    const bytes = crypto.getRandomValues(new Uint32Array(10));
-    pwd = Array.from(bytes, (b) => alphabet[b % alphabet.length]).join("");
-  } while (!PASSWORD_RE.test(pwd));
-  return pwd;
-}
-
-const emptyForm = { name: "", email: "", phone: "", password: "", bio: "", services: [] };
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const emptyForm = { name: "", email: "", phone: "", bio: "", services: [] };
 
 function CreateStylistForm({ allServices, onCreated, onCancel }) {
   const toast = useToast();
-  const [form, setForm] = useState({ ...emptyForm, password: generatePassword() });
+  const [form, setForm] = useState(emptyForm);
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
-  const [created, setCreated] = useState(null); // { name, email, password, accountCreated }
+  const [created, setCreated] = useState(null); // { name, email, accountCreated, invitationSent }
 
   function handleChange(e) {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -50,18 +38,18 @@ function CreateStylistForm({ allServices, onCreated, onCancel }) {
   async function handleSubmit(e) {
     e.preventDefault();
     setError("");
-    if (!PASSWORD_RE.test(form.password)) {
-      return setError("La contraseña debe tener al menos 8 caracteres, una letra y un número");
-    }
+    if (form.name.trim().length < 2) return setError("El nombre debe tener al menos 2 caracteres");
+    if (!EMAIL_RE.test(form.email.trim())) return setError("Introduce un email válido");
+
     setSaving(true);
     try {
       const { data } = await api.post("/stylists", form);
       toast.success("Estilista creado");
       setCreated({
         name: form.name,
-        email: form.email,
-        password: form.password,
+        email: form.email.trim(),
         accountCreated: data.accountCreated,
+        invitationSent: data.invitationSent,
       });
       onCreated();
     } catch (err) {
@@ -71,32 +59,24 @@ function CreateStylistForm({ allServices, onCreated, onCancel }) {
     }
   }
 
-  // Pantalla de confirmación: la contraseña solo se muestra ahora
   if (created) {
     return (
       <div className="card mt-6">
         <h2 className="text-xl font-semibold">{created.name} ya forma parte del equipo</h2>
-        {created.accountCreated ? (
-          <>
-            <p className="mt-2 text-sm text-ink/70">
-              Comparte estos datos con tu estilista. La contraseña no se volverá a mostrar y
-              puede cambiarla desde su perfil.
-            </p>
-            <dl className="mt-4 space-y-1 rounded-lg bg-sand/50 p-4 text-sm">
-              <p>
-                <dt className="inline text-ink/60">Email: </dt>
-                <dd className="inline font-medium">{created.email}</dd>
-              </p>
-              <p>
-                <dt className="inline text-ink/60">Contraseña temporal: </dt>
-                <dd className="inline font-mono font-medium">{created.password}</dd>
-              </p>
-            </dl>
-          </>
-        ) : (
+        {!created.accountCreated ? (
           <p className="mt-2 text-sm text-ink/70">
             Ya tenía cuenta como cliente en tu peluquería, así que entra con su contraseña de
             siempre.
+          </p>
+        ) : created.invitationSent ? (
+          <p className="mt-2 text-sm text-ink/70">
+            Hemos enviado una invitación a <b>{created.email}</b>. Con el enlace elegirá su
+            contraseña y activará su cuenta. Caduca en 7 días.
+          </p>
+        ) : (
+          <p className="mt-2 rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-800">
+            La cuenta está creada, pero no se pudo enviar el correo. Pulsa «Reenviar
+            invitación» en su tarjeta para volver a intentarlo.
           </p>
         )}
         <button onClick={onCancel} className="btn-primary mt-5">Hecho</button>
@@ -107,6 +87,9 @@ function CreateStylistForm({ allServices, onCreated, onCancel }) {
   return (
     <form onSubmit={handleSubmit} className="card mt-6" noValidate>
       <h2 className="text-xl font-semibold">Añadir estilista</h2>
+      <p className="mt-1 text-sm text-ink/60">
+        Le enviaremos un correo para que elija su contraseña y active su cuenta.
+      </p>
 
       <div className="mt-4 grid gap-4 sm:grid-cols-2">
         <div>
@@ -137,25 +120,6 @@ function CreateStylistForm({ allServices, onCreated, onCancel }) {
           />
         </div>
         <div>
-          <label className="label">Contraseña temporal</label>
-          <div className="flex gap-2">
-            <input
-              name="password"
-              value={form.password}
-              onChange={handleChange}
-              className="input font-mono"
-              required
-            />
-            <button
-              type="button"
-              className="btn-outline"
-              onClick={() => setForm({ ...form, password: generatePassword() })}
-            >
-              Generar
-            </button>
-          </div>
-        </div>
-        <div className="sm:col-span-2">
           <label className="label">
             Presentación <span className="text-ink/40">(opcional)</span>
           </label>
@@ -206,7 +170,7 @@ function CreateStylistForm({ allServices, onCreated, onCancel }) {
 
       <div className="mt-5 flex gap-3">
         <button className="btn-primary" disabled={saving}>
-          {saving ? "Creando..." : "Crear estilista"}
+          {saving ? "Creando..." : "Crear y enviar invitación"}
         </button>
         <button type="button" onClick={onCancel} className="btn-outline">
           Cancelar
@@ -282,6 +246,7 @@ function StylistCard({ stylist, allServices, onChanged }) {
   const toast = useToast();
   const [newDay, setNewDay] = useState("");
   const [error, setError] = useState("");
+  const [inviting, setInviting] = useState(false);
 
   const offeredIds = stylist.services.map((s) => s._id);
   // Las fechas llegan como ISO (UTC); nos quedamos con AAAA-MM-DD
@@ -296,6 +261,19 @@ function StylistCard({ stylist, allServices, onChanged }) {
     } catch (err) {
       const data = err.response?.data;
       setError(data?.errors?.join(". ") || data?.message || "No se pudo guardar");
+    }
+  }
+
+  async function resendInvite() {
+    setInviting(true);
+    try {
+      const { data } = await api.post(`/stylists/${stylist._id}/invite`);
+      if (data.invitationSent) toast.success(`Invitación enviada a ${stylist.user.email}`);
+      else toast.error("No se pudo enviar el correo. Inténtalo de nuevo");
+    } catch (err) {
+      toast.error(err.response?.data?.message || "No se pudo reenviar la invitación");
+    } finally {
+      setInviting(false);
     }
   }
 
@@ -318,7 +296,7 @@ function StylistCard({ stylist, allServices, onChanged }) {
 
   return (
     <li className={`card ${stylist.active ? "" : "opacity-60"}`}>
-      <div className="flex items-center gap-3">
+      <div className="flex flex-wrap items-center gap-3">
         <span className="flex h-11 w-11 items-center justify-center rounded-full bg-ink font-display text-lg text-cream">
           {stylist.user.name[0]}
         </span>
@@ -326,11 +304,21 @@ function StylistCard({ stylist, allServices, onChanged }) {
           <h2 className="text-xl font-semibold">{stylist.user.name}</h2>
           <p className="text-sm text-ink/60">{stylist.user.email}</p>
         </div>
-        <div className="ml-auto flex items-center gap-3">
+        <div className="ml-auto flex flex-wrap items-center gap-3">
           {!stylist.active && (
             <span className="rounded-full bg-stone-200 px-2.5 py-0.5 text-xs font-medium text-stone-700">
               Desactivado
             </span>
+          )}
+          {stylist.user.pendingInvite && (
+            <>
+              <span className="rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-medium text-amber-800">
+                Invitación pendiente
+              </span>
+              <button onClick={resendInvite} disabled={inviting} className="btn-outline">
+                {inviting ? "Enviando..." : "Reenviar invitación"}
+              </button>
+            </>
           )}
           <button
             onClick={() => save({ active: !stylist.active })}
