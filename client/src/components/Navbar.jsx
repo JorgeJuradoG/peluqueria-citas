@@ -24,7 +24,7 @@ export default function Navbar() {
           Peluquería<span className="text-gold">.</span>
         </Link>
 
-        <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-2 sm:gap-x-5">
           {user ? (
             <>
               <NavLink to="/reservar" className={linkClass}>Reservar</NavLink>
@@ -37,7 +37,7 @@ export default function Navbar() {
                 </>
               )}
               <span className="hidden h-5 w-px bg-sand sm:block" />
-              <span className="text-sm text-ink/60">{user.name}</span>
+              <span className="hidden text-sm text-ink/60 sm:inline">{user.name}</span>
               <button onClick={handleLogout} className="btn-outline">Salir</button>
             </>
           ) : (

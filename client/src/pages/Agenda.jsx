@@ -91,12 +91,12 @@ export default function Agenda() {
 
       <ul className="mt-6 space-y-3">
         {appointments.map((a) => (
-          <li key={a._id} className="card flex items-center gap-4">
+          <li key={a._id} className="card flex flex-wrap items-center  gap-4">
             <div className="w-28 shrink-0 border-r border-sand pr-4 text-center">
               <p className="font-display text-xl font-semibold">{formatTime(a.start)}</p>
               <p className="text-xs text-ink/50">hasta {formatTime(a.end)}</p>
             </div>
-            <div className="flex-1">
+            <div className="min-w-0 flex-1 basis-40">
               <p className="font-medium">{a.client?.name}</p>
               <p className="text-sm text-ink/60">
                 {a.service?.name} · {a.service?.price} € · {a.client?.email}

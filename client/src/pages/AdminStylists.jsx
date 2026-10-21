@@ -38,7 +38,7 @@ function WorkingHoursEditor({ workingHours, onSave }) {
             r.dayOfWeek !== day.value ? null : (
               <span
                 key={i}
-                className="flex items-center gap-1 rounded-lg border border-sand bg-cream px-2 py-1 text-sm"
+                className="flex flex-wrap items-center gap-1 rounded-lg border border-sand bg-cream px-2 py-1 text-sm"
               >
                 <input
                   type="time"
@@ -175,7 +175,7 @@ function StylistCard({ stylist, allServices, onChanged }) {
       </ul>
 
       <h3 className="mt-6 text-lg font-semibold">Horario semanal</h3>
-      <WorkingHoursEditor
+      <WorkingHoursEditor 
         workingHours={stylist.workingHours}
         onSave={(workingHours) => save({ workingHours })}
       />
