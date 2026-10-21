@@ -176,3 +176,30 @@ export const sendAppointmentRescheduled = safe(async (appointmentId, salon, oldS
     });
   }
 });
+
+// ---------- Recordatorio ----------
+export const sendAppointmentReminder = safe(async (appointmentId, salon) => {
+  const a = await loadAppointment(appointmentId);
+  if (!a || !a.client?.email || !["pending", "confirmed"].includes(a.status)) return;
+
+  const when = formatWhen(a.start, salon.timezone);
+  const link = `${baseUrl(salon)}/mis-citas`;
+
+  await sendMail({
+    to: a.client.email,
+    subject: `Recordatorio: ${when} · ${salon.name}`,
+    html: layout(
+      salon,
+      "Te recordamos tu próxima cita",
+      `<p style="color:#1c1917">Hola ${esc(a.client.name)}, no olvides tu cita:</p>
+       <table style="width:100%;font-size:14px;color:#1c1917;border-collapse:collapse">
+         ${row("Cuándo", `<b>${esc(when)}</b>`)}
+         ${row("Servicio", `${esc(a.service.name)} (${a.service.durationMinutes} min)`)}
+         ${row("Con", esc(a.stylist.user.name))}
+       </table>
+       <p style="color:#78716c;font-size:13px">Si no puedes venir, cancélala o cámbiala para dejar el hueco a otra persona.</p>
+       ${button(link, "Gestionar mi cita")}`
+    ),
+    text: `Te recordamos tu próxima cita\n\n${when}\n${a.service.name} con ${a.stylist.user.name}\n\nGestiona tu cita: ${link}`,
+  });
+});

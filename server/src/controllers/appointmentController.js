@@ -9,6 +9,7 @@ import {
   sendAppointmentRescheduled,
 } from "../services/appointmentMails.js";
 import { DateTime } from "luxon";
+import { initialReminderSentAt } from "../utils/reminders.js";
 
 const ACTIVE_STATUSES = ["pending", "confirmed"];
 

@@ -14,6 +14,7 @@ const appointmentSchema = new mongoose.Schema(
       default: "confirmed",
     },
     notes: { type: String, trim: true, default: "" },
+    reminderSentAt: { type: Date, default: null },
   },
   { timestamps: true }
 );

@@ -4,6 +4,7 @@ import express from "express";
 import cors from "cors";
 import { connectDB } from "./config/db.js";
 import { initSockets } from "./sockets/index.js";
+import { startReminders } from "./jobs/reminders.js";
 import { resolveSalon } from "./middlewares/salon.js";
 import { notFound, errorHandler } from "./middlewares/errorHandler.js";
 import salonRoutes from "./routes/salonRoutes.js";
@@ -42,5 +43,6 @@ initSockets(httpServer);
 connectDB().then(() => {
   httpServer.listen(PORT, () => {
     console.log(`Servidor escuchando en http://localhost:${PORT}`);
+    startReminders();
   });
 });
