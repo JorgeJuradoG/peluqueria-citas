@@ -8,6 +8,29 @@
   --color-sand: #ece5d8;
   --color-gold: #b08d57;
   --color-gold-dark: #8f6f3f;
+
+  /* Animaciones: se usan como animate-fade-in, animate-fade-up... */
+  --animate-fade-in: fade-in 0.2s ease-out both;
+  --animate-fade-up: fade-up 0.45s ease-out both;
+  --animate-pop: pop 0.2s cubic-bezier(0.16, 1, 0.3, 1) both;
+  --animate-slide-in: slide-in 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
+
+  @keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @keyframes fade-up {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: none; }
+  }
+  @keyframes pop {
+    from { opacity: 0; transform: scale(0.95) translateY(8px); }
+    to { opacity: 1; transform: none; }
+  }
+  @keyframes slide-in {
+    from { opacity: 0; transform: translateX(24px); }
+    to { opacity: 1; transform: none; }
+  }
 }
 
 @layer base {
@@ -17,11 +40,16 @@
   h1, h2, h3 {
     @apply font-display;
   }
+  /* Foco visible para quien navega con teclado */
+  :focus-visible {
+    outline: 2px solid var(--color-gold);
+    outline-offset: 2px;
+  }
 }
 
 @utility btn {
-  @apply inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm font-medium
-         transition disabled:cursor-not-allowed disabled:opacity-50;
+  @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-medium
+         transition active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50;
 }
 
 @utility btn-primary {
@@ -44,6 +72,12 @@
   @apply w-full rounded-lg border border-ink/15 bg-white px-3 py-2 text-sm
          outline-none transition focus:border-gold focus:ring-2 focus:ring-gold/30;
 }
+
+@utility label {
+  @apply mb-1 block text-sm font-medium text-ink/70;
+}
+
+/* Citas del calendario */
 .cita-evento {
   font-weight: 600;
   font-size: 0.8rem;
@@ -58,4 +92,20 @@
   transform: scale(1.02);
   box-shadow: 0 4px 12px rgb(28 25 23 / 0.45);
   z-index: 5;
+}
+
+.fc-timegrid-slot {
+  height: 3rem;
+}
+
+/* Quien tiene desactivadas las animaciones en su sistema no las ve */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

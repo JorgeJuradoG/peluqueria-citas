@@ -7,12 +7,18 @@ import {
   useRef,
   useState,
 } from "react";
+import { CircleAlert, CircleCheck, TriangleAlert, X } from "lucide-react";
 
 const UIContext = createContext(null);
 
 const TOAST_STYLES = {
   success: "border-emerald-200 bg-emerald-50 text-emerald-900",
   error: "border-red-200 bg-red-50 text-red-800",
+};
+
+const TOAST_ICONS = {
+  success: <CircleCheck className="mt-0.5 h-5 w-5 shrink-0 text-emerald-600" />,
+  error: <CircleAlert className="mt-0.5 h-5 w-5 shrink-0 text-red-600" />,
 };
 
 export function UIProvider({ children }) {
@@ -70,16 +76,24 @@ export function UIProvider({ children }) {
       {children}
 
       {/* Toasts */}
-      <div className="fixed bottom-4 right-4 z-50 flex w-[calc(100%-2rem)] max-w-sm flex-col gap-2">
+      <div
+        aria-live="polite"
+        className="pointer-events-none fixed bottom-4 right-4 z-50 flex w-[calc(100%-2rem)] max-w-sm flex-col gap-2"
+      >
         {toasts.map((t) => (
           <div
             key={t.id}
             role="status"
-            className={`flex items-start justify-between gap-3 rounded-lg border px-4 py-3 text-sm shadow-md ${TOAST_STYLES[t.type]}`}
+            className={`pointer-events-auto flex animate-slide-in items-start gap-3 rounded-xl border px-4 py-3 text-sm shadow-lg ${TOAST_STYLES[t.type]}`}
           >
-            <span>{t.message}</span>
-            <button onClick={() => dismiss(t.id)} aria-label="Cerrar" className="opacity-60 hover:opacity-100">
-              ✕
+            {TOAST_ICONS[t.type]}
+            <span className="flex-1">{t.message}</span>
+            <button
+              onClick={() => dismiss(t.id)}
+              aria-label="Cerrar aviso"
+              className="rounded p-0.5 opacity-60 transition hover:opacity-100"
+            >
+              <X className="h-4 w-4" />
             </button>
           </div>
         ))}
@@ -88,17 +102,29 @@ export function UIProvider({ children }) {
       {/* Modal de confirmación */}
       {dialog && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-ink/50 p-4"
+          className="fixed inset-0 z-50 flex animate-fade-in items-center justify-center bg-ink/50 p-4 backdrop-blur-sm"
           onClick={() => closeDialog(false)}
         >
           <div
             role="dialog"
             aria-modal="true"
-            className="card w-full max-w-md"
+            aria-labelledby="dialog-title"
+            className="card w-full max-w-md animate-pop"
             onClick={(e) => e.stopPropagation()}
           >
-            <h2 className="text-2xl font-bold">{dialog.title || "¿Estás seguro?"}</h2>
-            {dialog.message && <p className="mt-2 text-ink/70">{dialog.message}</p>}
+            <div className="flex items-start gap-4">
+              {dialog.danger && (
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-red-100 text-red-600">
+                  <TriangleAlert className="h-5 w-5" />
+                </span>
+              )}
+              <div>
+                <h2 id="dialog-title" className="text-2xl font-bold">
+                  {dialog.title || "¿Estás seguro?"}
+                </h2>
+                {dialog.message && <p className="mt-2 text-ink/70">{dialog.message}</p>}
+              </div>
+            </div>
             <div className="mt-6 flex justify-end gap-3">
               <button onClick={() => closeDialog(false)} className="btn-outline">
                 Volver
