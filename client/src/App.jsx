@@ -14,6 +14,12 @@ import Agenda from "./pages/Agenda";
 import AdminServices from "./pages/AdminServices";
 import AdminStylists from "./pages/AdminStylists";
 import AdminHome from "./pages/AdminHome";
+import NotFound from "./pages/NotFound";
+
+
+
+
+
 function PlatformApp() {
   return (
     <Routes>
@@ -66,7 +72,10 @@ function SalonApp() {
              <AdminHome />
             </ProtectedRoute>
               }
-/>
+            />
+            
+          <Route path="*" element={<NotFound />} />
+
         </Routes>
       </main>
     </SalonProvider>
