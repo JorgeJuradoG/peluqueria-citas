@@ -1,36 +1,53 @@
 import { useState } from "react";
 import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
+import { Eye, EyeOff, Loader2, Lock, Mail, Phone, TriangleAlert, UserRound } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const PASSWORD_RE = /^(?=.*[A-Za-z])(?=.*\d).{8,}$/;
 const PHONE_RE = /^\+?[\d\s-]{9,15}$/;
 
-function PasswordField({ label, name, value, onChange, autoComplete, hint }) {
-  const [show, setShow] = useState(false);
+// Campo con icono a la izquierda y, opcionalmente, acción a la derecha
+function Field({ label, icon: Icon, hint, optional, children }) {
   return (
     <div>
-      <label className="label">{label}</label>
+      <label className="label">
+        {label} {optional && <span className="text-ink/40">(opcional)</span>}
+      </label>
       <div className="relative">
-        <input
-          name={name}
-          type={show ? "text" : "password"}
-          value={value}
-          onChange={onChange}
-          autoComplete={autoComplete}
-          className="input pr-16"
-          required
+        <Icon
+          className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink/40"
+          aria-hidden="true"
         />
-        <button
-          type="button"
-          onClick={() => setShow(!show)}
-          className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gold-dark underline"
-        >
-          {show ? "Ocultar" : "Mostrar"}
-        </button>
+        {children}
       </div>
       {hint && <p className="mt-1 text-xs text-ink/50">{hint}</p>}
     </div>
+  );
+}
+
+function PasswordField({ label, name, value, onChange, autoComplete, hint }) {
+  const [show, setShow] = useState(false);
+  return (
+    <Field label={label} icon={Lock} hint={hint}>
+      <input
+        name={name}
+        type={show ? "text" : "password"}
+        value={value}
+        onChange={onChange}
+        autoComplete={autoComplete}
+        className="input pl-9 pr-10"
+        required
+      />
+      <button
+        type="button"
+        onClick={() => setShow(!show)}
+        aria-label={show ? "Ocultar contraseña" : "Mostrar contraseña"}
+        className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-1 text-ink/50 transition hover:text-ink"
+      >
+        {show ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+      </button>
+    </Field>
   );
 }
 
@@ -41,13 +58,7 @@ export default function Login() {
   const from = location.state?.from || "/";
 
   const [mode, setMode] = useState("login");
-  const [form, setForm] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    password: "",
-    confirm: "",
-  });
+  const [form, setForm] = useState({ name: "", email: "", phone: "", password: "", confirm: "" });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -101,9 +112,12 @@ export default function Login() {
   }
 
   return (
-    <div className="mx-auto max-w-sm">
+    <div className="mx-auto max-w-sm animate-fade-up py-4">
       <div className="card">
-        <h1 className="text-3xl font-bold">
+        <span className="flex h-12 w-12 items-center justify-center rounded-full bg-ink text-gold">
+          <UserRound className="h-6 w-6" aria-hidden="true" />
+        </span>
+        <h1 className="mt-4 text-3xl font-bold">
           {mode === "login" ? "Bienvenido" : "Crear cuenta"}
         </h1>
         <p className="mt-1 text-sm text-ink/60">
@@ -114,46 +128,41 @@ export default function Login() {
 
         <form onSubmit={handleSubmit} className="mt-6 space-y-4" noValidate>
           {mode === "register" && (
-            <div>
-              <label className="label">Nombre</label>
+            <Field label="Nombre" icon={UserRound}>
               <input
                 name="name"
                 value={form.name}
                 onChange={handleChange}
                 autoComplete="name"
-                className="input"
+                className="input pl-9"
                 required
               />
-            </div>
+            </Field>
           )}
 
-          <div>
-            <label className="label">Email</label>
+          <Field label="Email" icon={Mail}>
             <input
               name="email"
               type="email"
               value={form.email}
               onChange={handleChange}
               autoComplete="email"
-              className="input"
+              className="input pl-9"
               required
             />
-          </div>
+          </Field>
 
           {mode === "register" && (
-            <div>
-              <label className="label">
-                Teléfono <span className="text-ink/40">(opcional)</span>
-              </label>
+            <Field label="Teléfono" icon={Phone} optional>
               <input
                 name="phone"
                 type="tel"
                 value={form.phone}
                 onChange={handleChange}
                 autoComplete="tel"
-                className="input"
+                className="input pl-9"
               />
-            </div>
+            </Field>
           )}
 
           <PasswordField
@@ -184,10 +193,17 @@ export default function Login() {
           )}
 
           {error && (
-            <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>
+            <p
+              role="alert"
+              className="flex items-start gap-2 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700"
+            >
+              <TriangleAlert className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
+              {error}
+            </p>
           )}
 
           <button className="btn-primary w-full" disabled={loading}>
+            {loading && <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />}
             {loading ? "Un momento..." : mode === "login" ? "Entrar" : "Registrarme"}
           </button>
         </form>

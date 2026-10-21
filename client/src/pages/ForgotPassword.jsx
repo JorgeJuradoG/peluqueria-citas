@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import api from "../services/api";
+import { MailCheck } from "lucide-react";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -31,6 +32,9 @@ export default function ForgotPassword() {
       <div className="card">
         {sent ? (
           <>
+            <span className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-emerald-100 text-emerald-700">
+                <MailCheck className="h-6 w-6" aria-hidden="true" />
+            </span>
             <h1 className="text-3xl font-bold">Revisa tu correo</h1>
             <p className="mt-3 text-sm text-ink/70">
               Si existe una cuenta con <b>{email.trim()}</b>, te hemos enviado un enlace para
