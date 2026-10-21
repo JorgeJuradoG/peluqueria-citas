@@ -3,6 +3,11 @@ import Stylist from "../models/Stylist.js";
 import Service from "../models/Service.js";
 import { fitsInWorkingHours } from "../utils/availability.js";
 import { emitToStylist } from "../sockets/index.js";
+import {
+  sendAppointmentConfirmation,
+  sendAppointmentCancelled,
+  sendAppointmentRescheduled,
+} from "../services/appointmentMails.js";
 import { DateTime } from "luxon";
 
 const ACTIVE_STATUSES = ["pending", "confirmed"];
@@ -68,6 +73,9 @@ export async function createAppointment(req, res) {
     end: appointment.end,
   });
 
+  // Sin await: el cliente no espera al correo
+  sendAppointmentConfirmation(appointment._id, req.salon);
+
   res.status(201).json(appointment);
 }
 
@@ -103,6 +111,8 @@ export async function cancelAppointment(req, res) {
     end: appointment.end,
   });
 
+  sendAppointmentCancelled(appointment._id, req.salon, { byClient: isOwner });
+
   res.json(appointment);
 }
 
@@ -113,6 +123,7 @@ export async function getAgenda(req, res) {
   let rangeEnd;
 
   if (req.query.from && req.query.to) {
+    // Rango (vista semanal)
     rangeStart = new Date(String(req.query.from));
     rangeEnd = new Date(String(req.query.to));
     if (isNaN(rangeStart) || isNaN(rangeEnd) || rangeEnd <= rangeStart) {
@@ -122,6 +133,7 @@ export async function getAgenda(req, res) {
       return res.status(400).json({ message: "El rango máximo es de 35 días" });
     }
   } else {
+    // Un solo día (vista lista)
     const localDay = DateTime.fromISO(String(req.query.date), { zone: TZ }).startOf("day");
     if (!localDay.isValid) {
       return res.status(400).json({ message: "Fecha inválida (usa formato AAAA-MM-DD)" });
@@ -172,6 +184,7 @@ export async function updateAppointmentStatus(req, res) {
     return res.status(404).json({ message: "Cita no encontrada" });
   }
 
+  // El admin puede con todas; el estilista solo con las suyas
   if (req.user.role !== "admin") {
     const profile = await Stylist.findOne({ user: req.user.id, salon });
     if (!profile || !appointment.stylist.equals(profile._id)) {
@@ -191,6 +204,10 @@ export async function updateAppointmentStatus(req, res) {
     status === "cancelled" ? "appointment:cancelled" : "appointment:updated",
     { stylistId: appointment.stylist, start: appointment.start, end: appointment.end }
   );
+
+  if (status === "cancelled") {
+    sendAppointmentCancelled(appointment._id, req.salon, { byClient: false });
+  }
 
   res.json(appointment);
 }
@@ -228,14 +245,14 @@ export async function rescheduleAppointment(req, res) {
 
   const newEnd = new Date(newStart.getTime() + service.durationMinutes * 60000);
 
-  if (!fitsInWorkingHours(stylist, newStart, newEnd)) {
+  if (!fitsInWorkingHours(stylist, newStart, newEnd, req.salon.timezone)) {
     return res
       .status(400)
       .json({ message: "Ese horario está fuera del horario del estilista" });
   }
 
   const overlap = await Appointment.findOne({
-    _id: { $ne: appointment._id },
+    _id: { $ne: appointment._id }, // ignora la propia cita
     salon,
     stylist: stylist._id,
     status: { $in: ACTIVE_STATUSES },
@@ -246,6 +263,7 @@ export async function rescheduleAppointment(req, res) {
     return res.status(409).json({ message: "Ese hueco ya está ocupado" });
   }
 
+  const oldStart = appointment.start;
   appointment.start = newStart;
   appointment.end = newEnd;
   await appointment.save();
@@ -255,6 +273,8 @@ export async function rescheduleAppointment(req, res) {
     start: appointment.start,
     end: appointment.end,
   });
+
+  sendAppointmentRescheduled(appointment._id, req.salon, oldStart, { byClient: isOwner });
 
   res.json(appointment);
 }
