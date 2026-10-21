@@ -4,6 +4,7 @@ import api from "../services/api";
 import { useAuth } from "../context/AuthContext";
 import { useSalon } from "../context/SalonContext";
 import { useToast } from "../context/UIContext";
+import { Skeleton } from "../components/Skeleton";
 
 function Step({ number, done, title, text, to, action }) {
   return (
@@ -69,7 +70,20 @@ export default function AdminHome() {
     setShared(true);
   }
 
-  if (!counts) return <p className="text-ink/50">Cargando...</p>;
+  if (!counts) {
+  return (
+    <div>
+      <Skeleton className="h-10 w-1/2" />
+      <Skeleton className="mt-3 h-5 w-2/3" />
+      <Skeleton className="mt-8 h-2 w-full" />
+      <div className="mt-6 space-y-3">
+        <Skeleton className="h-20 w-full" />
+        <Skeleton className="h-20 w-full" />
+        <Skeleton className="h-32 w-full" />
+      </div>
+    </div>
+  );
+}
 
   const steps = [counts.services > 0, counts.stylists > 0, shared];
   const doneCount = steps.filter(Boolean).length;

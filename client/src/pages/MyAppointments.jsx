@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import api from "../services/api";
 import StatusBadge from "../components/StatusBadge";
 import RescheduleModal from "../components/RescheduleModal";
+import { AppointmentSkeleton } from "../components/Skeleton";
 import { useConfirm, useToast } from "../context/UIContext";
 import { useSalon } from "../context/SalonContext";
 import { formatDateTime } from "../lib/dates";
@@ -60,8 +61,6 @@ export default function MyAppointments() {
         <p className="mt-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>
       )}
 
-      {loading && <p className="mt-6 text-ink/50">Cargando...</p>}
-
       {!loading && appointments.length === 0 && (
         <div className="card mt-6 text-center">
           <p className="text-ink/60">Todavía no tienes citas.</p>
@@ -70,6 +69,7 @@ export default function MyAppointments() {
       )}
 
       <ul className="mt-6 space-y-3">
+        {loading && [1, 2, 3].map((n) => <AppointmentSkeleton key={n} />)}
         {appointments.map((a) => (
           <li
             key={a._id}
