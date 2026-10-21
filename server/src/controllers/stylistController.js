@@ -89,13 +89,17 @@ export async function getAvailability(req, res) {
   const dayStart = localDay.toJSDate();
   const dayEnd = localDay.plus({ days: 1 }).toJSDate();
 
+  const { excludeAppointment } = req.query;
+
   const appointments = await Appointment.find({
-    stylist: stylist._id,
-    status: { $in: ["pending", "confirmed"] },
-    start: { $lt: dayEnd },
-    end: { $gt: dayStart },
-  });
+  stylist: stylist._id,
+  status: { $in: ["pending", "confirmed"] },
+  start: { $lt: dayEnd },
+  end: { $gt: dayStart },
+  ...(excludeAppointment ? { _id: { $ne: excludeAppointment } } : {}),
+});
 
   const slots = getAvailableSlots({ stylist, service, localDay, appointments });
   res.json({ date: localDay.toISODate(), slots });
+
 }

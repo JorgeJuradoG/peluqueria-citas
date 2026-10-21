@@ -2,7 +2,8 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import api from "../services/api";
 import StatusBadge from "../components/StatusBadge";
-import { useToast, useConfirm } from "../context/UIContext.jsx";
+import RescheduleModal from "../components/RescheduleModal";
+import { useConfirm, useToast } from "../context/UIContext";
 
 function formatDate(iso) {
   return new Date(iso).toLocaleString("es-ES", {
@@ -16,11 +17,12 @@ function formatDate(iso) {
 }
 
 export default function MyAppointments() {
+  const confirm = useConfirm();
+  const toast = useToast();
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const confirm = useConfirm(); 
-  const toast = useToast();
+  const [rescheduling, setRescheduling] = useState(null);
 
   async function load() {
     try {
@@ -37,23 +39,23 @@ export default function MyAppointments() {
     load();
   }, []);
 
-    async function cancel(id) {
-         const ok = await confirm({
-    title: "Cancelar cita",
-    message: "El hueco quedará libre para otros clientes.",
-    confirmText: "Cancelar cita",
-    danger: true,
-        });
-        if (!ok) return;
+  async function cancel(id) {
+    const ok = await confirm({
+      title: "Cancelar cita",
+      message: "El hueco quedará libre para otros clientes.",
+      confirmText: "Cancelar cita",
+      danger: true,
+    });
+    if (!ok) return;
 
-        try {
-       await api.patch(`/appointments/${id}/cancel`);
-       toast.success("Cita cancelada");
-       load();
-          } catch (err) {
-       toast.error(err.response?.data?.message || "No se pudo cancelar");
-         }
-      }
+    try {
+      await api.patch(`/appointments/${id}/cancel`);
+      toast.success("Cita cancelada");
+      load();
+    } catch (err) {
+      toast.error(err.response?.data?.message || "No se pudo cancelar");
+    }
+  }
 
   const isUpcoming = (a) =>
     ["pending", "confirmed"].includes(a.status) && new Date(a.end) > new Date();
@@ -91,17 +93,33 @@ export default function MyAppointments() {
                 {a.service?.name} con {a.stylist?.user?.name} · {a.service?.price} €
               </p>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex flex-wrap items-center gap-3">
               <StatusBadge status={a.status} />
               {isUpcoming(a) && (
-                <button onClick={() => cancel(a._id)} className="btn-danger">
-                  Cancelar
-                </button>
+                <>
+                  <button onClick={() => setRescheduling(a)} className="btn-outline">
+                    Reprogramar
+                  </button>
+                  <button onClick={() => cancel(a._id)} className="btn-danger">
+                    Cancelar
+                  </button>
+                </>
               )}
             </div>
           </li>
         ))}
       </ul>
+
+      {rescheduling && (
+        <RescheduleModal
+          appointment={rescheduling}
+          onClose={() => setRescheduling(null)}
+          onDone={() => {
+            setRescheduling(null);
+            load();
+          }}
+        />
+      )}
     </div>
   );
 }

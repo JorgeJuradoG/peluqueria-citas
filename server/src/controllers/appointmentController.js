@@ -184,3 +184,67 @@ export async function updateAppointmentStatus(req, res) {
 
   res.json(appointment);
 }
+
+export async function rescheduleAppointment(req, res) {
+  const appointment = await Appointment.findById(req.params.id);
+  if (!appointment) {
+    return res.status(404).json({ message: "Cita no encontrada" });
+  }
+
+  const isOwner = appointment.client.equals(req.user.id);
+  if (!isOwner && req.user.role !== "admin") {
+    return res.status(403).json({ message: "No puedes modificar esta cita" });
+  }
+  if (!ACTIVE_STATUSES.includes(appointment.status)) {
+    return res.status(409).json({ message: "Esta cita ya está cerrada" });
+  }
+  if (appointment.start <= new Date()) {
+    return res.status(400).json({ message: "No se puede reprogramar una cita pasada" });
+  }
+
+  const newStart = new Date(req.body.start);
+  if (isNaN(newStart.getTime()) || newStart <= new Date()) {
+    return res.status(400).json({ message: "La nueva fecha debe ser válida y futura" });
+  }
+
+  const [stylist, service] = await Promise.all([
+    Stylist.findById(appointment.stylist),
+    Service.findById(appointment.service),
+  ]);
+  if (!stylist || !stylist.active || !service) {
+    return res.status(404).json({ message: "Estilista o servicio no disponible" });
+  }
+
+  const newEnd = new Date(newStart.getTime() + service.durationMinutes * 60000);
+
+  if (!fitsInWorkingHours(stylist, newStart, newEnd)) {
+    return res
+      .status(400)
+      .json({ message: "Ese horario está fuera del horario del estilista" });
+  }
+
+  const overlap = await Appointment.findOne({
+    _id: { $ne: appointment._id }, // ignora la propia cita
+    stylist: stylist._id,
+    status: { $in: ACTIVE_STATUSES },
+    start: { $lt: newEnd },
+    end: { $gt: newStart },
+  });
+  if (overlap) {
+    return res.status(409).json({ message: "Ese hueco ya está ocupado" });
+  }
+
+  appointment.start = newStart;
+  appointment.end = newEnd;
+  await appointment.save();
+
+  // Misma sala: un solo evento basta para que todos recarguen sus huecos
+  emitToStylist(stylist._id, "appointment:updated", {
+    stylistId: stylist._id,
+    start: appointment.start,
+    end: appointment.end,
+  });
+
+
+  res.json(appointment);
+}

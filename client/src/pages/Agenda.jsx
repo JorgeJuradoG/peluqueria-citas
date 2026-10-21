@@ -14,6 +14,18 @@ import StatusBadge from "../components/StatusBadge";
 
 const TZ = "Europe/Madrid";
 
+const STATUS_COLORS = {
+  pending: { color: "#b45309", contrastColor: "#ffffff" }, // ámbar
+  confirmed: { color: "#1c1917", contrastColor: "#faf7f2" }, // negro de la marca
+  completed: { color: "#78716c", contrastColor: "#ffffff" }, // gris
+};
+
+const STATUS_LABELS = {
+  confirmed: "Confirmada",
+  pending: "Pendiente",
+  completed: "Completada",
+};
+
 function todayISO() {
   const d = new Date();
   const offset = d.getTimezoneOffset() * 60000;
@@ -26,6 +38,22 @@ function formatTime(iso) {
     minute: "2-digit",
     timeZone: TZ,
   });
+}
+
+function Legend() {
+  return (
+    <ul className="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-ink/70">
+      {Object.entries(STATUS_LABELS).map(([status, label]) => (
+        <li key={status} className="flex items-center gap-2">
+          <span
+            className="h-3.5 w-3.5 rounded-sm border-l-4 border-gold shadow-sm"
+            style={{ backgroundColor: STATUS_COLORS[status].color }}
+          />
+          {label}
+        </li>
+      ))}
+    </ul>
+  );
 }
 
 export default function Agenda() {
@@ -98,19 +126,13 @@ export default function Agenda() {
     }
   }
 
-  const STATUS_COLORS = {
-  pending: { color: "#b45309", contrastColor: "#ffffff" },   // ámbar
-  confirmed: { color: "#1c1917", contrastColor: "#faf7f2" }, // negro de la marca
-  completed: { color: "#78716c", contrastColor: "#ffffff" }, // gris
-};
-
   const events = appointments.map((a) => ({
-  id: a._id,
-  title: `${a.client?.name} · ${a.service?.name}`,
-  start: a.start,
-  end: a.end,
-  ...STATUS_COLORS[a.status],
-}));
+    id: a._id,
+    title: `${a.client?.name} · ${a.service?.name}`,
+    start: a.start,
+    end: a.end,
+    ...STATUS_COLORS[a.status],
+  }));
 
   const toggle = (value, label) => (
     <button
@@ -161,34 +183,39 @@ export default function Agenda() {
       )}
 
       {view === "week" && (!isAdmin || selectedStylist) && (
-        <div className="card mt-6 p-2 sm:p-4">
-          <FullCalendar
-            plugins={[timeGridPlugin, themePlugin]}
-            initialView="timeGridWeek"
-            timeZone={TZ}
-            locale={esLocale}
-            firstDay={1}
-            headerToolbar={{
-              start: "title",
-              end: "today prev,next timeGridWeek,timeGridDay",
-            }}
-            allDaySlot={false}
-            slotMinTime="08:00:00"
-            slotMaxTime="21:00:00"
-            slotDuration="00:30:00"
-            nowIndicator
-            height="auto"
-            events={events}
-            eventClass="cita-evento"
-            eventClick={(info) =>
-              setSelected(appointments.find((a) => a._id === info.event.id))
-            }
-            datesSet={(info) => {
-              setRangeFrom(info.startStr);
-              setRangeTo(info.endStr);
-            }}
-          />
-        </div>
+        <>
+          <div className="mt-6">
+            <Legend />
+          </div>
+          <div className="card mt-3 p-2 sm:p-4">
+            <FullCalendar
+              plugins={[timeGridPlugin, themePlugin]}
+              initialView="timeGridWeek"
+              timeZone={TZ}
+              locale={esLocale}
+              firstDay={1}
+              headerToolbar={{
+                start: "title",
+                end: "today prev,next timeGridWeek,timeGridDay",
+              }}
+              allDaySlot={false}
+              slotMinTime="08:00:00"
+              slotMaxTime="21:00:00"
+              slotDuration="00:30:00"
+              nowIndicator
+              height="auto"
+              events={events}
+              eventClass="cita-evento"
+              eventClick={(info) =>
+                setSelected(appointments.find((a) => a._id === info.event.id))
+              }
+              datesSet={(info) => {
+                setRangeFrom(info.startStr);
+                setRangeTo(info.endStr);
+              }}
+            />
+          </div>
+        </>
       )}
 
       {view === "list" && (
