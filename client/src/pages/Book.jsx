@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../services/api";
 import useStylistSocket from "../hooks/useStylistSocket";
+import { useConfirm, useToast } from "../context/UIContext.jsx";
 
 function todayISO() {
   const d = new Date();
@@ -33,6 +34,8 @@ export default function Book() {
   const [slots, setSlots] = useState([]);
   const [loadingSlots, setLoadingSlots] = useState(false);
   const [message, setMessage] = useState("");
+  const toast = useToast();
+  const confirm = useConfirm();
 
   useEffect(() => {
     api.get("/services").then((res) => setServices(res.data));
@@ -56,7 +59,7 @@ export default function Book() {
       setSlots(data.slots);
     } catch (err) {
       setSlots([]);
-      setMessage(err.response?.data?.message || "Error al cargar huecos");
+      toast.error(err.response?.data?.message || "No se pudo cargar la disponibilidad");
     } finally {
       setLoadingSlots(false);
     }
@@ -68,17 +71,26 @@ export default function Book() {
 
   useStylistSocket(stylistId, loadSlots);
 
-  async function reserve(slot) {
-    if (!window.confirm(`¿Reservar a las ${slot.label}?`)) return;
-    setMessage("");
-    try {
-      await api.post("/appointments", { stylistId, serviceId, start: slot.start });
-      navigate("/mis-citas");
-    } catch (err) {
-      setMessage(err.response?.data?.message || "No se pudo reservar");
-      loadSlots();
-    }
+async function reserve(slot) {
+  const service = services.find((s) => s._id === serviceId);
+  const stylist = stylists.find((s) => s._id === stylistId);
+
+  const ok = await confirm({
+    title: "Confirmar reserva",
+    message: `${service.name} con ${stylist.user.name} a las ${slot.label} (${service.price} €).`,
+    confirmText: "Reservar",
+  });
+  if (!ok) return;
+
+  try {
+    await api.post("/appointments", { stylistId, serviceId, start: slot.start });
+    toast.success("Cita reservada");
+    navigate("/mis-citas");
+  } catch (err) {
+    toast.error(err.response?.data?.message || "No se pudo reservar");
+    loadSlots();
   }
+}
 
   return (
     <div>

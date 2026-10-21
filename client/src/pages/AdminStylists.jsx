@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import api from "../services/api";
+import { useToast } from "../context/UIContext.jsx";
 
 const DAYS = [
   { value: 1, label: "Lunes" },
@@ -74,6 +75,7 @@ function WorkingHoursEditor({ workingHours, onSave }) {
 }
 
 function StylistCard({ stylist, allServices, onChanged }) {
+  const toast = useToast();
   const [newDay, setNewDay] = useState("");
   const [error, setError] = useState("");
 
@@ -82,15 +84,16 @@ function StylistCard({ stylist, allServices, onChanged }) {
   const daysOff = stylist.daysOff.map((d) => d.slice(0, 10)).sort();
 
   async function save(changes) {
-    setError("");
-    try {
-      await api.put(`/stylists/${stylist._id}`, changes);
-      onChanged();
-    } catch (err) {
-      const data = err.response?.data;
-      setError(data?.errors?.join(". ") || data?.message || "No se pudo guardar");
-    }
+  setError("");
+  try {
+    await api.put(`/stylists/${stylist._id}`, changes);
+    toast.success("Cambios guardados");
+    onChanged();
+  } catch (err) {
+    const data = err.response?.data;
+    setError(data?.errors?.join(". ") || data?.message || "No se pudo guardar");
   }
+}
 
   function toggleService(serviceId) {
     const services = offeredIds.includes(serviceId)

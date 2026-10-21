@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import api from "../services/api";
 import StatusBadge from "../components/StatusBadge";
+import { useToast, useConfirm } from "../context/UIContext.jsx";
 
 function formatDate(iso) {
   return new Date(iso).toLocaleString("es-ES", {
@@ -18,6 +19,8 @@ export default function MyAppointments() {
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const confirm = useConfirm(); 
+  const toast = useToast();
 
   async function load() {
     try {
@@ -34,15 +37,23 @@ export default function MyAppointments() {
     load();
   }, []);
 
-  async function cancel(id) {
-    if (!window.confirm("¿Cancelar esta cita?")) return;
-    try {
-      await api.patch(`/appointments/${id}/cancel`);
-      load();
-    } catch (err) {
-      setError(err.response?.data?.message || "No se pudo cancelar");
-    }
-  }
+    async function cancel(id) {
+         const ok = await confirm({
+    title: "Cancelar cita",
+    message: "El hueco quedará libre para otros clientes.",
+    confirmText: "Cancelar cita",
+    danger: true,
+        });
+        if (!ok) return;
+
+        try {
+       await api.patch(`/appointments/${id}/cancel`);
+       toast.success("Cita cancelada");
+       load();
+          } catch (err) {
+       toast.error(err.response?.data?.message || "No se pudo cancelar");
+         }
+      }
 
   const isUpcoming = (a) =>
     ["pending", "confirmed"].includes(a.status) && new Date(a.end) > new Date();

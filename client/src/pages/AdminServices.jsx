@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import api from "../services/api";
+import { useToast } from "../context/UIContext.jsx";
 
 const emptyForm = { name: "", durationMinutes: 30, price: 0 };
 
@@ -8,6 +9,8 @@ export default function AdminServices() {
   const [form, setForm] = useState(emptyForm);
   const [editingId, setEditingId] = useState(null);
   const [error, setError] = useState("");
+  const toast = useToast();
+
 
   async function load() {
     const { data } = await api.get("/services", { params: { all: true } });
@@ -34,6 +37,7 @@ export default function AdminServices() {
       }
       setForm(emptyForm);
       setEditingId(null);
+      toast.success(editingId ? "Servicio actualizado" : "Servicio creado");
       load();
     } catch (err) {
       const data = err.response?.data;
@@ -54,6 +58,7 @@ export default function AdminServices() {
   async function toggleActive(s) {
     try {
       await api.put(`/services/${s._id}`, { active: !s.active });
+      toast.success(s.active ? "Servicio desactivado" : "Servicio reactivado");
       load();
     } catch (err) {
       setError(err.response?.data?.message || "No se pudo actualizar");
