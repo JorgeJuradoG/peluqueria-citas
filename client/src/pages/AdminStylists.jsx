@@ -32,7 +32,7 @@ function CreateStylistForm({ allServices, onCreated, onCancel }) {
   const [form, setForm] = useState({ ...emptyForm, password: generatePassword() });
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
-  const [created, setCreated] = useState(null); // { name, email, password }
+  const [created, setCreated] = useState(null); // { name, email, password, accountCreated }
 
   function handleChange(e) {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -83,8 +83,14 @@ function CreateStylistForm({ allServices, onCreated, onCancel }) {
               puede cambiarla desde su perfil.
             </p>
             <dl className="mt-4 space-y-1 rounded-lg bg-sand/50 p-4 text-sm">
-              <p><dt className="inline text-ink/60">Email: </dt><dd className="inline font-medium">{created.email}</dd></p>
-              <p><dt className="inline text-ink/60">Contraseña temporal: </dt><dd className="inline font-mono font-medium">{created.password}</dd></p>
+              <p>
+                <dt className="inline text-ink/60">Email: </dt>
+                <dd className="inline font-medium">{created.email}</dd>
+              </p>
+              <p>
+                <dt className="inline text-ink/60">Contraseña temporal: </dt>
+                <dd className="inline font-mono font-medium">{created.password}</dd>
+              </p>
             </dl>
           </>
         ) : (
@@ -109,45 +115,82 @@ function CreateStylistForm({ allServices, onCreated, onCancel }) {
         </div>
         <div>
           <label className="label">Email</label>
-          <input name="email" type="email" value={form.email} onChange={handleChange}
-            className="input" required />
+          <input
+            name="email"
+            type="email"
+            value={form.email}
+            onChange={handleChange}
+            className="input"
+            required
+          />
         </div>
         <div>
-          <label className="label">Teléfono <span className="text-ink/40">(opcional)</span></label>
-          <input name="phone" type="tel" value={form.phone} onChange={handleChange} className="input" />
+          <label className="label">
+            Teléfono <span className="text-ink/40">(opcional)</span>
+          </label>
+          <input
+            name="phone"
+            type="tel"
+            value={form.phone}
+            onChange={handleChange}
+            className="input"
+          />
         </div>
         <div>
           <label className="label">Contraseña temporal</label>
           <div className="flex gap-2">
-            <input name="password" value={form.password} onChange={handleChange}
-              className="input font-mono" required />
-            <button type="button" className="btn-outline"
-              onClick={() => setForm({ ...form, password: generatePassword() })}>
+            <input
+              name="password"
+              value={form.password}
+              onChange={handleChange}
+              className="input font-mono"
+              required
+            />
+            <button
+              type="button"
+              className="btn-outline"
+              onClick={() => setForm({ ...form, password: generatePassword() })}
+            >
               Generar
             </button>
           </div>
         </div>
         <div className="sm:col-span-2">
-          <label className="label">Presentación <span className="text-ink/40">(opcional)</span></label>
-          <input name="bio" value={form.bio} onChange={handleChange} className="input"
-            placeholder="Especialista en cortes y color" />
+          <label className="label">
+            Presentación <span className="text-ink/40">(opcional)</span>
+          </label>
+          <input
+            name="bio"
+            value={form.bio}
+            onChange={handleChange}
+            className="input"
+            placeholder="Especialista en cortes y color"
+          />
         </div>
       </div>
 
       <h3 className="mt-5 font-semibold">Servicios que ofrece</h3>
       <div className="mt-2 flex flex-wrap gap-2">
         {allServices.length === 0 && (
-          <p className="text-sm text-ink/50">Crea primero algún servicio en la sección Servicios.</p>
+          <p className="text-sm text-ink/50">
+            Crea primero algún servicio en la sección Servicios.
+          </p>
         )}
         {allServices.map((s) => {
           const on = form.services.includes(s._id);
           return (
-            <label key={s._id}
+            <label
+              key={s._id}
               className={`flex cursor-pointer items-center gap-2 rounded-full border px-3 py-1 text-sm transition ${
                 on ? "border-gold bg-gold/10" : "border-sand hover:border-gold"
-              }`}>
-              <input type="checkbox" className="accent-[#b08d57]" checked={on}
-                onChange={() => toggleService(s._id)} />
+              }`}
+            >
+              <input
+                type="checkbox"
+                className="accent-[#b08d57]"
+                checked={on}
+                onChange={() => toggleService(s._id)}
+              />
               {s.name}
             </label>
           );
@@ -165,7 +208,9 @@ function CreateStylistForm({ allServices, onCreated, onCancel }) {
         <button className="btn-primary" disabled={saving}>
           {saving ? "Creando..." : "Crear estilista"}
         </button>
-        <button type="button" onClick={onCancel} className="btn-outline">Cancelar</button>
+        <button type="button" onClick={onCancel} className="btn-outline">
+          Cancelar
+        </button>
       </div>
     </form>
   );
@@ -195,24 +240,39 @@ function WorkingHoursEditor({ workingHours, onSave }) {
           <span className="w-24 text-sm font-medium">{day.label}</span>
           {rows.map((r, i) =>
             r.dayOfWeek !== day.value ? null : (
-              <span key={i}
-                className="flex flex-wrap items-center gap-1 rounded-lg border border-sand bg-cream px-2 py-1 text-sm">
-                <input type="time" value={r.start}
-                  onChange={(e) => update(i, "start", e.target.value)} />
+              <span
+                key={i}
+                className="flex flex-wrap items-center gap-1 rounded-lg border border-sand bg-cream px-2 py-1 text-sm"
+              >
+                <input
+                  type="time"
+                  value={r.start}
+                  onChange={(e) => update(i, "start", e.target.value)}
+                />
                 –
-                <input type="time" value={r.end}
-                  onChange={(e) => update(i, "end", e.target.value)} />
-                <button onClick={() => removeRow(i)} className="text-red-600">✕</button>
+                <input
+                  type="time"
+                  value={r.end}
+                  onChange={(e) => update(i, "end", e.target.value)}
+                />
+                <button onClick={() => removeRow(i)} className="text-red-600">
+                  ✕
+                </button>
               </span>
             )
           )}
-          <button onClick={() => addRow(day.value)} className="text-sm text-gold-dark underline">
+          <button
+            onClick={() => addRow(day.value)}
+            className="text-sm text-gold-dark underline"
+          >
             + franja
           </button>
         </div>
       ))}
       <div className="pt-4">
-        <button onClick={() => onSave(rows)} className="btn-primary">Guardar horario</button>
+        <button onClick={() => onSave(rows)} className="btn-primary">
+          Guardar horario
+        </button>
       </div>
     </div>
   );
@@ -224,6 +284,7 @@ function StylistCard({ stylist, allServices, onChanged }) {
   const [error, setError] = useState("");
 
   const offeredIds = stylist.services.map((s) => s._id);
+  // Las fechas llegan como ISO (UTC); nos quedamos con AAAA-MM-DD
   const daysOff = stylist.daysOff.map((d) => d.slice(0, 10)).sort();
 
   async function save(changes) {
@@ -256,7 +317,7 @@ function StylistCard({ stylist, allServices, onChanged }) {
   }
 
   return (
-    <li className="card">
+    <li className={`card ${stylist.active ? "" : "opacity-60"}`}>
       <div className="flex items-center gap-3">
         <span className="flex h-11 w-11 items-center justify-center rounded-full bg-ink font-display text-lg text-cream">
           {stylist.user.name[0]}
@@ -265,6 +326,19 @@ function StylistCard({ stylist, allServices, onChanged }) {
           <h2 className="text-xl font-semibold">{stylist.user.name}</h2>
           <p className="text-sm text-ink/60">{stylist.user.email}</p>
         </div>
+        <div className="ml-auto flex items-center gap-3">
+          {!stylist.active && (
+            <span className="rounded-full bg-stone-200 px-2.5 py-0.5 text-xs font-medium text-stone-700">
+              Desactivado
+            </span>
+          )}
+          <button
+            onClick={() => save({ active: !stylist.active })}
+            className="btn-outline"
+          >
+            {stylist.active ? "Desactivar" : "Reactivar"}
+          </button>
+        </div>
       </div>
 
       <h3 className="mt-6 text-lg font-semibold">Servicios que ofrece</h3>
@@ -272,12 +346,18 @@ function StylistCard({ stylist, allServices, onChanged }) {
         {allServices.map((s) => {
           const on = offeredIds.includes(s._id);
           return (
-            <label key={s._id}
+            <label
+              key={s._id}
               className={`flex cursor-pointer items-center gap-2 rounded-full border px-3 py-1 text-sm transition ${
                 on ? "border-gold bg-gold/10" : "border-sand hover:border-gold"
-              }`}>
-              <input type="checkbox" className="accent-[#b08d57]" checked={on}
-                onChange={() => toggleService(s._id)} />
+              }`}
+            >
+              <input
+                type="checkbox"
+                className="accent-[#b08d57]"
+                checked={on}
+                onChange={() => toggleService(s._id)}
+              />
               {s.name}
             </label>
           );
@@ -286,16 +366,27 @@ function StylistCard({ stylist, allServices, onChanged }) {
 
       <h3 className="mt-6 text-lg font-semibold">Días libres</h3>
       <div className="mt-2 flex gap-2">
-        <input type="date" value={newDay} onChange={(e) => setNewDay(e.target.value)}
-          className="input max-w-xs" />
-        <button onClick={addDay} className="btn-outline">Añadir</button>
+        <input
+          type="date"
+          value={newDay}
+          onChange={(e) => setNewDay(e.target.value)}
+          className="input max-w-xs"
+        />
+        <button onClick={addDay} className="btn-outline">
+          Añadir
+        </button>
       </div>
       <ul className="mt-3 flex flex-wrap gap-2">
         {daysOff.length === 0 && <li className="text-sm text-ink/50">Ninguno.</li>}
         {daysOff.map((day) => (
-          <li key={day} className="flex items-center gap-2 rounded-full bg-sand px-3 py-1 text-sm">
+          <li
+            key={day}
+            className="flex items-center gap-2 rounded-full bg-sand px-3 py-1 text-sm"
+          >
             {day}
-            <button onClick={() => removeDay(day)} className="text-red-600">✕</button>
+            <button onClick={() => removeDay(day)} className="text-red-600">
+              ✕
+            </button>
           </li>
         ))}
       </ul>
@@ -319,7 +410,10 @@ export default function AdminStylists() {
   const [adding, setAdding] = useState(false);
 
   async function load() {
-    const [st, sv] = await Promise.all([api.get("/stylists"), api.get("/services")]);
+    const [st, sv] = await Promise.all([
+      api.get("/stylists/manage/all"),
+      api.get("/services"),
+    ]);
     setStylists(st.data);
     setServices(sv.data);
   }

@@ -31,6 +31,15 @@ export async function getStylists(req, res) {
   res.json(stylists);
 }
 
+// Admin: incluye los desactivados
+export async function getAllStylists(req, res) {
+  const stylists = await Stylist.find({ salon: req.salon._id })
+    .sort({ active: -1, createdAt: 1 })
+    .populate("user", "name email")
+    .populate("services", "name durationMinutes price");
+  res.json(stylists);
+}
+
 export async function getStylistById(req, res) {
   const stylist = await Stylist.findOne({ _id: req.params.id, salon: req.salon._id })
     .populate("user", "name email")
