@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { KeyRound, Loader2, PartyPopper, TriangleAlert } from "lucide-react";
 import api from "../services/api";
 import { useAuth } from "../context/AuthContext";
 import { useToast } from "../context/UIContext";
+import { ErrorAlert, PasswordField } from "../components/FormField";
 
 const PASSWORD_RE = /^(?=.*[A-Za-z])(?=.*\d).{8,}$/;
 
@@ -57,26 +59,45 @@ export default function ResetPassword() {
 
   if (invalid) {
     return (
-      <div className="mx-auto max-w-sm">
-        <div className="card text-center">
-          <h1 className="text-3xl font-bold">Enlace no válido</h1>
+      <div className="mx-auto max-w-sm py-4">
+        <div className="card animate-fade-up text-center">
+          <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-amber-100 text-amber-700">
+            <TriangleAlert className="h-6 w-6" aria-hidden="true" />
+          </span>
+          <h1 className="mt-4 text-3xl font-bold">Enlace no válido</h1>
           <p className="mt-3 text-sm text-ink/70">
             Este enlace ha caducado o ya se ha usado. Puedes pedir uno nuevo.
           </p>
-          <Link to="/recuperar" className="btn-primary mt-6 w-full">Pedir un enlace nuevo</Link>
+          <Link to="/recuperar" className="btn-primary mt-6 w-full">
+            Pedir un enlace nuevo
+          </Link>
         </div>
       </div>
     );
   }
 
-  if (!info) return <p className="text-center text-ink/60">Comprobando el enlace...</p>;
+  if (!info) {
+    return (
+      <p className="flex items-center justify-center gap-2 py-10 text-ink/70">
+        <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+        Comprobando el enlace...
+      </p>
+    );
+  }
 
   const isInvite = info.type === "invite";
 
   return (
-    <div className="mx-auto max-w-sm">
-      <form onSubmit={handleSubmit} className="card" noValidate>
-        <h1 className="text-3xl font-bold">
+    <div className="mx-auto max-w-sm py-4">
+      <form onSubmit={handleSubmit} className="card animate-fade-up" noValidate>
+        <span className="flex h-12 w-12 items-center justify-center rounded-full bg-ink text-gold">
+          {isInvite ? (
+            <PartyPopper className="h-6 w-6" aria-hidden="true" />
+          ) : (
+            <KeyRound className="h-6 w-6" aria-hidden="true" />
+          )}
+        </span>
+        <h1 className="mt-4 text-3xl font-bold">
           {isInvite ? "Activa tu cuenta" : "Elige tu contraseña"}
         </h1>
         <p className="mt-1 text-sm text-ink/70">
@@ -85,40 +106,31 @@ export default function ResetPassword() {
         </p>
 
         <div className="mt-6 space-y-4">
-          <div>
-            <label className="label">Contraseña nueva</label>
-            <input
-              name="password"
-              type="password"
-              value={form.password}
-              onChange={handleChange}
-              autoComplete="new-password"
-              className="input"
-              required
-            />
-            <p className="mt-1 text-xs text-ink/60">
-              Mínimo 8 caracteres, con una letra y un número.
-            </p>
-          </div>
-          <div>
-            <label className="label">Repite la contraseña</label>
-            <input
-              name="confirm"
-              type="password"
-              value={form.confirm}
-              onChange={handleChange}
-              autoComplete="new-password"
-              className="input"
-              required
-            />
-          </div>
+          <PasswordField
+            label="Contraseña nueva"
+            name="password"
+            value={form.password}
+            onChange={handleChange}
+            autoComplete="new-password"
+            hint="Mínimo 8 caracteres, con una letra y un número."
+          />
+          <PasswordField
+            label="Repite la contraseña"
+            name="confirm"
+            value={form.confirm}
+            onChange={handleChange}
+            autoComplete="new-password"
+          />
         </div>
 
         {error && (
-          <p className="mt-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>
+          <div className="mt-4">
+            <ErrorAlert>{error}</ErrorAlert>
+          </div>
         )}
 
         <button className="btn-primary mt-6 w-full" disabled={saving}>
+          {saving && <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />}
           {saving ? "Guardando..." : isInvite ? "Activar cuenta" : "Guardar contraseña"}
         </button>
       </form>

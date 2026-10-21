@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { Loader2, Mail, MailCheck, Send } from "lucide-react";
 import api from "../services/api";
-import { MailCheck } from "lucide-react";
+import { ErrorAlert, Field } from "../components/FormField";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -28,14 +29,14 @@ export default function ForgotPassword() {
   }
 
   return (
-    <div className="mx-auto max-w-sm">
-      <div className="card">
+    <div className="mx-auto max-w-sm py-4">
+      <div className="card animate-fade-up">
         {sent ? (
           <>
-            <span className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-emerald-100 text-emerald-700">
-                <MailCheck className="h-6 w-6" aria-hidden="true" />
+            <span className="flex h-12 w-12 items-center justify-center rounded-full bg-emerald-100 text-emerald-700">
+              <MailCheck className="h-6 w-6" aria-hidden="true" />
             </span>
-            <h1 className="text-3xl font-bold">Revisa tu correo</h1>
+            <h1 className="mt-4 text-3xl font-bold">Revisa tu correo</h1>
             <p className="mt-3 text-sm text-ink/70">
               Si existe una cuenta con <b>{email.trim()}</b>, te hemos enviado un enlace para
               elegir una contraseña nueva. Caduca en 1 hora.
@@ -43,33 +44,40 @@ export default function ForgotPassword() {
             <p className="mt-3 text-sm text-ink/60">
               ¿No llega? Mira en la carpeta de spam o espera un minuto y vuelve a intentarlo.
             </p>
-            <Link to="/login" className="btn-primary mt-6 w-full">Volver a entrar</Link>
+            <Link to="/login" className="btn-primary mt-6 w-full">
+              Volver a entrar
+            </Link>
           </>
         ) : (
           <>
-            <h1 className="text-3xl font-bold">Recupera tu contraseña</h1>
+            <span className="flex h-12 w-12 items-center justify-center rounded-full bg-ink text-gold">
+              <Mail className="h-6 w-6" aria-hidden="true" />
+            </span>
+            <h1 className="mt-4 text-3xl font-bold">Recupera tu contraseña</h1>
             <p className="mt-1 text-sm text-ink/70">
               Escribe tu email y te enviaremos un enlace para elegir una nueva.
             </p>
 
             <form onSubmit={handleSubmit} className="mt-6 space-y-4" noValidate>
-              <div>
-                <label className="label">Email</label>
+              <Field label="Email" icon={Mail}>
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   autoComplete="email"
-                  className="input"
+                  className="input pl-9"
                   required
                 />
-              </div>
+              </Field>
 
-              {error && (
-                <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>
-              )}
+              {error && <ErrorAlert>{error}</ErrorAlert>}
 
               <button className="btn-primary w-full" disabled={loading}>
+                {loading ? (
+                  <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+                ) : (
+                  <Send className="h-4 w-4" aria-hidden="true" />
+                )}
                 {loading ? "Enviando..." : "Enviar enlace"}
               </button>
             </form>

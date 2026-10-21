@@ -1,5 +1,18 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
+import {
+  ArrowLeft,
+  Globe,
+  Link2,
+  Loader2,
+  Mail,
+  Scissors,
+  Store,
+  UserRound,
+} from "lucide-react";
 import api from "../services/api";
+import ThemeToggle from "../components/ThemeToggle";
+import { ErrorAlert, Field, PasswordField } from "../components/FormField";
 
 const TIMEZONES = [
   "Europe/Madrid",
@@ -22,6 +35,7 @@ const slugify = (s) =>
     .replace(/^-+|-+$/g, "")
     .slice(0, 40);
 
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const PASSWORD_RE = /^(?=.*[A-Za-z])(?=.*\d).{8,}$/;
 
 export default function CreateSalon() {
@@ -49,12 +63,22 @@ export default function CreateSalon() {
     setForm(next);
   }
 
+  function validate() {
+    if (form.salonName.trim().length < 2) return "Escribe el nombre de tu peluquería";
+    if (form.slug.length < 3) return "La dirección web tiene al menos 3 caracteres";
+    if (form.adminName.trim().length < 2) return "Escribe tu nombre";
+    if (!EMAIL_RE.test(form.email.trim())) return "Introduce un email válido";
+    if (!PASSWORD_RE.test(form.password))
+      return "La contraseña debe tener al menos 8 caracteres, una letra y un número";
+    return "";
+  }
+
   async function handleSubmit(e) {
     e.preventDefault();
+    const problem = validate();
+    if (problem) return setError(problem);
+
     setError("");
-    if (!PASSWORD_RE.test(form.password)) {
-      return setError("La contraseña debe tener al menos 8 caracteres, una letra y un número");
-    }
     setLoading(true);
     try {
       const { data } = await api.post("/salons", form);
@@ -69,72 +93,117 @@ export default function CreateSalon() {
   }
 
   return (
-    <div className="mx-auto max-w-lg px-4 py-12">
-      <a href="/" className="text-sm text-gold-dark underline">← Volver</a>
-      <form onSubmit={handleSubmit} className="card mt-4" noValidate>
-        <h1 className="text-3xl font-bold">Crea tu peluquería</h1>
-        <p className="mt-1 text-sm text-ink/70">
-          Tú serás el administrador. Después añadirás servicios y estilistas.
-        </p>
+    <div className="flex min-h-screen flex-col">
+      <header className="border-b border-sand">
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3">
+          <Link to="/" className="flex items-center gap-2 font-display text-2xl font-bold tracking-tight">
+            <Scissors className="h-5 w-5 text-gold" aria-hidden="true" />
+            Citas<span className="text-gold">.</span>
+          </Link>
+          <ThemeToggle />
+        </div>
+      </header>
 
-        <h2 className="mt-6 text-lg font-semibold">Tu negocio</h2>
-        <div className="mt-3 space-y-4">
-          <div>
-            <label className="label">Nombre de la peluquería</label>
-            <input name="salonName" value={form.salonName} onChange={handleChange}
-              className="input" required />
+      <main className="mx-auto w-full max-w-lg flex-1 animate-fade-up px-4 py-10">
+        <Link to="/" className="inline-flex items-center gap-1.5 text-sm text-gold-dark hover:underline">
+          <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+          Volver
+        </Link>
+
+        <form onSubmit={handleSubmit} className="card mt-4" noValidate>
+          <span className="flex h-12 w-12 items-center justify-center rounded-full bg-ink text-gold">
+            <Store className="h-6 w-6" aria-hidden="true" />
+          </span>
+          <h1 className="mt-4 text-3xl font-bold">Crea tu peluquería</h1>
+          <p className="mt-1 text-sm text-ink/70">
+            Tú serás el administrador. Después añadirás servicios y estilistas.
+          </p>
+
+          <h2 className="mt-6 text-lg font-semibold">Tu negocio</h2>
+          <div className="mt-3 space-y-4">
+            <Field label="Nombre de la peluquería" icon={Store}>
+              <input
+                name="salonName"
+                value={form.salonName}
+                onChange={handleChange}
+                className="input pl-9"
+                required
+              />
+            </Field>
+            <Field
+              label="Dirección web"
+              icon={Link2}
+              hint={`Tus clientes entrarán por /s/${form.slug || "tu-peluqueria"}`}
+            >
+              <input
+                name="slug"
+                value={form.slug}
+                onChange={handleChange}
+                className="input pl-9"
+                required
+              />
+            </Field>
+            <Field label="Zona horaria" icon={Globe}>
+              <select
+                name="timezone"
+                value={form.timezone}
+                onChange={handleChange}
+                className="input pl-9"
+              >
+                {TIMEZONES.map((tz) => (
+                  <option key={tz} value={tz}>
+                    {tz}
+                  </option>
+                ))}
+              </select>
+            </Field>
           </div>
-          <div>
-            <label className="label">Dirección web</label>
-            <div className="flex items-center gap-1">
-              <span className="text-sm text-ink/60">/s/</span>
-              <input name="slug" value={form.slug} onChange={handleChange}
-                className="input" required />
+
+          <h2 className="mt-6 text-lg font-semibold">Tu cuenta de administrador</h2>
+          <div className="mt-3 space-y-4">
+            <Field label="Tu nombre" icon={UserRound}>
+              <input
+                name="adminName"
+                value={form.adminName}
+                onChange={handleChange}
+                autoComplete="name"
+                className="input pl-9"
+                required
+              />
+            </Field>
+            <Field label="Email" icon={Mail}>
+              <input
+                name="email"
+                type="email"
+                value={form.email}
+                onChange={handleChange}
+                autoComplete="email"
+                className="input pl-9"
+                required
+              />
+            </Field>
+            <PasswordField
+              label="Contraseña"
+              name="password"
+              value={form.password}
+              onChange={handleChange}
+              autoComplete="new-password"
+              hint="Mínimo 8 caracteres, con una letra y un número."
+            />
+          </div>
+
+          {error && (
+            <div className="mt-4">
+              <ErrorAlert>{error}</ErrorAlert>
             </div>
-            <p className="mt-1 text-xs text-ink/60">
-              Tus clientes entrarán por /s/{form.slug || "tu-peluqueria"}
-            </p>
-          </div>
-          <div>
-            <label className="label">Zona horaria</label>
-            <select name="timezone" value={form.timezone} onChange={handleChange} className="input">
-              {TIMEZONES.map((tz) => (
-                <option key={tz} value={tz}>{tz}</option>
-              ))}
-            </select>
-          </div>
-        </div>
+          )}
 
-        <h2 className="mt-6 text-lg font-semibold">Tu cuenta de administrador</h2>
-        <div className="mt-3 space-y-4">
-          <div>
-            <label className="label">Tu nombre</label>
-            <input name="adminName" value={form.adminName} onChange={handleChange}
-              autoComplete="name" className="input" required />
-          </div>
-          <div>
-            <label className="label">Email</label>
-            <input name="email" type="email" value={form.email} onChange={handleChange}
-              autoComplete="email" className="input" required />
-          </div>
-          <div>
-            <label className="label">Contraseña</label>
-            <input name="password" type="password" value={form.password}
-              onChange={handleChange} autoComplete="new-password" className="input" required />
-            <p className="mt-1 text-xs text-ink/60">
-              Mínimo 8 caracteres, con una letra y un número.
-            </p>
-          </div>
-        </div>
-
-        {error && (
-          <p className="mt-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>
-        )}
-
-        <button className="btn-primary mt-6 w-full" disabled={loading}>
-          {loading ? "Creando..." : "Crear peluquería"}
-        </button>
-      </form>
+          <button className="btn-primary mt-6 w-full" disabled={loading}>
+            {loading && <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />}
+            {loading ? "Creando..." : "Crear peluquería"}
+          </button>
+        </form>
+      </main>
     </div>
   );
 }
