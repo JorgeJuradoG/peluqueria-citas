@@ -3,7 +3,7 @@ import Appointment from "../models/Appointment.js";
 import { sendMail } from "./mailer.js";
 
 // Evita que un nombre con < > & rompa o inyecte HTML en el correo
-const esc = (s) =>
+export const esc = (s) =>
   String(s ?? "").replace(/[&<>"']/g, (c) => (
     { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]
   ));
@@ -23,7 +23,7 @@ function formatWhen(date, tz) {
     .toFormat("cccc d 'de' LLLL 'a las' HH:mm");
 }
 
-function layout(salon, title, bodyHtml) {
+export function layout(salon, title, bodyHtml) {
   return `
   <div style="font-family:Arial,sans-serif;background:#faf7f2;padding:24px">
     <div style="max-width:480px;margin:auto;background:#fff;border:1px solid #ece5d8;border-radius:12px;padding:28px">
@@ -34,15 +34,15 @@ function layout(salon, title, bodyHtml) {
   </div>`;
 }
 
-function row(label, value) {
+ function row(label, value) {
   return `<tr><td style="padding:6px 0;color:#78716c">${label}</td><td style="padding:6px 0">${value}</td></tr>`;
 }
 
-function button(href, label) {
+export function button(href, label) {
   return `<p style="margin-top:20px"><a href="${esc(href)}" style="background:#1c1917;color:#faf7f2;text-decoration:none;padding:10px 18px;border-radius:8px;font-size:14px">${label}</a></p>`;
 }
 
-function baseUrl(salon) {
+export function baseUrl(salon) {
   return `${process.env.CLIENT_URL || "http://localhost:5173"}/s/${salon.slug}`;
 }
 

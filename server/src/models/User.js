@@ -19,6 +19,7 @@ const userSchema = new mongoose.Schema(
       default: "client",
     },
     tokenVersion: { type: Number, default: 0 },
+    pendingInvite: { type: Boolean, default: false },
   },
   { timestamps: true }
 );

@@ -1,13 +1,15 @@
 import bcrypt from "bcryptjs";
+import crypto from "crypto";
 import { DateTime } from "luxon";
 import Stylist from "../models/Stylist.js";
 import User from "../models/User.js";
 import Service from "../models/Service.js";
 import Appointment from "../models/Appointment.js";
 import { getAvailableSlots } from "../utils/availability.js";
+import { issueToken, INVITE_TTL_MS } from "../services/authTokens.js";
+import { sendStylistInvitation } from "../services/authMails.js";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const PASSWORD_RE = /^(?=.*[A-Za-z])(?=.*\d).{8,}$/;
 const PHONE_RE = /^\+?[\d\s-]{9,15}$/;
 
 // Horario por defecto: lunes a viernes, mañana y tarde. El admin lo ajusta después
@@ -24,25 +26,26 @@ async function allServicesBelong(ids, salon) {
   return count === unique.size;
 }
 
+// Público: solo el nombre (el email de un estilista no es de dominio público)
 export async function getStylists(req, res) {
   const stylists = await Stylist.find({ salon: req.salon._id, active: true })
-    .populate("user", "name email")
+    .populate("user", "name")
     .populate("services", "name durationMinutes price");
   res.json(stylists);
 }
 
-// Admin: incluye los desactivados
+// Admin: incluye los desactivados, el email y si la invitación sigue pendiente
 export async function getAllStylists(req, res) {
   const stylists = await Stylist.find({ salon: req.salon._id })
     .sort({ active: -1, createdAt: 1 })
-    .populate("user", "name email")
+    .populate("user", "name email pendingInvite")
     .populate("services", "name durationMinutes price");
   res.json(stylists);
 }
 
 export async function getStylistById(req, res) {
   const stylist = await Stylist.findOne({ _id: req.params.id, salon: req.salon._id })
-    .populate("user", "name email")
+    .populate("user", "name")
     .populate("services", "name durationMinutes price");
   if (!stylist) {
     return res.status(404).json({ message: "Estilista no encontrado" });
@@ -71,7 +74,6 @@ export async function createStylist(req, res) {
     const name = String(req.body.name || "").trim();
     const email = String(req.body.email || "").trim().toLowerCase();
     const phone = String(req.body.phone || "").trim();
-    const password = String(req.body.password || "");
 
     if (name.length < 2 || name.length > 60) {
       return res.status(400).json({ message: "El nombre debe tener entre 2 y 60 caracteres" });
@@ -82,11 +84,6 @@ export async function createStylist(req, res) {
     if (phone && !PHONE_RE.test(phone)) {
       return res.status(400).json({ message: "Teléfono no válido" });
     }
-    if (!PASSWORD_RE.test(password)) {
-      return res.status(400).json({
-        message: "La contraseña debe tener al menos 8 caracteres, una letra y un número",
-      });
-    }
 
     user = await User.findOne({ salon, email });
     if (!user) {
@@ -95,8 +92,10 @@ export async function createStylist(req, res) {
         name,
         email,
         phone,
-        passwordHash: await bcrypt.hash(password, 10),
+        // Contraseña aleatoria que nadie conoce: la cuenta se activa con la invitación
+        passwordHash: await bcrypt.hash(crypto.randomBytes(32).toString("hex"), 10),
         role: "stylist",
+        pendingInvite: true,
       });
       createdUser = true;
     }
@@ -110,8 +109,9 @@ export async function createStylist(req, res) {
     return res.status(409).json({ message: "Esa persona ya es estilista" });
   }
 
+  let stylist;
   try {
-    const stylist = await Stylist.create({
+    stylist = await Stylist.create({
       salon,
       user: user._id,
       bio,
@@ -124,13 +124,37 @@ export async function createStylist(req, res) {
       user.role = "stylist";
       await user.save();
     }
-
-    res.status(201).json({ stylist, accountCreated: createdUser });
   } catch (err) {
     // No dejamos una cuenta huérfana si falló el perfil
     if (createdUser) await User.deleteOne({ _id: user._id });
     throw err;
   }
+
+  // Invitación solo para cuentas nuevas
+  let invitationSent = false;
+  if (createdUser) {
+    const raw = await issueToken({ user, type: "invite", ttlMs: INVITE_TTL_MS });
+    invitationSent = await sendStylistInvitation(user, req.salon, raw);
+  }
+
+  res.status(201).json({ stylist, accountCreated: createdUser, invitationSent });
+}
+
+// Admin: reenviar la invitación a quien aún no ha activado su cuenta
+export async function inviteStylist(req, res) {
+  const stylist = await Stylist.findOne({ _id: req.params.id, salon: req.salon._id }).populate(
+    "user"
+  );
+  if (!stylist || !stylist.user) {
+    return res.status(404).json({ message: "Estilista no encontrado" });
+  }
+  if (!stylist.user.pendingInvite) {
+    return res.status(409).json({ message: "Esta persona ya activó su cuenta" });
+  }
+
+  const raw = await issueToken({ user: stylist.user, type: "invite", ttlMs: INVITE_TTL_MS });
+  const invitationSent = await sendStylistInvitation(stylist.user, req.salon, raw);
+  res.json({ invitationSent });
 }
 
 export async function updateStylist(req, res) {
