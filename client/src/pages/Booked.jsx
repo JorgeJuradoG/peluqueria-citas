@@ -25,25 +25,25 @@ export default function Booked() {
           ✓
         </span>
         <h1 className="mt-4 text-3xl font-bold">¡Cita reservada!</h1>
-        <p className="mt-1 text-sm text-ink/60">
+        <p className="mt-1 text-sm text-ink/70">
           Te hemos enviado la confirmación por correo.
         </p>
 
         <dl className="mt-6 space-y-2 rounded-lg bg-sand/50 p-4 text-left text-sm">
           <p>
-            <dt className="inline text-ink/60">Cuándo: </dt>
+            <dt className="inline text-ink/70">Cuándo: </dt>
             <dd className="inline font-medium capitalize">
               {formatDateTime(appointment.start, salon.timezone)}
             </dd>
           </p>
           <p>
-            <dt className="inline text-ink/60">Servicio: </dt>
+            <dt className="inline text-ink/70">Servicio: </dt>
             <dd className="inline font-medium">
               {appointment.serviceName} ({appointment.price} €)
             </dd>
           </p>
           <p>
-            <dt className="inline text-ink/60">Con: </dt>
+            <dt className="inline text-ink/70">Con: </dt>
             <dd className="inline font-medium">{appointment.stylistName}</dd>
           </p>
         </dl>

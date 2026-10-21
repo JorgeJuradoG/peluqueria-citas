@@ -40,7 +40,7 @@ export default function ForgotPassword() {
               Si existe una cuenta con <b>{email.trim()}</b>, te hemos enviado un enlace para
               elegir una contraseña nueva. Caduca en 1 hora.
             </p>
-            <p className="mt-3 text-sm text-ink/50">
+            <p className="mt-3 text-sm text-ink/60">
               ¿No llega? Mira en la carpeta de spam o espera un minuto y vuelve a intentarlo.
             </p>
             <Link to="/login" className="btn-primary mt-6 w-full">Volver a entrar</Link>
@@ -48,7 +48,7 @@ export default function ForgotPassword() {
         ) : (
           <>
             <h1 className="text-3xl font-bold">Recupera tu contraseña</h1>
-            <p className="mt-1 text-sm text-ink/60">
+            <p className="mt-1 text-sm text-ink/70">
               Escribe tu email y te enviaremos un enlace para elegir una nueva.
             </p>
 

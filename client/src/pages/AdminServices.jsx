@@ -1,5 +1,17 @@
 import { useEffect, useState } from "react";
-import { Clock, Euro, Loader2, Pencil, Plus, Power, PowerOff, Save, Scissors, TriangleAlert, X } from "lucide-react";
+import {
+  Clock,
+  Euro,
+  Loader2,
+  Pencil,
+  Plus,
+  Power,
+  PowerOff,
+  Save,
+  Scissors,
+  TriangleAlert,
+  X,
+} from "lucide-react";
 import api from "../services/api";
 import { useToast } from "../context/UIContext";
 import { Skeleton } from "../components/Skeleton";
@@ -8,16 +20,16 @@ const emptyForm = { name: "", durationMinutes: 30, price: 0 };
 
 function Field({ label, icon: Icon, children }) {
   return (
-    <div>
-      <label className="label">{label}</label>
-      <div className="relative">
+    <label className="block">
+      <span className="label">{label}</span>
+      <span className="relative block">
         <Icon
           className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink/40"
           aria-hidden="true"
         />
         {children}
-      </div>
-    </div>
+      </span>
+    </label>
   );
 }
 
@@ -96,7 +108,7 @@ export default function AdminServices() {
   return (
     <div className="mx-auto max-w-4xl">
       <h1 className="text-4xl font-bold">Servicios</h1>
-      <p className="mt-1 text-ink/60">Lo que ofrece tu peluquería, con su duración y su precio.</p>
+      <p className="mt-1 text-ink/70">Lo que ofrece tu peluquería, con su duración y su precio.</p>
 
       <form onSubmit={handleSubmit} className="card mt-6">
         <h2 className="flex items-center gap-2 text-xl font-semibold">
@@ -192,7 +204,7 @@ export default function AdminServices() {
               <Scissors className="h-7 w-7" aria-hidden="true" />
             </span>
             <p className="mt-3 text-lg font-semibold">Todavía no hay servicios</p>
-            <p className="mt-1 text-sm text-ink/60">Crea el primero con el formulario de arriba.</p>
+            <p className="mt-1 text-sm text-ink/70">Crea el primero con el formulario de arriba.</p>
           </li>
         )}
 
@@ -216,7 +228,7 @@ export default function AdminServices() {
                     </span>
                   )}
                 </p>
-                <p className="mt-0.5 flex items-center gap-4 text-sm text-ink/60">
+                <p className="mt-0.5 flex items-center gap-4 text-sm text-ink/70">
                   <span className="flex items-center gap-1.5">
                     <Clock className="h-3.5 w-3.5" aria-hidden="true" />
                     {s.durationMinutes} min
@@ -227,11 +239,19 @@ export default function AdminServices() {
             </div>
 
             <div className="flex gap-2">
-              <button onClick={() => startEdit(s)} className="btn-outline">
+              <button
+                onClick={() => startEdit(s)}
+                className="btn-outline"
+                aria-label={`Editar ${s.name}`}
+              >
                 <Pencil className="h-4 w-4" aria-hidden="true" />
                 <span className="hidden sm:inline">Editar</span>
               </button>
-              <button onClick={() => toggleActive(s)} className="btn-outline">
+              <button
+                onClick={() => toggleActive(s)}
+                className="btn-outline"
+                aria-label={`${s.active ? "Desactivar" : "Reactivar"} ${s.name}`}
+              >
                 {s.active ? (
                   <PowerOff className="h-4 w-4" aria-hidden="true" />
                 ) : (

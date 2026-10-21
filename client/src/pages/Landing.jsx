@@ -29,9 +29,9 @@ export default function Landing() {
 
       <form onSubmit={goToSalon} className="card mt-8">
         <h2 className="text-xl font-semibold">¿Ya tienes una peluquería?</h2>
-        <p className="mt-1 text-sm text-ink/60">Escribe su dirección para entrar.</p>
+        <p className="mt-1 text-sm text-ink/70">Escribe su dirección para entrar.</p>
         <div className="mt-4 flex gap-2">
-          <span className="flex items-center text-sm text-ink/50">/s/</span>
+          <span className="flex items-center text-sm text-ink/60">/s/</span>
           <input
             className="input"
             placeholder="peluqueria-lola"

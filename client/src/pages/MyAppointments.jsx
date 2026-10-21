@@ -29,7 +29,7 @@ function AppointmentCard({ a, upcoming, timezone, onCalendar, onReschedule, onCa
       <div className="flex items-start gap-4">
         <span
           className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${
-            upcoming ? "bg-gold/15 text-gold-dark" : "bg-sand text-ink/50"
+            upcoming ? "bg-gold/15 text-gold-dark" : "bg-sand text-ink/60"
           }`}
         >
           <CalendarCheck className="h-5 w-5" aria-hidden="true" />
@@ -38,7 +38,7 @@ function AppointmentCard({ a, upcoming, timezone, onCalendar, onReschedule, onCa
           <p className="font-display text-lg font-semibold capitalize">
             {formatDateTime(a.start, timezone)}
           </p>
-          <p className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-ink/60">
+          <p className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-ink/70">
             <span className="flex items-center gap-1.5">
               <Scissors className="h-3.5 w-3.5" aria-hidden="true" />
               {a.service?.name}
@@ -59,15 +59,28 @@ function AppointmentCard({ a, upcoming, timezone, onCalendar, onReschedule, onCa
         <StatusBadge status={a.status} />
         {upcoming && (
           <>
-            <button onClick={() => onCalendar(a)} className="btn-outline" title="Añadir al calendario">
+            <button
+              onClick={() => onCalendar(a)}
+              className="btn-outline"
+              title="Añadir al calendario"
+              aria-label="Añadir al calendario"
+            >
               <CalendarPlus className="h-4 w-4" aria-hidden="true" />
               <span className="hidden sm:inline">Calendario</span>
             </button>
-            <button onClick={() => onReschedule(a)} className="btn-outline">
+            <button
+              onClick={() => onReschedule(a)}
+              className="btn-outline"
+              aria-label="Reprogramar cita"
+            >
               <CalendarClock className="h-4 w-4" aria-hidden="true" />
               <span className="hidden sm:inline">Reprogramar</span>
             </button>
-            <button onClick={() => onCancel(a._id)} className="btn-danger">
+            <button
+              onClick={() => onCancel(a._id)}
+              className="btn-danger"
+              aria-label="Cancelar cita"
+            >
               <Trash2 className="h-4 w-4" aria-hidden="true" />
               <span className="hidden sm:inline">Cancelar</span>
             </button>
@@ -160,7 +173,9 @@ export default function MyAppointments() {
       </div>
 
       {error && (
-        <p className="mt-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>
+        <p role="alert" className="mt-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">
+          {error}
+        </p>
       )}
 
       {loading && (
@@ -177,7 +192,7 @@ export default function MyAppointments() {
             <CalendarX className="h-8 w-8" aria-hidden="true" />
           </span>
           <h2 className="mt-4 text-2xl font-bold">Aún no tienes citas</h2>
-          <p className="mt-1 max-w-sm text-sm text-ink/60">
+          <p className="mt-1 max-w-sm text-sm text-ink/70">
             Reserva tu primera cita en menos de un minuto: elige servicio, profesional y hueco.
           </p>
           <Link to="/reservar" className="btn-primary mt-6">
@@ -199,7 +214,7 @@ export default function MyAppointments() {
 
       {!loading && appointments.length > 0 && upcoming.length === 0 && (
         <div className="card mt-8 text-center">
-          <p className="text-ink/60">No tienes citas próximas.</p>
+          <p className="text-ink/70">No tienes citas próximas.</p>
           <Link to="/reservar" className="btn-primary mt-4">
             Reservar ahora
           </Link>

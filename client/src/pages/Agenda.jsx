@@ -27,6 +27,8 @@ import { useSalon } from "../context/SalonContext";
 import { todayISO, formatTime } from "../lib/dates";
 import useStylistSocket from "../hooks/useStylistSocket";
 import StatusBadge from "../components/StatusBadge";
+import Modal from "../components/Modal";
+
 
 const STATUS_COLORS = {
   pending: { color: "#b45309", contrastColor: "#ffffff" }, // ámbar
@@ -63,7 +65,7 @@ function EmptyState({ icon: Icon, title, text }) {
         <Icon className="h-7 w-7" aria-hidden="true" />
       </span>
       <p className="mt-3 text-lg font-semibold">{title}</p>
-      {text && <p className="mt-1 max-w-sm text-sm text-ink/60">{text}</p>}
+      {text && <p className="mt-1 max-w-sm text-sm text-ink/70">{text}</p>}
     </div>
   );
 }
@@ -128,13 +130,6 @@ export default function Agenda() {
 
   useStylistSocket(stylistId, load);
 
-  // Escape cierra el detalle
-  useEffect(() => {
-    if (!selected) return;
-    const onKey = (e) => e.key === "Escape" && setSelected(null);
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [selected]);
 
   async function changeStatus(appointment, status) {
     if (status === "cancelled") {
@@ -171,7 +166,7 @@ export default function Agenda() {
       onClick={() => setView(value)}
       aria-pressed={view === value}
       className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition ${
-        view === value ? "bg-ink text-cream shadow-sm" : "text-ink/60 hover:text-ink"
+        view === value ? "bg-ink text-cream shadow-sm" : "text-ink/70 hover:text-ink"
       }`}
     >
       <Icon className="h-4 w-4" aria-hidden="true" />
@@ -185,7 +180,7 @@ export default function Agenda() {
         <div>
           <h1 className="text-4xl font-bold">Agenda</h1>
           {!needsStylist && !error && (
-            <p className="mt-1 text-sm text-ink/60">
+            <p className="mt-1 text-sm text-ink/70">
               {appointments.length === 1 ? "1 cita" : `${appointments.length} citas`}
               {view === "week" ? " en el rango visible" : " este día"}
             </p>
@@ -297,11 +292,11 @@ export default function Agenda() {
                   <p className="font-display text-xl font-semibold">
                     {formatTime(a.start, timezone)}
                   </p>
-                  <p className="text-xs text-ink/50">hasta {formatTime(a.end, timezone)}</p>
+                  <p className="text-xs text-ink/60">hasta {formatTime(a.end, timezone)}</p>
                 </div>
                 <div className="min-w-0 flex-1 basis-40">
                   <p className="font-medium">{a.client?.name}</p>
-                  <p className="mt-0.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-ink/60">
+                  <p className="mt-0.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-ink/70">
                     <span className="flex items-center gap-1.5">
                       <Scissors className="h-3.5 w-3.5" aria-hidden="true" />
                       {a.service?.name} · {a.service?.price} €
@@ -322,67 +317,50 @@ export default function Agenda() {
         </>
       )}
 
-      {selected && (
-        <div
-          className="fixed inset-0 z-40 flex animate-fade-in items-center justify-center bg-ink/50 p-4 backdrop-blur-sm"
-          onClick={() => setSelected(null)}
-        >
-          <div
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="detalle-titulo"
-            className="card w-full max-w-md animate-pop"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex items-start justify-between gap-3">
-              <div>
-                <h2 id="detalle-titulo" className="text-2xl font-bold">
-                  {selected.client?.name}
-                </h2>
-                <div className="mt-2">
-                  <StatusBadge status={selected.status} />
-                </div>
+            {selected && (
+        <Modal onClose={() => setSelected(null)} labelledBy="detalle-titulo">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <h2 id="detalle-titulo" className="text-2xl font-bold">
+                {selected.client?.name}
+              </h2>
+              <div className="mt-2">
+                <StatusBadge status={selected.status} />
               </div>
-              <button
-                onClick={() => setSelected(null)}
-                aria-label="Cerrar"
-                className="rounded-lg p-1.5 text-ink/50 transition hover:bg-sand/60 hover:text-ink"
-              >
-                <X className="h-5 w-5" />
+            </div>
+            <button
+              onClick={() => setSelected(null)}
+              aria-label="Cerrar"
+              className="rounded-lg p-1.5 text-ink/70 transition hover:bg-sand/60 hover:text-ink"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </div>
+
+          <ul className="mt-5 space-y-3">
+            <DetailRow icon={Scissors}>
+              {selected.service?.name} ({selected.service?.price} €)
+            </DetailRow>
+            <DetailRow icon={Clock}>
+              {formatTime(selected.start, timezone)} – {formatTime(selected.end, timezone)}
+            </DetailRow>
+            <DetailRow icon={Mail}>{selected.client?.email}</DetailRow>
+            {selected.notes && <DetailRow icon={StickyNote}>{selected.notes}</DetailRow>}
+          </ul>
+
+          {["pending", "confirmed"].includes(selected.status) && (
+            <div className="mt-6 flex flex-wrap justify-end gap-3">
+              <button onClick={() => changeStatus(selected, "cancelled")} className="btn-danger">
+                <Ban className="h-4 w-4" aria-hidden="true" />
+                Cancelar cita
+              </button>
+              <button onClick={() => changeStatus(selected, "completed")} className="btn-primary">
+                <CheckCheck className="h-4 w-4" aria-hidden="true" />
+                Marcar completada
               </button>
             </div>
-
-            <ul className="mt-5 space-y-3">
-              <DetailRow icon={Scissors}>
-                {selected.service?.name} ({selected.service?.price} €)
-              </DetailRow>
-              <DetailRow icon={Clock}>
-                {formatTime(selected.start, timezone)} – {formatTime(selected.end, timezone)}
-              </DetailRow>
-              <DetailRow icon={Mail}>{selected.client?.email}</DetailRow>
-              {selected.notes && <DetailRow icon={StickyNote}>{selected.notes}</DetailRow>}
-            </ul>
-
-            {["pending", "confirmed"].includes(selected.status) && (
-              <div className="mt-6 flex flex-wrap justify-end gap-3">
-                <button
-                  onClick={() => changeStatus(selected, "cancelled")}
-                  className="btn-danger"
-                >
-                  <Ban className="h-4 w-4" aria-hidden="true" />
-                  Cancelar cita
-                </button>
-                <button
-                  onClick={() => changeStatus(selected, "completed")}
-                  className="btn-primary"
-                >
-                  <CheckCheck className="h-4 w-4" aria-hidden="true" />
-                  Marcar completada
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
+          )}
+        </Modal>
       )}
     </div>
   );

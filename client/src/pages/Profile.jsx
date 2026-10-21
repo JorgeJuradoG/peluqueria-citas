@@ -80,7 +80,7 @@ function PasswordForm() {
           />
         </div>
       </div>
-      <p className="mt-2 text-xs text-ink/50">
+      <p className="mt-2 text-xs text-ink/60">
         Mínimo 8 caracteres, con una letra y un número.
       </p>
 
@@ -144,7 +144,7 @@ export default function Profile() {
     return error ? (
       <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>
     ) : (
-      <p className="text-ink/50">Cargando...</p>
+      <p className="text-ink/60">Cargando...</p>
     );
   }
 
@@ -163,19 +163,19 @@ export default function Profile() {
         </span>
         <div className="flex-1">
           <p className="font-display text-2xl font-semibold">{profile.name}</p>
-          <p className="text-sm text-ink/60">{profile.email}</p>
-          <p className="mt-1 text-xs text-ink/50">
+          <p className="text-sm text-ink/70">{profile.email}</p>
+          <p className="mt-1 text-xs text-ink/60">
             {ROLE_LABELS[profile.role]} · Miembro desde {since}
           </p>
         </div>
         <div className="flex gap-6 text-center">
           <div>
             <p className="font-display text-2xl font-semibold">{stats.upcoming}</p>
-            <p className="text-xs text-ink/60">Próximas</p>
+            <p className="text-xs text-ink/70">Próximas</p>
           </div>
           <div>
             <p className="font-display text-2xl font-semibold">{stats.completed}</p>
-            <p className="text-xs text-ink/60">Completadas</p>
+            <p className="text-xs text-ink/70">Completadas</p>
           </div>
         </div>
       </section>
@@ -206,7 +206,7 @@ export default function Profile() {
           <div className="sm:col-span-2">
             <label className="label">Email</label>
             <input value={profile.email} className="input bg-sand/40" disabled />
-            <p className="mt-1 text-xs text-ink/50">El email no se puede cambiar.</p>
+            <p className="mt-1 text-xs text-ink/60">El email no se puede cambiar.</p>
           </div>
         </div>
 

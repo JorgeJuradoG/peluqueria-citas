@@ -19,7 +19,7 @@ export default class ErrorBoundary extends Component {
       <div className="mx-auto max-w-md px-4 py-20 text-center">
         <p className="font-display text-6xl text-gold">Ups</p>
         <h1 className="mt-4 text-3xl font-bold">Algo no ha salido bien</h1>
-        <p className="mt-3 text-ink/60">
+        <p className="mt-3 text-ink/70">
           Ha ocurrido un error inesperado. Puedes recargar la página o volver al inicio.
         </p>
         <div className="mt-6 flex justify-center gap-3">

@@ -31,7 +31,7 @@ function Stat({ icon: Icon, label, value, to, tone = "gold" }) {
       </span>
       <div className="min-w-0 flex-1">
         <p className="font-display text-3xl font-semibold leading-none">{value}</p>
-        <p className="mt-1 text-sm text-ink/60">{label}</p>
+        <p className="mt-1 text-sm text-ink/70">{label}</p>
       </div>
       <ArrowRight
         className="h-4 w-4 text-ink/30 transition group-hover:translate-x-0.5 group-hover:text-gold-dark"
@@ -56,7 +56,7 @@ function Step({ number, done, icon: Icon, title, text, to, action }) {
           <Icon className="h-4 w-4 text-gold-dark" aria-hidden="true" />
           {title}
         </p>
-        <p className="mt-0.5 text-sm text-ink/60">{text}</p>
+        <p className="mt-0.5 text-sm text-ink/70">{text}</p>
       </div>
       {to && (
         <Link to={to} className={done ? "btn-outline" : "btn-primary"}>
@@ -138,7 +138,7 @@ export default function AdminHome() {
   return (
     <div className="mx-auto max-w-4xl">
       <h1 className="text-4xl font-bold">Hola, {user.name}</h1>
-      <p className="mt-1 text-ink/60">
+      <p className="mt-1 text-ink/70">
         {allDone
           ? `${salon.name} está lista para recibir reservas.`
           : `Vamos a dejar lista ${salon.name} en tres pasos.`}
@@ -162,7 +162,7 @@ export default function AdminHome() {
 
       {!allDone && (
         <div className="mt-8">
-          <div className="flex items-center justify-between text-sm text-ink/60">
+          <div className="flex items-center justify-between text-sm text-ink/70">
             <span>Progreso</span>
             <span>{doneCount} de {steps.length}</span>
           </div>
@@ -214,7 +214,7 @@ export default function AdminHome() {
                 <Link2 className="h-4 w-4 text-gold-dark" aria-hidden="true" />
                 Comparte tu enlace con los clientes
               </p>
-              <p className="mt-0.5 text-sm text-ink/60">
+              <p className="mt-0.5 text-sm text-ink/70">
                 Pégalo en tu Instagram, WhatsApp o en la puerta del local.
               </p>
             </div>
@@ -236,7 +236,7 @@ export default function AdminHome() {
       {allDone && (
         <div className="card mt-6 animate-fade-up">
           <h2 className="text-xl font-semibold">¿Y ahora qué?</h2>
-          <p className="mt-1 text-sm text-ink/60">
+          <p className="mt-1 text-sm text-ink/70">
             Revisa las reservas que vayan entrando y ajusta horarios o días libres cuando haga
             falta.
           </p>

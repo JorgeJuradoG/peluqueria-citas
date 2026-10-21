@@ -88,7 +88,7 @@ export default function Services() {
       <section>
         <Reveal>
           <h2 className="text-center text-3xl font-bold">Cómo funciona</h2>
-          <p className="mx-auto mt-2 max-w-md text-center text-ink/60">
+          <p className="mx-auto mt-2 max-w-md text-center text-ink/70">
             Reservar es cuestión de un minuto.
           </p>
         </Reveal>
@@ -103,7 +103,7 @@ export default function Services() {
                   Paso {i + 1}
                 </p>
                 <h3 className="mt-2 text-xl font-semibold">{title}</h3>
-                <p className="mt-2 text-sm text-ink/60">{text}</p>
+                <p className="mt-2 text-sm text-ink/70">{text}</p>
               </li>
             </Reveal>
           ))}
@@ -117,7 +117,7 @@ export default function Services() {
         </Reveal>
 
         {!loading && services.length === 0 && (
-          <div className="card mt-6 text-center text-ink/60">
+          <div className="card mt-6 text-center text-ink/70">
             Todavía no hay servicios disponibles.
           </div>
         )}
@@ -134,7 +134,7 @@ export default function Services() {
                   <p className="font-display text-2xl text-gold-dark">{s.price} €</p>
                 </div>
                 <h3 className="mt-4 text-xl font-semibold">{s.name}</h3>
-                <p className="mt-1 flex items-center gap-1.5 text-sm text-ink/60">
+                <p className="mt-1 flex items-center gap-1.5 text-sm text-ink/70">
                   <Clock className="h-4 w-4" aria-hidden="true" />
                   {s.durationMinutes} minutos
                 </p>
@@ -155,7 +155,7 @@ export default function Services() {
                 </span>
                 <div>
                   <h3 className="text-lg font-semibold">{title}</h3>
-                  <p className="mt-1 text-sm text-ink/60">{text}</p>
+                  <p className="mt-1 text-sm text-ink/70">{text}</p>
                 </div>
               </li>
             </Reveal>
@@ -167,7 +167,7 @@ export default function Services() {
       <Reveal>
         <section className="rounded-3xl bg-sand px-6 py-12 text-center">
           <h2 className="text-3xl font-bold">¿Listo para tu cita?</h2>
-          <p className="mx-auto mt-2 max-w-md text-ink/60">
+          <p className="mx-auto mt-2 max-w-md text-ink/70">
             Elige tu hueco ahora y recibe la confirmación en tu correo.
           </p>
           <Link

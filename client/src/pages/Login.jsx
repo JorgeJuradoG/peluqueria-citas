@@ -11,17 +11,19 @@ const PHONE_RE = /^\+?[\d\s-]{9,15}$/;
 function Field({ label, icon: Icon, hint, optional, children }) {
   return (
     <div>
-      <label className="label">
-        {label} {optional && <span className="text-ink/40">(opcional)</span>}
+      <label className="block">
+        <span className="label">
+          {label} {optional && <span className="text-ink/70">(opcional)</span>}
+        </span>
+        <span className="relative block">
+          <Icon
+            className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink/40"
+            aria-hidden="true"
+          />
+          {children}
+        </span>
       </label>
-      <div className="relative">
-        <Icon
-          className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink/40"
-          aria-hidden="true"
-        />
-        {children}
-      </div>
-      {hint && <p className="mt-1 text-xs text-ink/50">{hint}</p>}
+      {hint && <p className="mt-1 text-xs text-ink/70">{hint}</p>}
     </div>
   );
 }
@@ -43,7 +45,7 @@ function PasswordField({ label, name, value, onChange, autoComplete, hint }) {
         type="button"
         onClick={() => setShow(!show)}
         aria-label={show ? "Ocultar contraseña" : "Mostrar contraseña"}
-        className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-1 text-ink/50 transition hover:text-ink"
+        className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-1 text-ink/60 transition hover:text-ink"
       >
         {show ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
       </button>
@@ -120,7 +122,7 @@ export default function Login() {
         <h1 className="mt-4 text-3xl font-bold">
           {mode === "login" ? "Bienvenido" : "Crear cuenta"}
         </h1>
-        <p className="mt-1 text-sm text-ink/60">
+        <p className="mt-1 text-sm text-ink/70">
           {mode === "login"
             ? "Entra para reservar y gestionar tus citas."
             : "Regístrate en unos segundos."}

@@ -1,13 +1,6 @@
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { createContext, useCallback, useContext, useMemo, useRef, useState } from "react";
 import { CircleAlert, CircleCheck, TriangleAlert, X } from "lucide-react";
+import Modal from "../components/Modal";
 
 const UIContext = createContext(null);
 
@@ -58,19 +51,6 @@ export function UIProvider({ children }) {
     setDialog(null);
   }
 
-  // Escape cierra el modal como "cancelar"
-  useEffect(() => {
-    if (!dialog) return;
-    function onKey(e) {
-      if (e.key === "Escape") {
-        dialog.resolve(false);
-        setDialog(null);
-      }
-    }
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [dialog]);
-
   return (
     <UIContext.Provider value={{ toast, confirm }}>
       {children}
@@ -78,7 +58,7 @@ export function UIProvider({ children }) {
       {/* Toasts */}
       <div
         aria-live="polite"
-        className="pointer-events-none fixed bottom-4 right-4 z-50 flex w-[calc(100%-2rem)] max-w-sm flex-col gap-2"
+        className="pointer-events-none fixed bottom-4 right-4 z-[60] flex w-[calc(100%-2rem)] max-w-sm flex-col gap-2"
       >
         {toasts.map((t) => (
           <div
@@ -101,44 +81,33 @@ export function UIProvider({ children }) {
 
       {/* Modal de confirmación */}
       {dialog && (
-        <div
-          className="fixed inset-0 z-50 flex animate-fade-in items-center justify-center bg-ink/50 p-4 backdrop-blur-sm"
-          onClick={() => closeDialog(false)}
-        >
-          <div
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="dialog-title"
-            className="card w-full max-w-md animate-pop"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex items-start gap-4">
-              {dialog.danger && (
-                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-red-100 text-red-600">
-                  <TriangleAlert className="h-5 w-5" />
-                </span>
-              )}
-              <div>
-                <h2 id="dialog-title" className="text-2xl font-bold">
-                  {dialog.title || "¿Estás seguro?"}
-                </h2>
-                {dialog.message && <p className="mt-2 text-ink/70">{dialog.message}</p>}
-              </div>
-            </div>
-            <div className="mt-6 flex justify-end gap-3">
-              <button onClick={() => closeDialog(false)} className="btn-outline">
-                Volver
-              </button>
-              <button
-                autoFocus
-                onClick={() => closeDialog(true)}
-                className={dialog.danger ? "btn-danger" : "btn-primary"}
-              >
-                {dialog.confirmText || "Aceptar"}
-              </button>
+        <Modal onClose={() => closeDialog(false)} labelledBy="dialog-title" layer="z-50">
+          <div className="flex items-start gap-4">
+            {dialog.danger && (
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-red-100 text-red-600">
+                <TriangleAlert className="h-5 w-5" aria-hidden="true" />
+              </span>
+            )}
+            <div>
+              <h2 id="dialog-title" className="text-2xl font-bold">
+                {dialog.title || "¿Estás seguro?"}
+              </h2>
+              {dialog.message && <p className="mt-2 text-ink/70">{dialog.message}</p>}
             </div>
           </div>
-        </div>
+          <div className="mt-6 flex justify-end gap-3">
+            <button onClick={() => closeDialog(false)} className="btn-outline">
+              Volver
+            </button>
+            <button
+              data-autofocus
+              onClick={() => closeDialog(true)}
+              className={dialog.danger ? "btn-danger" : "btn-primary"}
+            >
+              {dialog.confirmText || "Aceptar"}
+            </button>
+          </div>
+        </Modal>
       )}
     </UIContext.Provider>
   );

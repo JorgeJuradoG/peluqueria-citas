@@ -69,7 +69,7 @@ export default function ResetPassword() {
     );
   }
 
-  if (!info) return <p className="text-center text-ink/50">Comprobando el enlace...</p>;
+  if (!info) return <p className="text-center text-ink/60">Comprobando el enlace...</p>;
 
   const isInvite = info.type === "invite";
 
@@ -79,7 +79,7 @@ export default function ResetPassword() {
         <h1 className="text-3xl font-bold">
           {isInvite ? "Activa tu cuenta" : "Elige tu contraseña"}
         </h1>
-        <p className="mt-1 text-sm text-ink/60">
+        <p className="mt-1 text-sm text-ink/70">
           {isInvite ? "Te damos la bienvenida, " : "Hola, "}
           <b>{info.name}</b>. Tu usuario es {info.email}.
         </p>
@@ -96,7 +96,7 @@ export default function ResetPassword() {
               className="input"
               required
             />
-            <p className="mt-1 text-xs text-ink/50">
+            <p className="mt-1 text-xs text-ink/60">
               Mínimo 8 caracteres, con una letra y un número.
             </p>
           </div>

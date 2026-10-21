@@ -73,7 +73,7 @@ export default function CreateSalon() {
       <a href="/" className="text-sm text-gold-dark underline">← Volver</a>
       <form onSubmit={handleSubmit} className="card mt-4" noValidate>
         <h1 className="text-3xl font-bold">Crea tu peluquería</h1>
-        <p className="mt-1 text-sm text-ink/60">
+        <p className="mt-1 text-sm text-ink/70">
           Tú serás el administrador. Después añadirás servicios y estilistas.
         </p>
 
@@ -87,11 +87,11 @@ export default function CreateSalon() {
           <div>
             <label className="label">Dirección web</label>
             <div className="flex items-center gap-1">
-              <span className="text-sm text-ink/50">/s/</span>
+              <span className="text-sm text-ink/60">/s/</span>
               <input name="slug" value={form.slug} onChange={handleChange}
                 className="input" required />
             </div>
-            <p className="mt-1 text-xs text-ink/50">
+            <p className="mt-1 text-xs text-ink/60">
               Tus clientes entrarán por /s/{form.slug || "tu-peluqueria"}
             </p>
           </div>
@@ -121,7 +121,7 @@ export default function CreateSalon() {
             <label className="label">Contraseña</label>
             <input name="password" type="password" value={form.password}
               onChange={handleChange} autoComplete="new-password" className="input" required />
-            <p className="mt-1 text-xs text-ink/50">
+            <p className="mt-1 text-xs text-ink/60">
               Mínimo 8 caracteres, con una letra y un número.
             </p>
           </div>

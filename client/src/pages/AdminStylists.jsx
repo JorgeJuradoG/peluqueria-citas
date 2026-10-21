@@ -47,18 +47,18 @@ const formatDay = (iso) =>
 
 function Field({ label, icon: Icon, optional, children }) {
   return (
-    <div>
-      <label className="label">
-        {label} {optional && <span className="text-ink/40">(opcional)</span>}
-      </label>
-      <div className="relative">
+    <label className="block">
+      <span className="label">
+        {label} {optional && <span className="text-ink/60">(opcional)</span>}
+      </span>
+      <span className="relative block">
         <Icon
           className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink/40"
           aria-hidden="true"
         />
         {children}
-      </div>
-    </div>
+      </span>
+    </label>
   );
 }
 
@@ -77,7 +77,7 @@ function ErrorBox({ children }) {
 function ServiceChips({ services, selectedIds, onToggle }) {
   if (services.length === 0) {
     return (
-      <p className="text-sm text-ink/50">
+      <p className="text-sm text-ink/60">
         Crea primero algún servicio en la sección Servicios.
       </p>
     );
@@ -191,7 +191,7 @@ function CreateStylistForm({ allServices, onCreated, onCancel }) {
         <Plus className="h-5 w-5 text-gold-dark" aria-hidden="true" />
         Añadir estilista
       </h2>
-      <p className="mt-1 text-sm text-ink/60">
+      <p className="mt-1 text-sm text-ink/70">
         Le enviaremos un correo para que elija su contraseña y active su cuenta.
       </p>
 
@@ -233,7 +233,7 @@ function CreateStylistForm({ allServices, onCreated, onCancel }) {
       <div className="mt-2">
         <ServiceChips services={allServices} selectedIds={form.services} onToggle={toggleService} />
       </div>
-      <p className="mt-3 text-xs text-ink/50">
+      <p className="mt-3 text-xs text-ink/60">
         Empieza con horario de lunes a viernes (9-14 y 16-20). Podrás ajustarlo después.
       </p>
 
@@ -263,7 +263,9 @@ const normalizeRows = (rows) =>
 
 function WorkingHoursEditor({ workingHours, onSave }) {
   const initial = normalizeRows(workingHours);
-  const [rows, setRows] = useState(workingHours.map(({ dayOfWeek, start, end }) => ({ dayOfWeek, start, end })));
+  const [rows, setRows] = useState(
+    workingHours.map(({ dayOfWeek, start, end }) => ({ dayOfWeek, start, end }))
+  );
 
   const dirty = JSON.stringify(normalizeRows(rows)) !== JSON.stringify(initial);
 
@@ -290,7 +292,7 @@ function WorkingHoursEditor({ workingHours, onSave }) {
             <div key={day.value} className="flex flex-wrap items-center gap-2 px-3 py-2.5">
               <span className="w-24 text-sm font-medium">{day.label}</span>
               {dayRows.length === 0 && (
-                <span className="rounded-full bg-sand px-2.5 py-0.5 text-xs text-ink/50">Libre</span>
+                <span className="rounded-full bg-sand px-2.5 py-0.5 text-xs text-ink/60">Libre</span>
               )}
               {dayRows.map((r) => (
                 <span
@@ -322,6 +324,7 @@ function WorkingHoursEditor({ workingHours, onSave }) {
               ))}
               <button
                 onClick={() => addRow(day.value)}
+                aria-label={`Añadir franja el ${day.label}`}
                 className="ml-auto flex items-center gap-1 text-sm text-gold-dark transition hover:underline"
               >
                 <Plus className="h-3.5 w-3.5" aria-hidden="true" />
@@ -413,7 +416,7 @@ function StylistCard({ stylist, allServices, onChanged, defaultOpen }) {
           </span>
           <span className="min-w-0">
             <span className="block truncate text-xl font-semibold">{stylist.user.name}</span>
-            <span className="block truncate text-sm text-ink/60">{stylist.user.email}</span>
+            <span className="block truncate text-sm text-ink/70">{stylist.user.email}</span>
           </span>
           <ChevronDown
             className={`ml-1 h-5 w-5 shrink-0 text-ink/40 transition ${open ? "rotate-180" : ""}`}
@@ -433,7 +436,12 @@ function StylistCard({ stylist, allServices, onChanged, defaultOpen }) {
                 <MailWarning className="h-3.5 w-3.5" aria-hidden="true" />
                 Invitación pendiente
               </span>
-              <button onClick={resendInvite} disabled={inviting} className="btn-outline">
+              <button
+                onClick={resendInvite}
+                disabled={inviting}
+                className="btn-outline"
+                aria-label="Reenviar invitación"
+              >
                 {inviting ? (
                   <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
                 ) : (
@@ -443,7 +451,11 @@ function StylistCard({ stylist, allServices, onChanged, defaultOpen }) {
               </button>
             </>
           )}
-          <button onClick={() => save({ active: !stylist.active })} className="btn-outline">
+          <button
+            onClick={() => save({ active: !stylist.active })}
+            className="btn-outline"
+            aria-label={`${stylist.active ? "Desactivar" : "Reactivar"} a ${stylist.user.name}`}
+          >
             {stylist.active ? (
               <PowerOff className="h-4 w-4" aria-hidden="true" />
             ) : (
@@ -454,7 +466,7 @@ function StylistCard({ stylist, allServices, onChanged, defaultOpen }) {
         </div>
 
         {/* Resumen (visible aunque la tarjeta esté cerrada) */}
-        <ul className="flex w-full flex-wrap gap-2 text-xs text-ink/60">
+        <ul className="flex w-full flex-wrap gap-2 text-xs text-ink/70">
           <li className="inline-flex items-center gap-1 rounded-full bg-sand/60 px-2.5 py-1">
             <Scissors className="h-3.5 w-3.5" aria-hidden="true" />
             {stylist.services.length} {stylist.services.length === 1 ? "servicio" : "servicios"}
@@ -506,7 +518,7 @@ function StylistCard({ stylist, allServices, onChanged, defaultOpen }) {
               </button>
             </div>
             <ul className="mt-3 flex flex-wrap gap-2">
-              {daysOff.length === 0 && <li className="text-sm text-ink/50">Ninguno.</li>}
+              {daysOff.length === 0 && <li className="text-sm text-ink/60">Ninguno.</li>}
               {daysOff.map((day) => (
                 <li
                   key={day}
@@ -515,7 +527,7 @@ function StylistCard({ stylist, allServices, onChanged, defaultOpen }) {
                   {formatDay(day)}
                   <button
                     onClick={() => removeDay(day)}
-                    aria-label={`Quitar el día libre ${day}`}
+                    aria-label={`Quitar el día libre ${formatDay(day)}`}
                     className="rounded-full p-0.5 text-red-600 transition hover:bg-red-100"
                   >
                     <Trash2 className="h-3.5 w-3.5" />
@@ -573,7 +585,7 @@ export default function AdminStylists() {
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="text-4xl font-bold">Estilistas</h1>
-          <p className="mt-1 text-ink/60">Tu equipo, sus servicios y sus horarios.</p>
+          <p className="mt-1 text-ink/70">Tu equipo, sus servicios y sus horarios.</p>
         </div>
         {!adding && (
           <button onClick={() => setAdding(true)} className="btn-primary">
@@ -611,7 +623,7 @@ export default function AdminStylists() {
             <Users className="h-8 w-8" aria-hidden="true" />
           </span>
           <h2 className="mt-4 text-2xl font-bold">Todavía no tienes estilistas</h2>
-          <p className="mt-1 max-w-sm text-sm text-ink/60">
+          <p className="mt-1 max-w-sm text-sm text-ink/70">
             Añade a tu equipo para que los clientes puedan reservar con ellos.
           </p>
           <button onClick={() => setAdding(true)} className="btn-primary mt-6">

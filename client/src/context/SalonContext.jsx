@@ -22,14 +22,14 @@ export function SalonProvider({ children }) {
     return (
       <div className="mx-auto max-w-md px-4 py-20 text-center">
         <h1 className="text-4xl font-bold">Peluquería no encontrada</h1>
-        <p className="mt-3 text-ink/60">
+        <p className="mt-3 text-ink/70">
           La dirección «{SALON_SLUG}» no existe o está desactivada.
         </p>
         <a href="/" className="btn-primary mt-6">Ir al inicio</a>
       </div>
     );
   }
-  if (!salon) return <p className="p-10 text-center text-ink/50">Cargando...</p>;
+  if (!salon) return <p className="p-10 text-center text-ink/60">Cargando...</p>;
 
   return <SalonContext.Provider value={salon}>{children}</SalonContext.Provider>;
 }

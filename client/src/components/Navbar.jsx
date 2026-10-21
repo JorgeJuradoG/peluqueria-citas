@@ -162,7 +162,7 @@ export default function Navbar() {
                   >
                     <div className="px-3 py-2">
                       <p className="truncate font-medium">{user.name}</p>
-                      <p className="truncate text-xs text-ink/60">{user.email}</p>
+                      <p className="truncate text-xs text-ink/70">{user.email}</p>
                       <p className="mt-1 text-xs text-gold-dark">{ROLE_LABELS[user.role]}</p>
                     </div>
                     <div className="my-1 border-t border-sand" />

@@ -50,14 +50,14 @@ function Progress({ current }) {
                     ? "bg-emerald-600 text-white"
                     : active
                     ? "bg-ink text-cream"
-                    : "bg-sand text-ink/50"
+                    : "bg-sand text-ink/60"
                 }`}
               >
                 {done ? <Check className="h-4 w-4" aria-hidden="true" /> : i + 1}
               </span>
               <span
                 className={`hidden text-sm sm:inline ${
-                  active ? "font-medium" : "text-ink/50"
+                  active ? "font-medium" : "text-ink/60"
                 }`}
               >
                 {name}
@@ -103,7 +103,7 @@ function SlotGroup({ title, icon: Icon, slots, onPick }) {
   if (slots.length === 0) return null;
   return (
     <div className="mt-5">
-      <p className="mb-2 flex items-center gap-2 text-sm font-medium text-ink/60">
+      <p className="mb-2 flex items-center gap-2 text-sm font-medium text-ink/70">
         <Icon className="h-4 w-4" aria-hidden="true" />
         {title}
       </p>
@@ -214,7 +214,7 @@ export default function Book() {
   return (
     <div className="mx-auto max-w-3xl">
       <h1 className="text-4xl font-bold">Reservar cita</h1>
-      <p className="mt-1 text-ink/60">Tres pasos y listo.</p>
+      <p className="mt-1 text-ink/70">Tres pasos y listo.</p>
 
       <div className="mt-6">
         <Progress current={current} />
@@ -223,7 +223,7 @@ export default function Book() {
       <div className="mt-8 space-y-5">
         <Step icon={Scissors} title="Elige un servicio">
           {services.length === 0 && (
-            <p className="text-ink/50">Esta peluquería todavía no tiene servicios.</p>
+            <p className="text-ink/60">Esta peluquería todavía no tiene servicios.</p>
           )}
           <div className="grid gap-3 sm:grid-cols-2">
             {services.map((s) => (
@@ -242,7 +242,7 @@ export default function Book() {
                   </span>
                 )}
                 <p className="pr-6 font-medium">{s.name}</p>
-                <p className="mt-1 flex items-center gap-3 text-sm text-ink/60">
+                <p className="mt-1 flex items-center gap-3 text-sm text-ink/70">
                   <span className="flex items-center gap-1">
                     <Clock className="h-3.5 w-3.5" aria-hidden="true" />
                     {s.durationMinutes} min
@@ -257,7 +257,7 @@ export default function Book() {
         {serviceId && (
           <Step icon={UserRound} title="Elige profesional">
             {availableStylists.length === 0 ? (
-              <p className="text-ink/50">Nadie ofrece este servicio por ahora.</p>
+              <p className="text-ink/60">Nadie ofrece este servicio por ahora.</p>
             ) : (
               <div className="grid gap-3 sm:grid-cols-2">
                 {availableStylists.map((s) => (
@@ -273,7 +273,7 @@ export default function Book() {
                     <span className="min-w-0">
                       <span className="block font-medium">{s.user.name}</span>
                       {s.bio && (
-                        <span className="block truncate text-xs text-ink/60">{s.bio}</span>
+                        <span className="block truncate text-xs text-ink/70">{s.bio}</span>
                       )}
                     </span>
                     {stylistId === s._id && (
@@ -314,7 +314,7 @@ export default function Book() {
             </div>
 
             <div className="mt-3 flex items-center gap-2">
-              <label htmlFor="otra-fecha" className="text-sm text-ink/60">
+              <label htmlFor="otra-fecha" className="text-sm text-ink/70">
                 Otra fecha:
               </label>
               <input
@@ -329,7 +329,7 @@ export default function Book() {
 
             <div className="mt-2 min-h-24">
               {loadingSlots && slots.length === 0 && (
-                <p className="mt-4 flex items-center gap-2 text-ink/50">
+                <p className="mt-4 flex items-center gap-2 text-ink/60">
                   <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
                   Buscando huecos...
                 </p>
@@ -339,7 +339,7 @@ export default function Book() {
                 <div className="mt-4 flex flex-col items-center rounded-xl bg-sand/40 px-4 py-8 text-center">
                   <CalendarX className="h-8 w-8 text-ink/40" aria-hidden="true" />
                   <p className="mt-2 font-medium">No hay huecos libres este día</p>
-                  <p className="text-sm text-ink/60">Prueba con otra fecha u otro profesional.</p>
+                  <p className="text-sm text-ink/70">Prueba con otra fecha u otro profesional.</p>
                 </div>
               )}
 

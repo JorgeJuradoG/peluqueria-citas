@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
+import { X } from "lucide-react";
 import api from "../services/api";
+import Modal from "./Modal";
 import { useConfirm, useToast } from "../context/UIContext";
 import { useSalon } from "../context/SalonContext";
 import { todayISO } from "../lib/dates";
@@ -54,48 +56,51 @@ export default function RescheduleModal({ appointment, onClose, onDone }) {
   }
 
   return (
-    <div
-      className="fixed inset-0 z-40 flex items-center justify-center bg-ink/50 p-4"
-      onClick={onClose}
-    >
-      <div className="card w-full max-w-lg" onClick={(e) => e.stopPropagation()}>
-        <h2 className="text-2xl font-bold">Reprogramar cita</h2>
-        <p className="mt-1 text-sm text-ink/60">
-          {appointment.service?.name} con {appointment.stylist?.user?.name}
-        </p>
-
-        <input
-          type="date"
-          className="input mt-4 max-w-xs"
-          value={date}
-          min={todayISO(timezone)}
-          onChange={(e) => setDate(e.target.value)}
-        />
-
-        <div className="mt-4 min-h-24">
-          {loading && slots.length === 0 && (
-            <p className="text-ink/50">Buscando huecos...</p>
-          )}
-          {!loading && slots.length === 0 && (
-            <p className="text-ink/50">No hay huecos libres ese día. Prueba con otra fecha.</p>
-          )}
-          <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
-            {slots.map((slot) => (
-              <button
-                key={slot.start}
-                onClick={() => choose(slot)}
-                className="rounded-full border border-ink/15 py-2 text-sm font-medium transition hover:border-ink hover:bg-ink hover:text-cream"
-              >
-                {slot.label}
-              </button>
-            ))}
-          </div>
+    <Modal onClose={onClose} labelledBy="reprogramar-titulo" size="max-w-lg">
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <h2 id="reprogramar-titulo" className="text-2xl font-bold">
+            Reprogramar cita
+          </h2>
+          <p className="mt-1 text-sm text-ink/70">
+            {appointment.service?.name} con {appointment.stylist?.user?.name}
+          </p>
         </div>
+        <button
+          onClick={onClose}
+          aria-label="Cerrar"
+          className="rounded-lg p-1.5 text-ink/70 transition hover:bg-sand/60 hover:text-ink"
+        >
+          <X className="h-5 w-5" />
+        </button>
+      </div>
 
-        <div className="mt-6 flex justify-end">
-          <button onClick={onClose} className="btn-outline">Cerrar</button>
+      <input
+        type="date"
+        className="input mt-4 max-w-44"
+        value={date}
+        min={todayISO(timezone)}
+        onChange={(e) => e.target.value && setDate(e.target.value)}
+        aria-label="Nueva fecha"
+      />
+
+      <div className="mt-4 min-h-24">
+        {loading && slots.length === 0 && <p className="text-ink/70">Buscando huecos...</p>}
+        {!loading && slots.length === 0 && (
+          <p className="text-ink/70">No hay huecos libres ese día. Prueba con otra fecha.</p>
+        )}
+        <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
+          {slots.map((slot) => (
+            <button
+              key={slot.start}
+              onClick={() => choose(slot)}
+              className="rounded-full border border-ink/15 py-2 text-sm font-medium transition hover:border-ink hover:bg-ink hover:text-cream active:scale-95"
+            >
+              {slot.label}
+            </button>
+          ))}
         </div>
       </div>
-    </div>
+    </Modal>
   );
 }
