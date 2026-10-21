@@ -4,13 +4,24 @@ const api = axios.create({
   baseURL: `${import.meta.env.VITE_API_URL}/api`,
 });
 
-// Adjunta el token a cada petición si hay sesión guardada
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem("token");
   if (token) config.headers.Authorization = `Bearer ${token}`;
   return config;
 });
 
-export default api;
+// Si el token caduca o es inválido, limpiamos la sesión y volvemos al login
+api.interceptors.response.use(
+  (res) => res,
+  (err) => {
+    const isLogin = err.config?.url?.startsWith("/auth/login");
+    if (err.response?.status === 401 && localStorage.getItem("token") && !isLogin) {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      window.location.href = "/login";
+    }
+    return Promise.reject(err);
+  }
+);
 
-//Este archivo es el equivalente a tu Invoke-RestMethod con la cabecera Authorization: lo escribes una vez y todas las pantallas lo reutilizan.
+export default api;

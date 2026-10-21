@@ -9,7 +9,7 @@ import Agenda from "./pages/Agenda";
 import AdminServices from "./pages/AdminServices";
 import AdminStylists from "./pages/AdminStylists";
 import StatusBadge from "./components/StatusBadge";
-
+import Profile from "./pages/Profile";
 
 export default function App() {
   return (
@@ -24,6 +24,7 @@ export default function App() {
           <Route path="/agenda" element={<ProtectedRoute roles={["admin", "stylist"]}><Agenda /></ProtectedRoute>} />
           <Route path="/admin/servicios" element={<ProtectedRoute roles={["admin"]}><AdminServices /></ProtectedRoute>} />
           <Route path="/admin/estilistas" element={<ProtectedRoute roles={["admin"]}><AdminStylists /></ProtectedRoute>} />
+          <Route path="/perfil" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
         </Routes>
       </main>
     </>

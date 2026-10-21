@@ -12,10 +12,14 @@ export function AuthProvider({ children }) {
     }
   });
 
+  function updateUser(next) {
+    localStorage.setItem("user", JSON.stringify(next));
+    setUser(next);
+  }
+
   function saveSession({ token, user }) {
     localStorage.setItem("token", token);
-    localStorage.setItem("user", JSON.stringify(user));
-    setUser(user);
+    updateUser(user);
   }
 
   async function login(email, password) {
@@ -23,8 +27,8 @@ export function AuthProvider({ children }) {
     saveSession(data);
   }
 
-  async function register(name, email, password) {
-    const { data } = await api.post("/auth/register", { name, email, password });
+  async function register({ name, email, phone, password }) {
+    const { data } = await api.post("/auth/register", { name, email, phone, password });
     saveSession(data);
   }
 
@@ -35,7 +39,7 @@ export function AuthProvider({ children }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, login, register, logout }}>
+    <AuthContext.Provider value={{ user, login, register, logout, updateUser }}>
       {children}
     </AuthContext.Provider>
   );

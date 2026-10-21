@@ -37,7 +37,7 @@ export default function Navbar() {
                 </>
               )}
               <span className="hidden h-5 w-px bg-sand sm:block" />
-              <span className="hidden text-sm text-ink/60 sm:inline">{user.name}</span>
+              <NavLink to="/perfil" className={linkClass}>{user.name}</NavLink>
               <button onClick={handleLogout} className="btn-outline">Salir</button>
             </>
           ) : (
