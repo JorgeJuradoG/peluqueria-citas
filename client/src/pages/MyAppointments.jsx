@@ -4,21 +4,13 @@ import api from "../services/api";
 import StatusBadge from "../components/StatusBadge";
 import RescheduleModal from "../components/RescheduleModal";
 import { useConfirm, useToast } from "../context/UIContext";
-
-function formatDate(iso) {
-  return new Date(iso).toLocaleString("es-ES", {
-    weekday: "long",
-    day: "numeric",
-    month: "long",
-    hour: "2-digit",
-    minute: "2-digit",
-    timeZone: "Europe/Madrid",
-  });
-}
+import { useSalon } from "../context/SalonContext";
+import { formatDateTime } from "../lib/dates";
 
 export default function MyAppointments() {
   const confirm = useConfirm();
   const toast = useToast();
+  const { timezone } = useSalon();
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -87,7 +79,7 @@ export default function MyAppointments() {
           >
             <div>
               <p className="font-display text-lg font-semibold capitalize">
-                {formatDate(a.start)}
+                {formatDateTime(a.start, timezone)}
               </p>
               <p className="text-sm text-ink/60">
                 {a.service?.name} con {a.stylist?.user?.name} · {a.service?.price} €

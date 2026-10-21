@@ -1,17 +1,14 @@
 import { useEffect, useState } from "react";
 import api from "../services/api";
 import { useConfirm, useToast } from "../context/UIContext";
-
-function todayISO() {
-  const d = new Date();
-  const offset = d.getTimezoneOffset() * 60000;
-  return new Date(d.getTime() - offset).toISOString().slice(0, 10);
-}
+import { useSalon } from "../context/SalonContext";
+import { todayISO } from "../lib/dates";
 
 export default function RescheduleModal({ appointment, onClose, onDone }) {
   const confirm = useConfirm();
   const toast = useToast();
-  const [date, setDate] = useState(todayISO());
+  const { timezone } = useSalon();
+  const [date, setDate] = useState(() => todayISO(timezone));
   const [slots, setSlots] = useState([]);
   const [loading, setLoading] = useState(false);
 
@@ -71,12 +68,14 @@ export default function RescheduleModal({ appointment, onClose, onDone }) {
           type="date"
           className="input mt-4 max-w-xs"
           value={date}
-          min={todayISO()}
+          min={todayISO(timezone)}
           onChange={(e) => setDate(e.target.value)}
         />
 
         <div className="mt-4 min-h-24">
-          {loading && slots.length === 0 && <p className="text-ink/50">Buscando huecos...</p>}
+          {loading && slots.length === 0 && (
+            <p className="text-ink/50">Buscando huecos...</p>
+          )}
           {!loading && slots.length === 0 && (
             <p className="text-ink/50">No hay huecos libres ese día. Prueba con otra fecha.</p>
           )}

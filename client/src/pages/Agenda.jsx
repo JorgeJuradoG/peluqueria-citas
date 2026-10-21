@@ -9,10 +9,10 @@ import "@fullcalendar/react/themes/classic/palette.css";
 import api from "../services/api";
 import { useAuth } from "../context/AuthContext";
 import { useConfirm, useToast } from "../context/UIContext";
+import { useSalon } from "../context/SalonContext";
+import { todayISO, formatTime } from "../lib/dates";
 import useStylistSocket from "../hooks/useStylistSocket";
 import StatusBadge from "../components/StatusBadge";
-
-const TZ = "Europe/Madrid";
 
 const STATUS_COLORS = {
   pending: { color: "#b45309", contrastColor: "#ffffff" }, // ámbar
@@ -25,20 +25,6 @@ const STATUS_LABELS = {
   pending: "Pendiente",
   completed: "Completada",
 };
-
-function todayISO() {
-  const d = new Date();
-  const offset = d.getTimezoneOffset() * 60000;
-  return new Date(d.getTime() - offset).toISOString().slice(0, 10);
-}
-
-function formatTime(iso) {
-  return new Date(iso).toLocaleTimeString("es-ES", {
-    hour: "2-digit",
-    minute: "2-digit",
-    timeZone: TZ,
-  });
-}
 
 function Legend() {
   return (
@@ -60,10 +46,11 @@ export default function Agenda() {
   const { user } = useAuth();
   const confirm = useConfirm();
   const toast = useToast();
+  const { timezone } = useSalon();
   const isAdmin = user.role === "admin";
 
   const [view, setView] = useState("week"); // "list" | "week"
-  const [date, setDate] = useState(todayISO());
+  const [date, setDate] = useState(() => todayISO(timezone));
   const [rangeFrom, setRangeFrom] = useState("");
   const [rangeTo, setRangeTo] = useState("");
   const [stylists, setStylists] = useState([]);
@@ -191,7 +178,7 @@ export default function Agenda() {
             <FullCalendar
               plugins={[timeGridPlugin, themePlugin]}
               initialView="timeGridWeek"
-              timeZone={TZ}
+              timeZone={timezone}
               locale={esLocale}
               firstDay={1}
               headerToolbar={{
@@ -227,8 +214,12 @@ export default function Agenda() {
             {appointments.map((a) => (
               <li key={a._id} className="card flex flex-wrap items-center gap-4">
                 <div className="w-28 shrink-0 border-r border-sand pr-4 text-center">
-                  <p className="font-display text-xl font-semibold">{formatTime(a.start)}</p>
-                  <p className="text-xs text-ink/50">hasta {formatTime(a.end)}</p>
+                  <p className="font-display text-xl font-semibold">
+                    {formatTime(a.start, timezone)}
+                  </p>
+                  <p className="text-xs text-ink/50">
+                    hasta {formatTime(a.end, timezone)}
+                  </p>
                 </div>
                 <div className="min-w-0 flex-1 basis-40">
                   <p className="font-medium">{a.client?.name}</p>
@@ -266,7 +257,7 @@ export default function Agenda() {
               <p>
                 <dt className="inline text-ink/60">Horario: </dt>
                 <dd className="inline">
-                  {formatTime(selected.start)} – {formatTime(selected.end)}
+                  {formatTime(selected.start, timezone)} – {formatTime(selected.end, timezone)}
                 </dd>
               </p>
               <p>
