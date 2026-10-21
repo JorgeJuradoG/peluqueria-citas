@@ -247,7 +247,7 @@ export default function Agenda() {
           <div className="mt-6">
             <Legend />
           </div>
-          <div className="card mt-3 p-2 sm:p-4">
+          <div className="keep palette card mt-3 p-2 sm:p-4">
             <FullCalendar
               plugins={[timeGridPlugin, themePlugin]}
               initialView="timeGridWeek"

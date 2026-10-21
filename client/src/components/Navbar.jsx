@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { useSalon } from "../context/SalonContext";
+import ThemeToggle from "./ThemeToggle";
 
 const ROLE_LABELS = { client: "Cliente", stylist: "Estilista", admin: "Administrador" };
 
@@ -56,6 +57,7 @@ export default function Navbar() {
 
   const [mobileOpen, setMobileOpen] = useState(false);
   const [userOpen, setUserOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const userMenuRef = useRef(null);
 
   const links = buildLinks(user);
@@ -66,7 +68,15 @@ export default function Navbar() {
     setUserOpen(false);
   }, [pathname]);
 
-  // Clic fuera o Escape cierran el menú de usuario
+  // Sombra al bajar
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 8);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  // Clic fuera o Escape cierran los menús
   useEffect(() => {
     function onClick(e) {
       if (userMenuRef.current && !userMenuRef.current.contains(e.target)) setUserOpen(false);
@@ -93,92 +103,106 @@ export default function Navbar() {
   }
 
   return (
-    <header className="sticky top-0 z-30 border-b border-sand bg-cream/90 backdrop-blur">
+    <header
+      className={`sticky top-0 z-30 border-b border-sand bg-cream/90 backdrop-blur transition-shadow ${
+        scrolled ? "shadow-md" : ""
+      }`}
+    >
       <nav className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3">
-        <Link to="/" className="flex items-center gap-2 font-display text-2xl font-bold tracking-tight">
-          <Scissors className="h-5 w-5 text-gold" aria-hidden="true" />
-          <span>
+        <Link
+          to="/"
+          className="flex min-w-0 items-center gap-2 font-display text-2xl font-bold tracking-tight"
+        >
+          <Scissors className="h-5 w-5 shrink-0 text-gold" aria-hidden="true" />
+          <span className="truncate">
             {salon.name}
             <span className="text-gold">.</span>
           </span>
         </Link>
 
-        {user ? (
-          <>
-            {/* Escritorio */}
-            <div className="hidden items-center gap-1 lg:flex">
-              {links.map(({ to, label, icon: Icon, end }) => (
-                <NavLink key={to} to={to} end={end} className={desktopLink}>
-                  <Icon className="h-4 w-4" aria-hidden="true" />
-                  {label}
-                </NavLink>
-              ))}
-            </div>
-
-            <div className="relative hidden lg:block" ref={userMenuRef}>
-              <button
-                onClick={() => setUserOpen(!userOpen)}
-                aria-expanded={userOpen}
-                aria-haspopup="menu"
-                className="flex items-center gap-2 rounded-full border border-sand bg-white py-1 pl-1 pr-3 text-sm font-medium transition hover:border-gold"
-              >
-                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-ink font-display text-cream">
-                  {user.name[0]}
-                </span>
-                <span className="max-w-32 truncate">{user.name}</span>
-                <ChevronDown
-                  className={`h-4 w-4 transition ${userOpen ? "rotate-180" : ""}`}
-                  aria-hidden="true"
-                />
-              </button>
-
-              {userOpen && (
-                <div
-                  role="menu"
-                  className="absolute right-0 mt-2 w-60 animate-pop rounded-xl border border-sand bg-white p-2 shadow-lg"
-                >
-                  <div className="px-3 py-2">
-                    <p className="truncate font-medium">{user.name}</p>
-                    <p className="truncate text-xs text-ink/60">{user.email}</p>
-                    <p className="mt-1 text-xs text-gold-dark">{ROLE_LABELS[user.role]}</p>
-                  </div>
-                  <div className="my-1 border-t border-sand" />
-                  <Link
-                    to="/perfil"
-                    role="menuitem"
-                    className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition hover:bg-sand/60"
-                  >
-                    <UserRound className="h-4 w-4" aria-hidden="true" />
-                    Mi perfil
-                  </Link>
-                  <button
-                    onClick={handleLogout}
-                    role="menuitem"
-                    className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-red-700 transition hover:bg-red-50"
-                  >
-                    <LogOut className="h-4 w-4" aria-hidden="true" />
-                    Cerrar sesión
-                  </button>
-                </div>
-              )}
-            </div>
-
-            {/* Móvil: botón hamburguesa */}
-            <button
-              onClick={() => setMobileOpen(!mobileOpen)}
-              aria-expanded={mobileOpen}
-              aria-label={mobileOpen ? "Cerrar menú" : "Abrir menú"}
-              className="rounded-lg border border-sand bg-white p-2 transition hover:border-gold lg:hidden"
-            >
-              {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-            </button>
-          </>
-        ) : (
-          <Link to="/login" className="btn-primary">
-            <LogIn className="h-4 w-4" aria-hidden="true" />
-            Entrar
-          </Link>
+        {/* Enlaces de escritorio */}
+        {user && (
+          <div className="hidden items-center gap-1 lg:flex">
+            {links.map(({ to, label, icon: Icon, end }) => (
+              <NavLink key={to} to={to} end={end} className={desktopLink}>
+                <Icon className="h-4 w-4" aria-hidden="true" />
+                {label}
+              </NavLink>
+            ))}
+          </div>
         )}
+
+        <div className="flex items-center gap-2">
+          <ThemeToggle />
+
+          {user ? (
+            <>
+              {/* Menú de usuario (escritorio) */}
+              <div className="relative hidden lg:block" ref={userMenuRef}>
+                <button
+                  onClick={() => setUserOpen(!userOpen)}
+                  aria-expanded={userOpen}
+                  aria-haspopup="menu"
+                  className="flex items-center gap-2 rounded-full border border-sand bg-surface py-1 pl-1 pr-3 text-sm font-medium transition hover:border-gold"
+                >
+                  <span className="flex h-8 w-8 items-center justify-center rounded-full bg-ink font-display text-cream">
+                    {user.name[0]}
+                  </span>
+                  <span className="max-w-32 truncate">{user.name}</span>
+                  <ChevronDown
+                    className={`h-4 w-4 transition ${userOpen ? "rotate-180" : ""}`}
+                    aria-hidden="true"
+                  />
+                </button>
+
+                {userOpen && (
+                  <div
+                    role="menu"
+                    className="absolute right-0 mt-2 w-60 animate-pop rounded-xl border border-sand bg-surface p-2 shadow-lg"
+                  >
+                    <div className="px-3 py-2">
+                      <p className="truncate font-medium">{user.name}</p>
+                      <p className="truncate text-xs text-ink/60">{user.email}</p>
+                      <p className="mt-1 text-xs text-gold-dark">{ROLE_LABELS[user.role]}</p>
+                    </div>
+                    <div className="my-1 border-t border-sand" />
+                    <Link
+                      to="/perfil"
+                      role="menuitem"
+                      className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition hover:bg-sand/60"
+                    >
+                      <UserRound className="h-4 w-4" aria-hidden="true" />
+                      Mi perfil
+                    </Link>
+                    <button
+                      onClick={handleLogout}
+                      role="menuitem"
+                      className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-red-700 transition hover:bg-red-50"
+                    >
+                      <LogOut className="h-4 w-4" aria-hidden="true" />
+                      Cerrar sesión
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {/* Botón hamburguesa (móvil) */}
+              <button
+                onClick={() => setMobileOpen(!mobileOpen)}
+                aria-expanded={mobileOpen}
+                aria-label={mobileOpen ? "Cerrar menú" : "Abrir menú"}
+                className="rounded-lg border border-sand bg-surface p-2 transition hover:border-gold lg:hidden"
+              >
+                {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+              </button>
+            </>
+          ) : (
+            <Link to="/login" className="btn-primary">
+              <LogIn className="h-4 w-4" aria-hidden="true" />
+              Entrar
+            </Link>
+          )}
+        </div>
       </nav>
 
       {/* Panel móvil */}

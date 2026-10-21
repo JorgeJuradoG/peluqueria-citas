@@ -11,7 +11,7 @@ export default function Landing() {
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-16">
-      <section className="rounded-2xl bg-ink px-6 py-14 text-center text-cream sm:py-20">
+      <section className="keep palette  rounded-2xl bg-ink px-6 py-14 text-center text-cream sm:py-20">
         <p className="text-sm uppercase tracking-[0.3em] text-gold">Gestión de citas</p>
         <h1 className="mx-auto mt-4 max-w-2xl text-4xl font-bold sm:text-5xl">
           Las reservas de tu peluquería, en tiempo real

@@ -44,7 +44,7 @@ export default function Services() {
   return (
     <div className="space-y-20">
       {/* Portada */}
-      <section className="relative overflow-hidden rounded-3xl bg-ink px-6 py-16 text-center text-cream sm:py-24">
+      <section className="keep- palette relative overflow-hidden rounded-3xl bg-ink px-6 py-16 text-center text-cream sm:py-24">
         <div
           aria-hidden="true"
           className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-gold/20 blur-3xl"
