@@ -68,26 +68,36 @@ export default function Book() {
 
   useStylistSocket(stylistId, loadSlots);
 
-  async function reserve(slot) {
-    const service = services.find((s) => s._id === serviceId);
-    const stylist = stylists.find((s) => s._id === stylistId);
+async function reserve(slot) {
+  const service = services.find((s) => s._id === serviceId);
+  const stylist = stylists.find((s) => s._id === stylistId);
 
-    const ok = await confirm({
-      title: "Confirmar reserva",
-      message: `${service.name} con ${stylist.user.name} a las ${slot.label} (${service.price} €).`,
-      confirmText: "Reservar",
+  const ok = await confirm({
+    title: "Confirmar reserva",
+    message: `${service.name} con ${stylist.user.name} a las ${slot.label} (${service.price} €).`,
+    confirmText: "Reservar",
+  });
+  if (!ok) return;
+
+  try {
+    const { data } = await api.post("/appointments", { stylistId, serviceId, start: slot.start });
+    navigate("/reservada", {
+      state: {
+        appointment: {
+          id: data._id,
+          start: data.start,
+          end: data.end,
+          serviceName: service.name,
+          price: service.price,
+          stylistName: stylist.user.name,
+        },
+      },
     });
-    if (!ok) return;
-
-    try {
-      await api.post("/appointments", { stylistId, serviceId, start: slot.start });
-      toast.success("Cita reservada");
-      navigate("/mis-citas");
-    } catch (err) {
-      toast.error(err.response?.data?.message || "No se pudo reservar");
-      loadSlots();
-    }
+  } catch (err) {
+    toast.error(err.response?.data?.message || "No se pudo reservar");
+    loadSlots();
   }
+}
 
   return (
     <div>

@@ -7,11 +7,13 @@ import { AppointmentSkeleton } from "../components/Skeleton";
 import { useConfirm, useToast } from "../context/UIContext";
 import { useSalon } from "../context/SalonContext";
 import { formatDateTime } from "../lib/dates";
+import { buildICS, downloadICS, eventFromAppointment } from "../lib/calendar";
 
 export default function MyAppointments() {
   const confirm = useConfirm();
   const toast = useToast();
-  const { timezone } = useSalon();
+  const salon = useSalon();
+  const { timezone } = salon;
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -48,6 +50,18 @@ export default function MyAppointments() {
     } catch (err) {
       toast.error(err.response?.data?.message || "No se pudo cancelar");
     }
+  }
+
+  function addToCalendar(a) {
+    const event = eventFromAppointment({
+      id: a._id,
+      start: a.start,
+      end: a.end,
+      serviceName: a.service?.name,
+      stylistName: a.stylist?.user?.name,
+      salonName: salon.name,
+    });
+    downloadICS("cita.ics", buildICS(event));
   }
 
   const isUpcoming = (a) =>
@@ -89,6 +103,9 @@ export default function MyAppointments() {
               <StatusBadge status={a.status} />
               {isUpcoming(a) && (
                 <>
+                  <button onClick={() => addToCalendar(a)} className="btn-outline">
+                    Calendario
+                  </button>
                   <button onClick={() => setRescheduling(a)} className="btn-outline">
                     Reprogramar
                   </button>
