@@ -8,7 +8,7 @@ const PHONE_RE = /^\+?[\d\s-]{9,15}$/;
 
 const PASSWORD_MSG = "La contraseña debe tener al menos 8 caracteres, una letra y un número";
 
-function signToken(user) {
+export function signToken(user) {
   return jwt.sign(
     { id: user._id, role: user.role, tv: user.tokenVersion ?? 0 },
     process.env.JWT_SECRET,
@@ -16,7 +16,7 @@ function signToken(user) {
   );
 }
 
-function publicUser(user) {
+export function publicUser(user) {
   return {
     id: user._id,
     name: user.name,

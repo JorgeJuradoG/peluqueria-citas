@@ -35,7 +35,7 @@ export async function createAppointment(req, res) {
 
   const endDate = new Date(startDate.getTime() + service.durationMinutes * 60000);
 
-  if (!fitsInWorkingHours(stylist, startDate, endDate)) {
+  if (!fitsInWorkingHours(stylist, startDate, endDate, req.salon.timezone)) {
     return res
       .status(400)
       .json({ message: "Ese horario está fuera del horario del estilista" });
@@ -108,7 +108,7 @@ export async function cancelAppointment(req, res) {
 
 export async function getAgenda(req, res) {
   const salon = req.salon._id;
-  const TZ = process.env.SALON_TIMEZONE || "Europe/Madrid";
+  const TZ = req.salon.timezone;
   let rangeStart;
   let rangeEnd;
 

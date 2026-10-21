@@ -85,7 +85,7 @@ export async function updateStylist(req, res) {
 export async function getAvailability(req, res) {
   const { date, serviceId, excludeAppointment } = req.query;
   const salon = req.salon._id;
-  const TZ = process.env.SALON_TIMEZONE || "Europe/Madrid";
+  const TZ = req.salon.timezone;
 
   const localDay = DateTime.fromISO(String(date), { zone: TZ }).startOf("day");
   if (!localDay.isValid) {
@@ -118,6 +118,6 @@ export async function getAvailability(req, res) {
     ...(excludeAppointment ? { _id: { $ne: excludeAppointment } } : {}),
   });
 
-  const slots = getAvailableSlots({ stylist, service, localDay, appointments });
+  const slots = getAvailableSlots({ stylist, service, localDay, appointments, tz: TZ });
   res.json({ date: localDay.toISODate(), slots });
 }

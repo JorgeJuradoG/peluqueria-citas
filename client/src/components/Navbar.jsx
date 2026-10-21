@@ -1,5 +1,7 @@
 import { NavLink, Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { useSalon } from "../context/SalonContext.jsx";
+
 
 const linkClass = ({ isActive }) =>
   `text-sm transition hover:text-gold-dark ${
@@ -9,6 +11,7 @@ const linkClass = ({ isActive }) =>
 export default function Navbar() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const salon = useSalon();
 
   function handleLogout() {
     logout();
@@ -20,9 +23,9 @@ export default function Navbar() {
   return (
     <header className="sticky top-0 z-10 border-b border-sand bg-cream/90 backdrop-blur">
       <nav className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-3 px-4 py-3">
-        <Link to="/" className="font-display text-2xl font-bold tracking-tight">
-          Peluquería<span className="text-gold">.</span>
-        </Link>
+          <Link to="/" className="font-display text-2xl font-bold tracking-tight">
+            {salon.name}<span className="text-gold">.</span>
+          </Link>
 
         <div className="flex flex-wrap items-center gap-x-3 gap-y-2 sm:gap-x-5">
           {user ? (

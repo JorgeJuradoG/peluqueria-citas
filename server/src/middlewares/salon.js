@@ -1,9 +1,7 @@
 import Salon from "../models/Salon.js";
 
 export async function resolveSalon(req, res, next) {
-  const slug = String(
-    req.headers["x-salon"] || process.env.DEFAULT_SALON_SLUG || ""
-  ).toLowerCase();
+  const slug = String(req.headers["x-salon"] || "").toLowerCase();
 
   if (!slug) {
     return res.status(400).json({ message: "Falta la peluquería (cabecera X-Salon)" });

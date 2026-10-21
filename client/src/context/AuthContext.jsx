@@ -1,24 +1,25 @@
 import { createContext, useContext, useState } from "react";
 import api from "../services/api";
+import { TOKEN_KEY, USER_KEY } from "../lib/salon";
 
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(() => {
     try {
-      return JSON.parse(localStorage.getItem("user"));
+      return JSON.parse(localStorage.getItem(USER_KEY));
     } catch {
       return null;
     }
   });
 
   function updateUser(next) {
-    localStorage.setItem("user", JSON.stringify(next));
+    localStorage.setItem(USER_KEY, JSON.stringify(next));
     setUser(next);
   }
 
   function saveSession({ token, user }) {
-    localStorage.setItem("token", token);
+    localStorage.setItem(TOKEN_KEY, token);
     updateUser(user);
   }
 
@@ -33,8 +34,8 @@ export function AuthProvider({ children }) {
   }
 
   function logout() {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
+    localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem(USER_KEY);
     setUser(null);
   }
 

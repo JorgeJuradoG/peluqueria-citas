@@ -1,10 +1,9 @@
 import { DateTime } from "luxon";
 
-const TZ = process.env.SALON_TIMEZONE || "Europe/Madrid";
+const SLOT_STEP_MINUTES = 15;
 
-// Devuelve las franjas de trabajo de un día como fechas reales (UTC)
+// Franjas de trabajo de un día como fechas reales (UTC). localDay ya está en la zona del salón
 export function workingRangesFor(stylist, localDay) {
-  // daysOff se guarda como fecha sin hora (UTC), así que se compara en UTC
   const isoDay = localDay.toISODate();
   const isDayOff = stylist.daysOff.some(
     (d) => DateTime.fromJSDate(d, { zone: "utc" }).toISODate() === isoDay
@@ -26,17 +25,14 @@ export function workingRangesFor(stylist, localDay) {
     });
 }
 
-// ¿La cita [start, end] cabe entera dentro de alguna franja de trabajo?
-export function fitsInWorkingHours(stylist, start, end) {
-  const localDay = DateTime.fromJSDate(start, { zone: TZ }).startOf("day");
+export function fitsInWorkingHours(stylist, start, end, tz) {
+  const localDay = DateTime.fromJSDate(start, { zone: tz }).startOf("day");
   return workingRangesFor(stylist, localDay).some(
     (range) => start >= range.start && end <= range.end
   );
 }
 
-const SLOT_STEP_MINUTES = 15;
-
-export function getAvailableSlots({ stylist, service, localDay, appointments, now = new Date() }) {
+export function getAvailableSlots({ stylist, service, localDay, appointments, tz, now = new Date() }) {
   const durationMs = service.durationMinutes * 60000;
   const stepMs = SLOT_STEP_MINUTES * 60000;
   const slots = [];
@@ -57,7 +53,7 @@ export function getAvailableSlots({ stylist, service, localDay, appointments, no
 
       slots.push({
         start: slotStart.toISOString(),
-        label: DateTime.fromJSDate(slotStart, { zone: TZ }).toFormat("HH:mm"),
+        label: DateTime.fromJSDate(slotStart, { zone: tz }).toFormat("HH:mm"),
       });
     }
   }
