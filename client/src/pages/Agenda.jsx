@@ -8,6 +8,7 @@ import "@fullcalendar/react/themes/classic/theme.css";
 import "@fullcalendar/react/themes/classic/palette.css";
 import api from "../services/api";
 import { useAuth } from "../context/AuthContext";
+import { useConfirm, useToast } from "../context/UIContext";
 import useStylistSocket from "../hooks/useStylistSocket";
 import StatusBadge from "../components/StatusBadge";
 
@@ -29,6 +30,8 @@ function formatTime(iso) {
 
 export default function Agenda() {
   const { user } = useAuth();
+  const confirm = useConfirm();
+  const toast = useToast();
   const isAdmin = user.role === "admin";
 
   const [view, setView] = useState("week"); // "list" | "week"
@@ -39,6 +42,7 @@ export default function Agenda() {
   const [selectedStylist, setSelectedStylist] = useState("");
   const [stylistId, setStylistId] = useState("");
   const [appointments, setAppointments] = useState([]);
+  const [selected, setSelected] = useState(null);
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -74,12 +78,39 @@ export default function Agenda() {
 
   useStylistSocket(stylistId, load);
 
+  async function changeStatus(appointment, status) {
+    if (status === "cancelled") {
+      const ok = await confirm({
+        title: "Cancelar cita",
+        message: `Se cancelará la cita de ${appointment.client?.name}.`,
+        confirmText: "Cancelar cita",
+        danger: true,
+      });
+      if (!ok) return;
+    }
+    try {
+      await api.patch(`/appointments/${appointment._id}/status`, { status });
+      toast.success(status === "completed" ? "Cita completada" : "Cita cancelada");
+      setSelected(null);
+      load();
+    } catch (err) {
+      toast.error(err.response?.data?.message || "No se pudo actualizar");
+    }
+  }
+
+  const STATUS_COLORS = {
+  pending: { color: "#b45309", contrastColor: "#ffffff" },   // ámbar
+  confirmed: { color: "#1c1917", contrastColor: "#faf7f2" }, // negro de la marca
+  completed: { color: "#78716c", contrastColor: "#ffffff" }, // gris
+};
+
   const events = appointments.map((a) => ({
-    id: a._id,
-    title: `${a.client?.name} · ${a.service?.name}`,
-    start: a.start,
-    end: a.end,
-  }));
+  id: a._id,
+  title: `${a.client?.name} · ${a.service?.name}`,
+  start: a.start,
+  end: a.end,
+  ...STATUS_COLORS[a.status],
+}));
 
   const toggle = (value, label) => (
     <button
@@ -148,8 +179,10 @@ export default function Agenda() {
             nowIndicator
             height="auto"
             events={events}
-            eventColor="#b08d57"
-            eventContrastColor="#1c1917"
+            eventClass="cita-evento"
+            eventClick={(info) =>
+              setSelected(appointments.find((a) => a._id === info.event.id))
+            }
             datesSet={(info) => {
               setRangeFrom(info.startStr);
               setRangeTo(info.endStr);
@@ -176,11 +209,74 @@ export default function Agenda() {
                     {a.service?.name} · {a.service?.price} € · {a.client?.email}
                   </p>
                 </div>
+                <button onClick={() => setSelected(a)} className="btn-outline">
+                  Detalles
+                </button>
                 <StatusBadge status={a.status} />
               </li>
             ))}
           </ul>
         </>
+      )}
+
+      {selected && (
+        <div
+          className="fixed inset-0 z-40 flex items-center justify-center bg-ink/50 p-4"
+          onClick={() => setSelected(null)}
+        >
+          <div className="card w-full max-w-md" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-start justify-between gap-3">
+              <h2 className="text-2xl font-bold">{selected.client?.name}</h2>
+              <StatusBadge status={selected.status} />
+            </div>
+            <dl className="mt-4 space-y-1 text-sm">
+              <p>
+                <dt className="inline text-ink/60">Servicio: </dt>
+                <dd className="inline">
+                  {selected.service?.name} ({selected.service?.price} €)
+                </dd>
+              </p>
+              <p>
+                <dt className="inline text-ink/60">Horario: </dt>
+                <dd className="inline">
+                  {formatTime(selected.start)} – {formatTime(selected.end)}
+                </dd>
+              </p>
+              <p>
+                <dt className="inline text-ink/60">Email: </dt>
+                <dd className="inline">{selected.client?.email}</dd>
+              </p>
+              {selected.notes && (
+                <p>
+                  <dt className="inline text-ink/60">Notas: </dt>
+                  <dd className="inline">{selected.notes}</dd>
+                </p>
+              )}
+            </dl>
+
+            <div className="mt-6 flex flex-wrap justify-end gap-3">
+              <button onClick={() => setSelected(null)} className="btn-outline">
+                Cerrar
+              </button>
+              {["pending", "confirmed"].includes(selected.status) && (
+                <>
+                  <button
+                    onClick={() => changeStatus(selected, "cancelled")}
+                    className="btn-danger"
+                  >
+                    Cancelar cita
+                  </button>
+                  <button
+                    onClick={() => changeStatus(selected, "completed")}
+                    className="btn-primary"
+                  >
+                    Marcar completada
+                  </button>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

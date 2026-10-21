@@ -4,6 +4,7 @@ import Service from "../models/Service.js";
 import { fitsInWorkingHours } from "../utils/availability.js";
 import { emitToStylist } from "../sockets/index.js";
 import { DateTime } from "luxon";
+
 const ACTIVE_STATUSES = ["pending", "confirmed"];
 
 export async function createAppointment(req, res) {
@@ -33,9 +34,11 @@ export async function createAppointment(req, res) {
 
   const endDate = new Date(startDate.getTime() + service.durationMinutes * 60000);
 
-    if (!fitsInWorkingHours(stylist, startDate, endDate)) {
-    return res.status(400).json({ message: "Ese horario está fuera del horario del estilista" });
-    }
+  if (!fitsInWorkingHours(stylist, startDate, endDate)) {
+    return res
+      .status(400)
+      .json({ message: "Ese horario está fuera del horario del estilista" });
+  }
 
   // ¿Hay alguna cita activa del estilista que choque con esta franja?
   const overlap = await Appointment.findOne({
@@ -55,12 +58,14 @@ export async function createAppointment(req, res) {
     start: startDate,
     end: endDate,
     notes,
-    });
-    emitToStylist(stylist._id, "appointment:created", {
-        stylistId: stylist._id,
-        start: appointment.start,
-        end: appointment.end,
-    });
+  });
+
+  emitToStylist(stylist._id, "appointment:created", {
+    stylistId: stylist._id,
+    start: appointment.start,
+    end: appointment.end,
+  });
+
   res.status(201).json(appointment);
 }
 
@@ -134,7 +139,7 @@ export async function getAgenda(req, res) {
 
   const appointments = await Appointment.find({
     stylist: stylistId,
-    status: { $in: ACTIVE_STATUSES },
+    status: { $in: [...ACTIVE_STATUSES, "completed"] },
     start: { $lt: rangeEnd },
     end: { $gt: rangeStart },
   })
@@ -143,4 +148,39 @@ export async function getAgenda(req, res) {
     .populate("service", "name durationMinutes price");
 
   res.json({ stylistId, appointments });
+}
+
+export async function updateAppointmentStatus(req, res) {
+  const { status } = req.body;
+  if (!["completed", "cancelled"].includes(status)) {
+    return res.status(400).json({ message: "Estado no permitido" });
+  }
+
+  const appointment = await Appointment.findById(req.params.id);
+  if (!appointment) {
+    return res.status(404).json({ message: "Cita no encontrada" });
+  }
+
+  // El admin puede con todas; el estilista solo con las suyas
+  if (req.user.role !== "admin") {
+    const profile = await Stylist.findOne({ user: req.user.id });
+    if (!profile || !appointment.stylist.equals(profile._id)) {
+      return res.status(403).json({ message: "Esta cita no es tuya" });
+    }
+  }
+
+  if (!ACTIVE_STATUSES.includes(appointment.status)) {
+    return res.status(409).json({ message: "Esta cita ya está cerrada" });
+  }
+
+  appointment.status = status;
+  await appointment.save();
+
+  emitToStylist(
+    appointment.stylist,
+    status === "cancelled" ? "appointment:cancelled" : "appointment:updated",
+    { stylistId: appointment.stylist, start: appointment.start, end: appointment.end }
+  );
+
+  res.json(appointment);
 }

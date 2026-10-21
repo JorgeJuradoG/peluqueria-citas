@@ -16,7 +16,7 @@ export default function useStylistSocket(stylistId, onChange) {
     socket.on("connect", () => socket.emit("stylist:join", stylistId));
     socket.on("appointment:created", () => callbackRef.current());
     socket.on("appointment:cancelled", () => callbackRef.current());
-
+    socket.on("appointment:updated", () => callbackRef.current());
     return () => {
       socket.emit("stylist:leave", stylistId);
       socket.disconnect();

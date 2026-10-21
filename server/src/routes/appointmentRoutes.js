@@ -4,6 +4,7 @@ import {
   getMyAppointments,
   cancelAppointment,
   getAgenda,
+  updateAppointmentStatus,
 } from "../controllers/appointmentController.js";
 import { requireAuth, requireRole } from "../middlewares/auth.js";
 
@@ -11,10 +12,10 @@ const router = Router();
 
 router.use(requireAuth);
 
-
 router.post("/", createAppointment);
 router.get("/me", getMyAppointments);
 router.get("/agenda", requireRole("admin", "stylist"), getAgenda);
 router.patch("/:id/cancel", cancelAppointment);
+router.patch("/:id/status", requireRole("admin", "stylist"), updateAppointmentStatus);
 
 export default router;

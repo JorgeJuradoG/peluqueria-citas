@@ -44,3 +44,18 @@
   @apply w-full rounded-lg border border-ink/15 bg-white px-3 py-2 text-sm
          outline-none transition focus:border-gold focus:ring-2 focus:ring-gold/30;
 }
+.cita-evento {
+  font-weight: 600;
+  font-size: 0.8rem;
+  border-radius: 8px !important;
+  border-left: 5px solid #b08d57 !important;
+  box-shadow: 0 2px 6px rgb(28 25 23 / 0.35);
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.cita-evento:hover {
+  transform: scale(1.02);
+  box-shadow: 0 4px 12px rgb(28 25 23 / 0.45);
+  z-index: 5;
+}
