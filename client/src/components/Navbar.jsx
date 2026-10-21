@@ -1,7 +1,6 @@
 import { NavLink, Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { useSalon } from "../context/SalonContext.jsx";
-
+import { useSalon } from "../context/SalonContext";
 
 const linkClass = ({ isActive }) =>
   `text-sm transition hover:text-gold-dark ${
@@ -10,22 +9,24 @@ const linkClass = ({ isActive }) =>
 
 export default function Navbar() {
   const { user, logout } = useAuth();
-  const navigate = useNavigate();
   const salon = useSalon();
+  const navigate = useNavigate();
 
   function handleLogout() {
     logout();
     navigate("/");
   }
 
+  const isAdmin = user?.role === "admin";
   const isStaff = user && (user.role === "admin" || user.role === "stylist");
 
   return (
     <header className="sticky top-0 z-10 border-b border-sand bg-cream/90 backdrop-blur">
       <nav className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-3 px-4 py-3">
-          <Link to="/" className="font-display text-2xl font-bold tracking-tight">
-            {salon.name}<span className="text-gold">.</span>
-          </Link>
+        <Link to="/" className="font-display text-2xl font-bold tracking-tight">
+          {salon.name}
+          <span className="text-gold">.</span>
+        </Link>
 
         <div className="flex flex-wrap items-center gap-x-3 gap-y-2 sm:gap-x-5">
           {user ? (
@@ -33,8 +34,9 @@ export default function Navbar() {
               <NavLink to="/reservar" className={linkClass}>Reservar</NavLink>
               <NavLink to="/mis-citas" className={linkClass}>Mis citas</NavLink>
               {isStaff && <NavLink to="/agenda" className={linkClass}>Agenda</NavLink>}
-              {user.role === "admin" && (
+              {isAdmin && (
                 <>
+                  <NavLink to="/admin" end className={linkClass}>Panel</NavLink>
                   <NavLink to="/admin/servicios" className={linkClass}>Servicios</NavLink>
                   <NavLink to="/admin/estilistas" className={linkClass}>Estilistas</NavLink>
                 </>

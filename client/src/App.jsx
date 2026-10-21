@@ -13,7 +13,7 @@ import Profile from "./pages/Profile";
 import Agenda from "./pages/Agenda";
 import AdminServices from "./pages/AdminServices";
 import AdminStylists from "./pages/AdminStylists";
-
+import AdminHome from "./pages/AdminHome";
 function PlatformApp() {
   return (
     <Routes>
@@ -59,6 +59,14 @@ function SalonApp() {
               </ProtectedRoute>
             }
           />
+          <Route
+            path="/admin"
+            element={
+             <ProtectedRoute roles={["admin"]}>
+             <AdminHome />
+            </ProtectedRoute>
+              }
+/>
         </Routes>
       </main>
     </SalonProvider>
