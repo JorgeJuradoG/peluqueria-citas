@@ -23,6 +23,8 @@ import NotFound from "./pages/NotFound";
 import Appearance from "./pages/Appearance";
 import Legal from "./pages/Legal";
 import DemoBanner from "./components/DemoBanner";
+import Stats from "./pages/Stats";
+
 
 function PlatformApp() {
   return (
@@ -105,7 +107,15 @@ function SalonApp() {
              <Appearance />
              </ProtectedRoute>
                }
-/>
+              />
+             <Route
+                path="/admin/estadisticas"
+                element={
+                  <ProtectedRoute roles={["admin"]}>
+                    <Stats />
+                  </ProtectedRoute>
+                }
+              />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </div>

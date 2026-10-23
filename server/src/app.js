@@ -9,6 +9,7 @@ import authRoutes from "./routes/authRoutes.js";
 import serviceRoutes from "./routes/serviceRoutes.js";
 import stylistRoutes from "./routes/stylistRoutes.js";
 import appointmentRoutes from "./routes/appointmentRoutes.js";
+import statsRoutes from "./routes/statsRoutes.js";
 
 const app = express();
 
@@ -31,6 +32,7 @@ app.use("/api/salon-settings", salonSettingsRoutes);
 app.use("/api/services", serviceRoutes);
 app.use("/api/stylists", stylistRoutes);
 app.use("/api/appointments", appointmentRoutes);
+app.use("/api/stats", statsRoutes);
 
 app.use(notFound);
 app.use(errorHandler);
