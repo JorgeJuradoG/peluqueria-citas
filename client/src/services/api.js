@@ -1,8 +1,11 @@
 import axios from "axios";
 import { SALON_SLUG, BASENAME, TOKEN_KEY, USER_KEY } from "../lib/salon";
 
+// Vacío en desarrollo: las peticiones van a /api y Vite las reenvía al backend
+const API_URL = import.meta.env.VITE_API_URL || "";
+
 const api = axios.create({
-  baseURL: `${import.meta.env.VITE_API_URL}/api`,
+  baseURL: `${API_URL}/api`,
 });
 
 api.interceptors.request.use((config) => {

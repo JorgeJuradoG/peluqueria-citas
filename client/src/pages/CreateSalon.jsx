@@ -175,7 +175,7 @@ export default function CreateSalon() {
       // Dejamos la sesión lista para esa peluquería y entramos en su panel
       localStorage.setItem(`token:${data.salon.slug}`, data.token);
       localStorage.setItem(`user:${data.salon.slug}`, JSON.stringify(data.user));
-      window.location.href = `/s/${data.salon.slug}/admin`;
+            window.location.href = `/s/${data.salon.slug}/admin?bienvenida=1`;
     } catch (err) {
       if (err.response?.status === 409) setStep(0); // la dirección ya existe
       setError(err.response?.data?.message || "No se pudo conectar con el servidor");

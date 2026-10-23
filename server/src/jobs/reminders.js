@@ -29,7 +29,7 @@ export async function runReminders() {
       const key = String(a.salon);
       if (!salons.has(key)) salons.set(key, await Salon.findById(a.salon));
       const salon = salons.get(key);
-      if (salon?.active) await sendAppointmentReminder(a._id, salon);
+      if (salon?.active && !salon.demo) await sendAppointmentReminder(a._id, salon);
     }
 
     if (due.length) console.log(`[reminders] ${due.length} cita(s) procesadas`);

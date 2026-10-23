@@ -1,6 +1,6 @@
 export const PRODUCT_NAME = "Citas"; // cámbialo cuando elijas el nombre definitivo
 export const CONTACT_EMAIL = "hola@tudominio.com"; // pon un correo real
-export const DEMO_SLUG = "peluqueria-demo"; // la peluquería que crea el seed
+export const DEMO_SLUG = "demo"; // la peluquería que crea el seed
 
 export const NAV = [
   { href: "/#funciones", label: "Funciones" },
@@ -75,4 +75,5 @@ export const FAQ = [
     q: "¿Y si mi cliente quiere cambiar o cancelar la cita?",
     a: "Lo hace él mismo desde «Mis citas». El hueco queda libre al instante y tanto el cliente como el estilista reciben el aviso por correo.",
   },
+  
 ];

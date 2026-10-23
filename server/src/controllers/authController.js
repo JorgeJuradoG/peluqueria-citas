@@ -3,11 +3,12 @@ import jwt from "jsonwebtoken";
 import User from "../models/User.js";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const PASSWORD_RE = /^(?=.*[A-Za-z])(?=.*\d).{8,}$/;
+const PASSWORD_RE = /^(?=.*[A-Za-z])(?=.*\d).{8,}$/; // 8+ caracteres, una letra y un número
 const PHONE_RE = /^\+?[\d\s-]{9,15}$/;
 
 const PASSWORD_MSG = "La contraseña debe tener al menos 8 caracteres, una letra y un número";
 
+// Se exportan porque también los usan salonController y passwordController
 export function signToken(user) {
   return jwt.sign(
     { id: user._id, role: user.role, tv: user.tokenVersion ?? 0 },
@@ -73,6 +74,32 @@ export async function login(req, res) {
   res.json({ token: signToken(user), user: publicUser(user) });
 }
 
+const DEMO_ROLES = ["admin", "stylist", "client"];
+
+// Público: sesión corta de la peluquería de demostración con el rol elegido
+export async function demoLogin(req, res) {
+  if (!req.salon.demo) {
+    return res.status(404).json({ message: "Esta peluquería no tiene demo" });
+  }
+
+  const role = String(req.body.role || "admin");
+  if (!DEMO_ROLES.includes(role)) {
+    return res.status(400).json({ message: "Rol no válido" });
+  }
+
+  const user = await User.findOne({ salon: req.salon._id, role }).sort({ _id: 1 });
+  if (!user) {
+    return res.status(404).json({ message: "La demo no está preparada" });
+  }
+
+  const token = jwt.sign(
+    { id: user._id, role: user.role, tv: user.tokenVersion ?? 0 },
+    process.env.JWT_SECRET,
+    { expiresIn: "2h" }
+  );
+  res.json({ token, user: publicUser(user) });
+}
+
 export async function getMe(req, res) {
   const user = await User.findById(req.user.id);
   if (!user) return res.status(404).json({ message: "Usuario no encontrado" });
@@ -93,6 +120,7 @@ export async function updateMe(req, res) {
     return res.status(400).json({ message: "Teléfono no válido" });
   }
 
+  // Solo se permiten estos dos campos: ni rol ni email por esta vía
   user.name = name;
   user.phone = phone;
   await user.save();
@@ -107,6 +135,7 @@ export async function changePassword(req, res) {
   const user = await User.findById(req.user.id);
   if (!user) return res.status(404).json({ message: "Usuario no encontrado" });
 
+  // 400 (no 401) para que el frontend no lo confunda con una sesión caducada
   const ok = await bcrypt.compare(currentPassword, user.passwordHash);
   if (!ok) {
     return res.status(400).json({ message: "La contraseña actual no es correcta" });
@@ -119,9 +148,11 @@ export async function changePassword(req, res) {
   }
 
   user.passwordHash = await bcrypt.hash(newPassword, 10);
+  // Invalida todos los tokens emitidos hasta ahora
   user.tokenVersion = (user.tokenVersion ?? 0) + 1;
   await user.save();
 
+  // Devolvemos un token nuevo para que ESTA sesión siga abierta
   res.json({
     message: "Contraseña actualizada",
     token: signToken(user),

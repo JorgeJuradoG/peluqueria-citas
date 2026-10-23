@@ -22,7 +22,7 @@ import AdminStylists from "./pages/AdminStylists";
 import NotFound from "./pages/NotFound";
 import Appearance from "./pages/Appearance";
 import Legal from "./pages/Legal";
-
+import DemoBanner from "./components/DemoBanner";
 
 function PlatformApp() {
   return (
@@ -53,6 +53,7 @@ function SalonApp() {
         >
           Saltar al contenido
         </a>
+        <DemoBanner />
         <Navbar />
         <main id="contenido" className="mx-auto w-full max-w-6xl flex-1 px-4 py-10">
           <div key={pathname} className="animate-fade-in">

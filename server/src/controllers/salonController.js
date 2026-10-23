@@ -7,7 +7,7 @@ import { parseBranding, parseProfile } from "../utils/branding.js";
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const PASSWORD_RE = /^(?=.*[A-Za-z])(?=.*\d).{8,}$/;
 const SLUG_RE = /^[a-z0-9]+(-[a-z0-9]+)*$/;
-const RESERVED = new Set(["admin", "api", "app", "www", "login", "crear-peluqueria", "s"]);
+const RESERVED = new Set(["admin", "api", "app", "www", "login", "crear-peluqueria", "s","demo"]);
 
 function validTimezone(tz) {
   try {
@@ -34,6 +34,7 @@ function publicSalon(salon) {
     phone: s.phone,
     social: s.social,
     sections: s.sections,
+    demo: s.demo === true, // para que el frontend muestre el banner de demo
   };
 }
 

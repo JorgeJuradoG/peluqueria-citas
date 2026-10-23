@@ -47,6 +47,9 @@ const salonSchema = new mongoose.Schema(
       howItWorks: { type: Boolean, default: true },
       perks: { type: Boolean, default: true },
     },
+
+    // Peluquería de demostración: solo lectura. La fija el script resetDemo, nunca la API
+    demo: { type: Boolean, default: false },
   },
   { timestamps: true }
 );

@@ -1,13 +1,16 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import {
   ArrowRight,
   Check,
   Copy,
+  ExternalLink,
   Link2,
   MailWarning,
+  PartyPopper,
   Scissors,
   Users,
+  X,
 } from "lucide-react";
 import api from "../services/api";
 import { useAuth } from "../context/AuthContext";
@@ -41,9 +44,13 @@ function Stat({ icon: Icon, label, value, to, tone = "gold" }) {
   );
 }
 
-function Step({ number, done, icon: Icon, title, text, to, action }) {
+function Step({ number, done, current, icon: Icon, title, text, to, action }) {
   return (
-    <li className={`card flex flex-wrap items-center gap-4 transition ${done ? "opacity-70" : ""}`}>
+    <li
+      className={`card flex flex-wrap items-center gap-4 transition ${done ? "opacity-70" : ""} ${
+        current ? "border-gold ring-2 ring-gold/30" : ""
+      }`}
+    >
       <span
         className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full font-display ${
           done ? "bg-emerald-600 text-white" : "bg-ink text-cream"
@@ -67,10 +74,18 @@ function Step({ number, done, icon: Icon, title, text, to, action }) {
   );
 }
 
+const NEXT_TEXT = [
+  "crea tu primer servicio.",
+  "añade a tu equipo.",
+  "comparte tu enlace con tus clientes.",
+];
+
 export default function AdminHome() {
   const { user } = useAuth();
   const salon = useSalon();
   const toast = useToast();
+  const [params, setParams] = useSearchParams();
+  const welcome = params.get("bienvenida") === "1";
 
   const sharedKey = `shared:${salon.slug}`;
   const [counts, setCounts] = useState(null);
@@ -112,6 +127,10 @@ export default function AdminHome() {
     setShared(true);
   }
 
+  function dismissWelcome() {
+    setParams({}, { replace: true });
+  }
+
   if (!counts) {
     return (
       <div>
@@ -134,6 +153,7 @@ export default function AdminHome() {
   const steps = [counts.services > 0, counts.stylists > 0, shared];
   const doneCount = steps.filter(Boolean).length;
   const allDone = doneCount === steps.length;
+  const firstPending = steps.findIndex((s) => !s); // -1 si está todo hecho
 
   return (
     <div className="mx-auto max-w-4xl">
@@ -143,6 +163,53 @@ export default function AdminHome() {
           ? `${salon.name} está lista para recibir reservas.`
           : `Vamos a dejar lista ${salon.name} en tres pasos.`}
       </p>
+
+      {welcome && (
+        <section className="card mt-6 animate-pop border-gold bg-gold/10">
+          <div className="flex items-start justify-between gap-3">
+            <div className="flex items-start gap-3">
+              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-gold text-[#1c1917]">
+                <PartyPopper className="h-5 w-5" aria-hidden="true" />
+              </span>
+              <div>
+                <h2 className="text-2xl font-bold">¡{salon.name} ya está en marcha!</h2>
+                <p className="mt-1 text-sm text-ink/70">
+                  Tu web ya es pública. Este es el enlace que tus clientes usarán para reservar:
+                </p>
+              </div>
+            </div>
+            <button
+              onClick={dismissWelcome}
+              aria-label="Cerrar"
+              className="rounded-lg p-1.5 text-ink/60 transition hover:bg-sand/60 hover:text-ink"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </div>
+
+          <div className="mt-4 flex flex-wrap items-center gap-2 rounded-lg bg-surface p-3">
+            <code className="min-w-0 flex-1 break-all text-sm">{link}</code>
+            <button onClick={copyLink} className="btn-primary">
+              {copied ? (
+                <Check className="h-4 w-4" aria-hidden="true" />
+              ) : (
+                <Copy className="h-4 w-4" aria-hidden="true" />
+              )}
+              {copied ? "Copiado" : "Copiar"}
+            </button>
+            <a href={link} target="_blank" rel="noopener noreferrer" className="btn-outline">
+              <ExternalLink className="h-4 w-4" aria-hidden="true" />
+              Ver mi web
+            </a>
+          </div>
+
+          {firstPending >= 0 && (
+            <p className="mt-3 text-sm text-ink/70">
+              Tu siguiente paso: <b className="text-ink">{NEXT_TEXT[firstPending]}</b>
+            </p>
+          )}
+        </section>
+      )}
 
       <div className="mt-6 grid gap-4 sm:grid-cols-3">
         <Stat icon={Scissors} label="Servicios" value={counts.services} to="/admin/servicios" />
@@ -185,6 +252,7 @@ export default function AdminHome() {
         <Step
           number={1}
           done={steps[0]}
+          current={firstPending === 0}
           icon={Scissors}
           title="Crea tu primer servicio"
           text="Por ejemplo «Corte de pelo», con su duración y su precio."
@@ -194,13 +262,18 @@ export default function AdminHome() {
         <Step
           number={2}
           done={steps[1]}
+          current={firstPending === 1}
           icon={Users}
           title="Añade a tu equipo"
           text="Crea la cuenta de cada estilista y elige qué servicios ofrece."
           to="/admin/estilistas"
           action="Añadir estilista"
         />
-        <li className={`card transition ${steps[2] ? "opacity-70" : ""}`}>
+        <li
+          className={`card transition ${steps[2] ? "opacity-70" : ""} ${
+            firstPending === 2 ? "border-gold ring-2 ring-gold/30" : ""
+          }`}
+        >
           <div className="flex flex-wrap items-center gap-4">
             <span
               className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full font-display ${

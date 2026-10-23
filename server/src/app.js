@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import { resolveSalon } from "./middlewares/salon.js";
+import { demoGuard } from "./middlewares/demo.js";
 import { notFound, errorHandler } from "./middlewares/errorHandler.js";
 import salonRoutes from "./routes/salonRoutes.js";
 import salonSettingsRoutes from "./routes/salonSettingsRoutes.js";
@@ -23,6 +24,7 @@ app.use("/api/salons", salonRoutes);
 
 // --- A partir de aquí, todo requiere la cabecera X-Salon ---
 app.use("/api", resolveSalon);
+app.use("/api", demoGuard); // las peluquerías de demostración no admiten escrituras
 
 app.use("/api/auth", authRoutes);
 app.use("/api/salon-settings", salonSettingsRoutes);

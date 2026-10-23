@@ -11,7 +11,8 @@
     "create-salon": "node src/scripts/createSalon.js",
     "seed": "node src/scripts/seed.js",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "demo:reset": "node src/scripts/resetDemo.js"
   },
   "keywords": [],
   "author": "",
