@@ -32,7 +32,7 @@ export async function updateService(req, res) {
   const service = await Service.findOneAndUpdate(
     { _id: req.params.id, salon: req.salon._id },
     pickFields(req.body),
-    { new: true, runValidators: true }
+        { returnDocument: "after", runValidators: true }
   );
   if (!service) {
     return res.status(404).json({ message: "Servicio no encontrado" });
@@ -44,7 +44,7 @@ export async function deleteService(req, res) {
   const service = await Service.findOneAndUpdate(
     { _id: req.params.id, salon: req.salon._id },
     { active: false },
-    { new: true }
+        { returnDocument: "after" }
   );
   if (!service) {
     return res.status(404).json({ message: "Servicio no encontrado" });
