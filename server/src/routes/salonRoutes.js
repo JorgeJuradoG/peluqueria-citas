@@ -10,6 +10,7 @@ const createLimiter = rateLimit({
   limit: 5,
   standardHeaders: true,
   legacyHeaders: false,
+  skip: () => process.env.NODE_ENV === "test",
   message: { message: "Demasiadas altas desde esta conexión. Inténtalo más tarde" },
 });
 

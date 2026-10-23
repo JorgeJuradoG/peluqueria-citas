@@ -16,11 +16,14 @@ import { requireAuth } from "../middlewares/auth.js";
 
 const router = Router();
 
+const skip = () => process.env.NODE_ENV === "test";
+
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   limit: 20,
   standardHeaders: true,
   legacyHeaders: false,
+  skip,
   message: { message: "Demasiados intentos. Prueba de nuevo en unos minutos." },
 });
 
@@ -29,6 +32,7 @@ const forgotLimiter = rateLimit({
   limit: 5,
   standardHeaders: true,
   legacyHeaders: false,
+  skip,
   message: { message: "Demasiadas solicitudes. Inténtalo de nuevo más tarde." },
 });
 
