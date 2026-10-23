@@ -1,6 +1,7 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import api from "../services/api";
 import { SALON_SLUG } from "../lib/salon";
+import { applyTheme, resolveBranding } from "../lib/theme";
 
 const SalonContext = createContext(null);
 
@@ -12,11 +13,27 @@ export function SalonProvider({ children }) {
     api
       .get(`/salons/${SALON_SLUG}`)
       .then((res) => {
-        setSalon(res.data);
+        applyTheme(res.data.branding, res.data.name); // antes de pintar: sin parpadeo de colores
         document.title = res.data.name;
+        setSalon(res.data);
       })
       .catch(() => setNotFound(true));
   }, []);
+
+  // Siempre entrega una marca completa y las secciones con valores por defecto,
+  // así las peluquerías antiguas (sin personalización guardada) se ven como siempre
+  const value = useMemo(
+    () =>
+      salon
+        ? {
+            ...salon,
+            branding: resolveBranding(salon.branding),
+            social: salon.social ?? {},
+            sections: { howItWorks: true, perks: true, ...(salon.sections ?? {}) },
+          }
+        : null,
+    [salon]
+  );
 
   if (notFound) {
     return (
@@ -29,9 +46,9 @@ export function SalonProvider({ children }) {
       </div>
     );
   }
-  if (!salon) return <p className="p-10 text-center text-ink/60">Cargando...</p>;
+  if (!value) return <p className="p-10 text-center text-ink/70">Cargando...</p>;
 
-  return <SalonContext.Provider value={salon}>{children}</SalonContext.Provider>;
+  return <SalonContext.Provider value={value}>{children}</SalonContext.Provider>;
 }
 
 export function useSalon() {

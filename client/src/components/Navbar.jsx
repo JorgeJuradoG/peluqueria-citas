@@ -17,6 +17,8 @@ import {
 import { useAuth } from "../context/AuthContext";
 import { useSalon } from "../context/SalonContext";
 import ThemeToggle from "./ThemeToggle";
+import BrandIcon from "../components/BrandIcon";
+
 
 const ROLE_LABELS = { client: "Cliente", stylist: "Estilista", admin: "Administrador" };
 
@@ -113,7 +115,7 @@ export default function Navbar() {
           to="/"
           className="flex min-w-0 items-center gap-2 font-display text-2xl font-bold tracking-tight"
         >
-          <Scissors className="h-5 w-5 shrink-0 text-gold" aria-hidden="true" />
+          <BrandIcon name={salon.branding.icon} className="h-5 w-5 shrink-0 text-gold" aria-hidden="true" />
           <span className="truncate">
             {salon.name}
             <span className="text-gold">.</span>

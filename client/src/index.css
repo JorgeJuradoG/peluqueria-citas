@@ -136,7 +136,7 @@
   font-weight: 600;
   font-size: 0.8rem;
   border-radius: 8px !important;
-  border-left: 5px solid #b08d57 !important;
+  border-left: 5px solid var(--color-gold) !important;
   box-shadow: 0 2px 6px rgb(28 25 23 / 0.35);
   cursor: pointer;
   transition: transform 0.15s, box-shadow 0.15s;
@@ -161,4 +161,15 @@
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+}
+/* Estilo de tarjetas de la peluquería (lo fija applyTheme en <html data-cards>) */
+[data-cards="outline"] .card:not(:hover) {
+  box-shadow: none;
+  border-color: color-mix(in srgb, var(--color-ink) 22%, transparent);
+}
+
+[data-cards="flat"] .card:not(:hover) {
+  box-shadow: none;
+  border-color: transparent;
+  background-color: color-mix(in srgb, var(--color-sand) 55%, var(--color-surface));
 }

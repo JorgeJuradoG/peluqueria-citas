@@ -8,7 +8,8 @@
     "start": "node src/server.js",
     "create-admin": "node src/scripts/createAdmin.js",
     "migrate:salon": "node src/scripts/migrateToMultiTenant.js",
-    "create-salon": "node src/scripts/createSalon.js"
+    "create-salon": "node src/scripts/createSalon.js",
+    "seed": "node src/scripts/seed.js"
   },
   "keywords": [],
   "author": "",

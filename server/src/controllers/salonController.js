@@ -2,6 +2,7 @@ import bcrypt from "bcryptjs";
 import Salon from "../models/Salon.js";
 import User from "../models/User.js";
 import { signToken, publicUser } from "./authController.js";
+import { parseBranding, parseProfile } from "../utils/branding.js";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const PASSWORD_RE = /^(?=.*[A-Za-z])(?=.*\d).{8,}$/;
@@ -17,12 +18,12 @@ function validTimezone(tz) {
   }
 }
 
-// Público: datos mínimos de una peluquería (el frontend comprueba que existe)
+// Público: datos de la peluquería necesarios para pintar su web
 export async function getSalonPublic(req, res) {
   const salon = await Salon.findOne({
     slug: String(req.params.slug).toLowerCase(),
     active: true,
-  }).select("name slug timezone");
+    }).select("name slug timezone branding tagline heroTitle about hours address phone social sections");
   if (!salon) {
     return res.status(404).json({ message: "Peluquería no encontrada" });
   }
@@ -61,11 +62,23 @@ export async function createSalon(req, res) {
     });
   }
 
+  const branding = parseBranding(req.body.branding);
+  if (branding.error) return res.status(400).json({ message: branding.error });
+
+  const profile = parseProfile(req.body);
+  if (profile.error) return res.status(400).json({ message: profile.error });
+
   if (await Salon.exists({ slug })) {
     return res.status(409).json({ message: "Esa dirección ya está en uso. Prueba con otra" });
   }
 
-  const salon = await Salon.create({ name: salonName, slug, timezone });
+  const salon = await Salon.create({
+    name: salonName,
+    slug,
+    timezone,
+    branding: branding.value,
+    ...profile.value,
+  });
 
   let admin;
   try {
