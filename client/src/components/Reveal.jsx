@@ -1,6 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 
-export default function Reveal({ children, delay = 0, className = "" }) {
+const VARIANTS = {
+  up: "animate-fade-up",
+  zoom: "animate-pop",
+  right: "animate-slide-in",
+  left: "animate-slide-left",
+};
+
+export default function Reveal({ children, delay = 0, variant = "up", className = "" }) {
   const ref = useRef(null);
   const [visible, setVisible] = useState(false);
 
@@ -27,7 +34,7 @@ export default function Reveal({ children, delay = 0, className = "" }) {
     <div
       ref={ref}
       style={{ animationDelay: `${delay}ms` }}
-      className={`${visible ? "animate-fade-up" : "opacity-0"} ${className}`}
+      className={`${visible ? VARIANTS[variant] ?? VARIANTS.up : "opacity-0"} ${className}`}
     >
       {children}
     </div>

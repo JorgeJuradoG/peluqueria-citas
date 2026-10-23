@@ -23,6 +23,9 @@ import { BrandingPreview } from "../components/BrandingPicker";
 import { ErrorAlert } from "../components/FormField";
 import { FONTS, PRESETS, ensureFont } from "../lib/theme";
 import { DEMO_SLUG, FAQ, PLANS, PRODUCT_NAME } from "../lib/brand";
+import ProductTour from "../components/platform/ProductTour";
+
+
 
 const FEATURES = [
   {
@@ -340,7 +343,17 @@ export default function Landing() {
           </div>
         </div>
       </section>
-
+            {/* Producto por dentro */}
+      <section id="producto" className="scroll-mt-24 bg-sand/40 px-4 py-20">
+        <div className="mx-auto max-w-6xl">
+          <SectionTitle
+            kicker="El producto"
+            title="Mira cómo se ve por dentro"
+            text="Lo que ven tus clientes, lo que ve tu equipo y lo que ves tú."
+          />
+          <ProductTour />
+        </div>
+      </section>
       {/* Funciones */}
       <section id="funciones" className="scroll-mt-24 px-4 py-20">
         <div className="mx-auto max-w-6xl">

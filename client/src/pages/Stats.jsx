@@ -11,6 +11,8 @@ import {
   Users,
 } from "lucide-react";
 import api from "../services/api";
+import Avatar from "../components/Avatar";
+import CountUp from "../components/CountUp";
 import { Skeleton } from "../components/Skeleton";
 import { ErrorAlert } from "../components/FormField";
 
@@ -38,7 +40,7 @@ const plural = (n, one, many) => `${n} ${n === 1 ? one : many}`;
 
 function Delta({ current, previous }) {
   if (!previous) {
-    return <span className="text-ink/60">Sin datos del periodo anterior</span>;
+    return <span className="text-ink/70">Sin datos del periodo anterior</span>;
   }
   const pct = Math.round(((current - previous) / previous) * 100);
   if (pct === 0) {
@@ -60,7 +62,7 @@ function Delta({ current, previous }) {
   );
 }
 
-function Kpi({ icon: Icon, label, value, children }) {
+function Kpi({ icon: Icon, label, value, format, children }) {
   return (
     <div className="card">
       <div className="flex items-center gap-3">
@@ -69,7 +71,9 @@ function Kpi({ icon: Icon, label, value, children }) {
         </span>
         <p className="text-sm text-ink/70">{label}</p>
       </div>
-      <p className="mt-3 font-display text-4xl font-semibold leading-none">{value}</p>
+      <p className="mt-3 font-display text-4xl font-semibold leading-none">
+        <CountUp value={value} format={format} />
+      </p>
       <div className="mt-2 min-h-5 text-xs">{children}</div>
     </div>
   );
@@ -95,8 +99,11 @@ function DayChart({ days }) {
             className="flex h-full min-w-0 flex-1 flex-col justify-end"
           >
             <div
-              className="flex flex-col justify-end overflow-hidden rounded-t"
-              style={{ height: `${(totals[i] / max) * 100}%` }}
+              className="flex origin-bottom animate-grow-up flex-col justify-end overflow-hidden rounded-t"
+              style={{
+                height: `${(totals[i] / max) * 100}%`,
+                animationDelay: `${Math.min(i * 15, 600)}ms`,
+              }}
             >
               <div className="bg-gold" style={{ flexGrow: d.upcoming }} />
               <div className="bg-ink" style={{ flexGrow: d.completed }} />
@@ -183,9 +190,8 @@ export default function Stats() {
 
   const booked = data ? data.current.completed + data.current.upcoming : 0;
   const prevBooked = data ? data.previous.completed + data.previous.upcoming : 0;
-  const cancelRate = data && data.current.total
-    ? Math.round((data.current.cancelled / data.current.total) * 100)
-    : 0;
+  const cancelRate =
+    data && data.current.total ? Math.round((data.current.cancelled / data.current.total) * 100) : 0;
   const maxService = data ? Math.max(1, ...data.services.map((s) => s.count)) : 1;
   const empty = data && data.current.total === 0 && data.next7.count === 0;
 
@@ -240,13 +246,23 @@ export default function Stats() {
             <Kpi icon={CalendarCheck} label="Citas" value={booked}>
               <Delta current={booked} previous={prevBooked} />
             </Kpi>
-            <Kpi icon={Euro} label="Ingresos (citas completadas)" value={money.format(data.current.revenue)}>
+            <Kpi
+              icon={Euro}
+              label="Ingresos (citas completadas)"
+              value={data.current.revenue}
+              format={(n) => money.format(n)}
+            >
               <Delta current={data.current.revenue} previous={data.previous.revenue} />
             </Kpi>
             <Kpi icon={Users} label="Clientes distintos" value={data.current.clients}>
               <Delta current={data.current.clients} previous={data.previous.clients} />
             </Kpi>
-            <Kpi icon={Ban} label="Cancelaciones" value={`${cancelRate}%`}>
+            <Kpi
+              icon={Ban}
+              label="Cancelaciones"
+              value={cancelRate}
+              format={(n) => `${Math.round(n)}%`}
+            >
               <span className="text-ink/70">
                 {data.current.cancelled} de {plural(data.current.total, "cita", "citas")}
               </span>
@@ -285,7 +301,7 @@ export default function Stats() {
                 <p className="mt-4 text-sm text-ink/70">Todavía no hay datos.</p>
               ) : (
                 <ul className="mt-5 space-y-4">
-                  {data.services.map((s) => (
+                  {data.services.map((s, i) => (
                     <li key={s.id}>
                       <div className="flex items-baseline justify-between gap-3 text-sm">
                         <span className="font-medium">{s.name}</span>
@@ -295,8 +311,11 @@ export default function Stats() {
                       </div>
                       <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-sand">
                         <div
-                          className="h-full rounded-full bg-gold"
-                          style={{ width: `${(s.count / maxService) * 100}%` }}
+                          className="h-full origin-left animate-grow-x rounded-full bg-gold"
+                          style={{
+                            width: `${(s.count / maxService) * 100}%`,
+                            animationDelay: `${i * 100}ms`,
+                          }}
                         />
                       </div>
                     </li>
@@ -314,12 +333,10 @@ export default function Stats() {
                 <p className="mt-4 text-sm text-ink/70">Todavía no hay estilistas.</p>
               ) : (
                 <ul className="mt-5 space-y-4">
-                  {data.stylists.map((s) => (
+                  {data.stylists.map((s, i) => (
                     <li key={s.id}>
                       <div className="flex items-center gap-3">
-                        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-ink font-display text-cream">
-                          {s.name[0]}
-                        </span>
+                        <Avatar name={s.name} size="sm" />
                         <div className="min-w-0 flex-1">
                           <div className="flex items-baseline justify-between gap-3 text-sm">
                             <span className="truncate font-medium">{s.name}</span>
@@ -336,8 +353,11 @@ export default function Stats() {
                             aria-label={`Ocupación de ${s.name}`}
                           >
                             <div
-                              className="h-full rounded-full bg-gold"
-                              style={{ width: `${s.occupancy ?? 0}%` }}
+                              className="h-full origin-left animate-grow-x rounded-full bg-gold"
+                              style={{
+                                width: `${s.occupancy ?? 0}%`,
+                                animationDelay: `${i * 100}ms`,
+                              }}
                             />
                           </div>
                           <p className="mt-1 text-xs text-ink/70">

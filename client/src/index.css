@@ -14,6 +14,9 @@
   --animate-fade-up: fade-up 0.45s ease-out both;
   --animate-pop: pop 0.2s cubic-bezier(0.16, 1, 0.3, 1) both;
   --animate-slide-in: slide-in 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
+  --animate-slide-left: slide-left 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+  --animate-grow-up: grow-up 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+  --animate-grow-x: grow-x 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
 
   @keyframes fade-in {
     from { opacity: 0; }
@@ -31,6 +34,18 @@
     from { opacity: 0; transform: translateX(24px); }
     to { opacity: 1; transform: none; }
   }
+  @keyframes slide-left {
+    from { opacity: 0; transform: translateX(-24px); }
+    to { opacity: 1; transform: none; }
+  }
+  @keyframes grow-up {
+    from { transform: scaleY(0); }
+    to { transform: none; }
+  }
+  @keyframes grow-x {
+    from { transform: scaleX(0); }
+    to { transform: none; }
+  }
 }
 
 /* ---------- Modo oscuro: se activa con la clase "dark" en <html> ---------- */
@@ -44,8 +59,7 @@
   color-scheme: dark;
 }
 
-/* Zonas que conservan la paleta clara aunque la web esté en oscuro
-   (la portada negra y el calendario) */
+/* Zonas que conservan la paleta clara aunque la web esté en oscuro */
 .keep-palette {
   --color-ink: #1c1917;
   --color-cream: #faf7f2;
@@ -89,6 +103,9 @@
 .dark .text-stone-700 { color: #d6d3d1; }
 
 @layer base {
+  html {
+    scroll-behavior: smooth;
+  }
   body {
     @apply bg-cream font-sans text-ink antialiased;
   }
@@ -98,9 +115,6 @@
   :focus-visible {
     outline: 2px solid var(--color-gold);
     outline-offset: 2px;
-  }
-   html {
-    scroll-behavior: smooth;
   }
 }
 
@@ -155,16 +169,6 @@
   height: 3rem;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  *,
-  ::before,
-  ::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
-  }
-}
 /* Estilo de tarjetas de la peluquería (lo fija applyTheme en <html data-cards>) */
 [data-cards="outline"] .card:not(:hover) {
   box-shadow: none;
@@ -175,4 +179,16 @@
   box-shadow: none;
   border-color: transparent;
   background-color: color-mix(in srgb, var(--color-sand) 55%, var(--color-surface));
+}
+
+/* Quien tiene desactivadas las animaciones en su sistema no las ve */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

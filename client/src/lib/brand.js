@@ -3,6 +3,7 @@ export const CONTACT_EMAIL = "hola@tudominio.com"; // pon un correo real
 export const DEMO_SLUG = "demo"; // la peluquería que crea el seed
 
 export const NAV = [
+  { href: "/#producto", label: "Producto" },
   { href: "/#funciones", label: "Funciones" },
   { href: "/#como-funciona", label: "Cómo funciona" },
   { href: "/#marca", label: "Tu marca" },
