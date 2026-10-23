@@ -1,3 +1,6 @@
+import fs from "fs";
+import path from "path";
+import { pathToFileURL } from "url";
 import nodemailer from "nodemailer";
 
 let transporterPromise;
@@ -46,15 +49,44 @@ async function getTransporter() {
   return transporterPromise;
 }
 
-function printToConsole({ to, subject, text }) {
+// Remitente con el nombre de la peluquería, sobre la dirección configurada en MAIL_FROM
+function buildFrom(fromName) {
+  const configured = process.env.MAIL_FROM || "Reservas <no-reply@example.com>";
+  if (!fromName) return configured;
+  const address = configured.match(/<([^>]+)>/)?.[1] ?? configured;
+  const name = String(fromName).replace(/[\r\n"<>]/g, "").trim();
+  return name ? `"${name}" <${address}>` : configured;
+}
+
+// Guarda el HTML para poder abrirlo en el navegador
+function saveHtmlPreview({ subject, html }) {
+  try {
+    const dir = path.resolve("mail-preview");
+    fs.mkdirSync(dir, { recursive: true });
+    const slug = String(subject).replace(/[^a-z0-9]+/gi, "-").slice(0, 40);
+    const file = path.join(dir, `${Date.now()}-${slug}.html`);
+    fs.writeFileSync(file, html ?? "", "utf8");
+    return pathToFileURL(file).href;
+  } catch {
+    return null;
+  }
+}
+
+function printToConsole({ to, subject, text, fromName }, previewUrl) {
   const line = "─".repeat(60);
-  console.log(`\n${line}\n[mail · modo consola]\nPara:   ${to}\nAsunto: ${subject}\n\n${text}\n${line}\n`);
+  console.log(
+    `\n${line}\n[mail · modo consola]\n` +
+      (fromName ? `De:     ${fromName}\n` : "") +
+      `Para:   ${to}\nAsunto: ${subject}\n\n${text}\n` +
+      (previewUrl ? `\nVista previa HTML: ${previewUrl}\n` : "") +
+      `${line}\n`
+  );
 }
 
 // Nunca lanza: un fallo de correo no debe romper una reserva
-export async function sendMail({ to, subject, html, text }) {
+export async function sendMail({ to, subject, html, text, fromName }) {
   if (process.env.NODE_ENV === "test") {
-    outbox.push({ to, subject, html, text });
+    outbox.push({ to, subject, html, text, fromName });
     return true;
   }
 
@@ -66,7 +98,7 @@ export async function sendMail({ to, subject, html, text }) {
     try {
       const transporter = await getTransporter();
       const info = await transporter.sendMail({
-        from: process.env.MAIL_FROM || "Reservas <no-reply@example.com>",
+        from: buildFrom(fromName),
         to,
         subject,
         html,
@@ -87,9 +119,9 @@ export async function sendMail({ to, subject, html, text }) {
     }
   }
 
-  // Modo consola: el correo se imprime (con sus enlaces) en lugar de enviarse
-  outbox.push({ to, subject, html, text });
+  // Modo consola: el correo se imprime (con sus enlaces) y se guarda su HTML
+  outbox.push({ to, subject, html, text, fromName });
   if (outbox.length > 50) outbox.shift();
-  printToConsole({ to, subject, text });
+  printToConsole({ to, subject, text, fromName }, saveHtmlPreview({ subject, html }));
   return true;
 }

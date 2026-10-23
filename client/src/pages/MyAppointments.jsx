@@ -142,6 +142,8 @@ export default function MyAppointments() {
       serviceName: a.service?.name,
       stylistName: a.stylist?.user?.name,
       salonName: salon.name,
+      location:salon.address,
+      phone: salon.phone,
     });
     downloadICS("cita.ics", buildICS(event));
   }

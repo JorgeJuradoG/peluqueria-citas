@@ -61,13 +61,24 @@ export function googleCalendarUrl({ title, description, start, end, location }) 
   return `https://calendar.google.com/calendar/render?${params.toString()}`;
 }
 
-// Datos de evento a partir de una cita y el nombre de la peluquería
-export function eventFromAppointment({ id, start, end, serviceName, stylistName, salonName }) {
+// Datos de evento a partir de una cita y los datos de la peluquería
+export function eventFromAppointment({
+  id,
+  start,
+  end,
+  serviceName,
+  stylistName,
+  salonName,
+  location,
+  phone,
+}) {
   return {
     uid: id,
     title: `${serviceName} · ${salonName}`,
-    description: `${serviceName} con ${stylistName} en ${salonName}`,
+    description:
+      `${serviceName} con ${stylistName} en ${salonName}` + (phone ? `\nTeléfono: ${phone}` : ""),
     start,
     end,
+    location: location || "",
   };
 }

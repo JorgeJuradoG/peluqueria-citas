@@ -16,7 +16,16 @@ export default function Booked() {
   // Si se recarga la página, el estado se pierde: mandamos a Mis citas
   if (!appointment) return <Navigate to="/mis-citas" replace />;
 
-  const event = eventFromAppointment({ ...appointment, salonName: salon.name });
+  const event = eventFromAppointment({
+    ...appointment,
+    salonName: salon.name,
+    location: salon.address,
+    phone: salon.phone,
+  });
+
+  const mapUrl = salon.address
+    ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(salon.address)}`
+    : "";
 
   return (
     <div className="mx-auto max-w-md">
@@ -25,9 +34,7 @@ export default function Booked() {
           ✓
         </span>
         <h1 className="mt-4 text-3xl font-bold">¡Cita reservada!</h1>
-        <p className="mt-1 text-sm text-ink/70">
-          Te hemos enviado la confirmación por correo.
-        </p>
+        <p className="mt-1 text-sm text-ink/70">Te hemos enviado la confirmación por correo.</p>
 
         <dl className="mt-6 space-y-2 rounded-lg bg-sand/50 p-4 text-left text-sm">
           <p>
@@ -46,6 +53,21 @@ export default function Booked() {
             <dt className="inline text-ink/70">Con: </dt>
             <dd className="inline font-medium">{appointment.stylistName}</dd>
           </p>
+          {salon.address && (
+            <p>
+              <dt className="inline text-ink/70">Dónde: </dt>
+              <dd className="inline font-medium">
+                <a
+                  href={mapUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="underline"
+                >
+                  {salon.address}
+                </a>
+              </dd>
+            </p>
+          )}
         </dl>
 
         <div className="mt-6 space-y-3">
