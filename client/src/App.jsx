@@ -21,6 +21,7 @@ import AdminServices from "./pages/AdminServices";
 import AdminStylists from "./pages/AdminStylists";
 import NotFound from "./pages/NotFound";
 import Appearance from "./pages/Appearance";
+import Legal from "./pages/Legal";
 
 
 function PlatformApp() {
@@ -30,7 +31,10 @@ function PlatformApp() {
       <Routes>
         <Route path="/" element={<Landing />} />
         <Route path="/crear-peluqueria" element={<CreateSalon />} />
+        <Route path="/privacidad" element={<Legal kind="privacidad" />} />
+        <Route path="/terminos" element={<Legal kind="terminos" />} />
         <Route path="*" element={<Navigate to="/" replace />} />
+        
       </Routes>
     </>
   );
