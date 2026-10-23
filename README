@@ -1,0 +1,135 @@
+# Citas — gestor de reservas en tiempo real para peluquerías
+
+[![Tests](https://github.com/JorgeJuradoG/peluqueria-citas/actions/workflows/tests.yml/badge.svg)](https://github.com/TU_USUARIO/peluqueria-citas/actions/workflows/tests.yml)
+
+Aplicación web **multi-peluquería**: cada negocio crea su espacio, da de alta a su equipo y comparte un enlace para que sus clientes reserven. Los huecos libres se actualizan **en tiempo real** y cada peluquería tiene su propia imagen (color, tipografía, estilo y contenido).
+
+![Demo: dos ventanas sincronizadas en tiempo real](docs/demo-tiempo-real.gif)
+
+## Qué hace
+
+**Para el cliente**
+- Reserva en tres pasos: servicio, profesional y hueco libre.
+- Los huecos desaparecen al instante si otra persona los reserva (Socket.IO).
+- Cancela o reprograma sus citas, las añade a su calendario (`.ics` / Google Calendar) y recibe confirmación y recordatorio por correo.
+
+**Para el estilista**
+- Agenda semanal y diaria, con las citas por estado y detalle de cada una.
+- Marca citas como completadas o las cancela. Se actualiza sola cuando alguien reserva.
+
+**Para el dueño**
+- Alta de la peluquería con un asistente de cuatro pasos y **vista previa en vivo** de su web.
+- Panel con checklist de puesta en marcha, gestión de servicios, equipo (invitaciones por correo), horarios, días libres y apariencia.
+
+## Capturas
+
+| Portada de una peluquería | Reserva | Agenda semanal |
+|---|---|---|
+| ![](docs/portada.png) | ![](docs/reserva.png) | ![](docs/agenda.png) |
+
+| Asistente de alta con vista previa | Modo oscuro | Móvil |
+|---|---|---|
+| ![](docs/asistente.png) | ![](docs/oscuro.png) | ![](docs/movil.png) |
+
+## Stack
+
+| Capa | Tecnologías |
+|---|---|
+| Frontend | React, Vite, Tailwind CSS v4, React Router, Axios, FullCalendar, Socket.IO client, Lucide |
+| Backend | Node.js, Express, Mongoose, Socket.IO, JWT, bcryptjs, Luxon, Nodemailer, node-cron |
+| Base de datos | MongoDB (Atlas) |
+| Calidad | Vitest, Supertest, mongodb-memory-server, GitHub Actions |
+
+## Ejecutarlo en local
+
+Necesitas Node 22 y una base de datos MongoDB (un clúster gratuito de Atlas sirve).
+
+```bash
+git clone https://github.com/TU_USUARIO/peluqueria-citas.git
+cd peluqueria-citas
+
+# Backend
+cd server
+cp .env.example .env      # y rellena MONGODB_URI y JWT_SECRET
+npm install
+npm run seed              # datos de demostración (ver aviso)
+npm run dev
+
+# Frontend (otra terminal)
+cd client
+cp .env.example .env
+npm install
+npm run dev
+```
+
+Abre `http://localhost:5173`. Vite reenvía `/api` y `/socket.io` al backend.
+
+> **Aviso:** `npm run seed` **borra toda la base de datos** a la que apunte `MONGODB_URI` y crea dos peluquerías de ejemplo. Úsalo solo con una base de pruebas.
+
+**Cuentas de demostración** (contraseña `Demo1234`):
+
+| Peluquería | Rol | Email |
+|---|---|---|
+| `/s/peluqueria-demo` | Cliente | `ana@demo.com` |
+| `/s/peluqueria-demo` | Estilista | `marta@demo.com` |
+| `/s/barberia-atlantico` | Estilista | `pedro@atlantico.com` |
+
+El administrador de la peluquería demo usa el email y la contraseña de `ADMIN_EMAIL` y `ADMIN_PASSWORD` de tu `.env`.
+
+**Correo en desarrollo.** Con `MAIL_MODE=console` los correos se imprimen en la terminal del backend (con sus enlaces) y se guarda una vista previa HTML en `server/mail-preview`. Para enviar correos reales, configura las variables `SMTP_*`.
+
+## Tests
+
+```bash
+cd server
+npm test
+```
+
+130 tests contra una base de datos MongoDB **en memoria** (no tocan tu base real), ejecutados también en cada push con GitHub Actions. Cubren:
+
+- **Aislamiento entre peluquerías:** una peluquería no puede ver ni modificar datos de otra.
+- **Reservas:** solapamientos, citas consecutivas, horario laboral, días libres, reprogramar, cancelar y **reservas simultáneas del mismo hueco**.
+- **Autenticación:** roles, sesiones revocables, recuperación de contraseña e invitaciones.
+- **Marca y correos:** validación de la personalización, contraste de colores y escape de HTML.
+
+## Decisiones técnicas
+
+**Multi-tenancy con base de datos compartida.** Cada documento lleva el `salon` al que pertenece y la API recibe la peluquería en la cabecera `X-Salon` (el frontend la toma de la URL `/s/<slug>`). Todas las consultas filtran por ella, incluso las búsquedas por `_id`, de modo que un id ajeno simplemente «no existe». El email es único *por peluquería* (índice compuesto), y la sesión de una peluquería no sirve en otra. Es la opción más sencilla y barata de operar; el riesgo es olvidar un filtro, y por eso el aislamiento tiene su propia batería de tests.
+
+**Sin dobles reservas.** El servidor calcula el fin de la cita, comprueba el solapamiento (`start < otroFin && fin > otroInicio`) y, como red de seguridad frente a peticiones simultáneas, un **índice único parcial** sobre `(estilista, inicio)` solo para citas activas. Un test lanza cinco reservas a la vez al mismo hueco y comprueba que solo una prospera.
+
+**Zonas horarias.** Las citas se guardan en UTC. Los horarios se definen como hora local del salón (`"09:00"`) y se convierten con Luxon usando la zona de cada peluquería, así que el cambio de hora no rompe nada. Cada salón tiene la suya.
+
+**Sesiones revocables.** JWT con un `tokenVersion` por usuario: al cambiar la contraseña, la versión sube y todas las sesiones anteriores dejan de valer. Además, el **rol se lee siempre de la base de datos**, no del token, así que un cambio de rol o un usuario borrado surten efecto al instante.
+
+**Enlaces de un solo uso.** La recuperación de contraseña y las invitaciones usan tokens aleatorios de 32 bytes. En la base de datos solo se guarda su hash SHA-256; caducan (índice TTL) y se consumen de forma atómica. «¿Olvidaste tu contraseña?» responde igual exista o no la cuenta, con límite de peticiones.
+
+**Tiempo real con aislamiento.** Los sockets exigen sesión válida y solo dejan unirse a salas de estilistas de la propia peluquería. Los eventos llevan únicamente horas, nunca datos personales.
+
+**Personalización segura.** La marca de cada peluquería son valores de **listas cerradas** (tipografías, esquinas, iconos...) más un color. El color elegido se **ajusta automáticamente** para garantizar contraste legible (WCAG 4,5:1) en claro y en oscuro, también en los correos. No hay CSS libre ni subida de archivos, así que nadie puede romper el diseño ni inyectar estilos.
+
+**Recordatorios idempotentes.** Una tarea (`node-cron`) busca citas a menos de 24 h y «reclama» cada una con una actualización atómica antes de enviar, de modo que ni un reinicio ni varias instancias duplican avisos.
+
+**Robustez del correo.** Un fallo de envío nunca rompe una reserva. Sin SMTP, los correos se muestran en la consola.
+
+## Estructura
+
+```
+client/   React + Vite
+  src/pages · components · context · hooks · lib
+server/   Express + Mongoose
+  src/controllers · models · routes · middlewares · services · jobs · utils · sockets
+  tests/  Vitest + Supertest
+.github/workflows/tests.yml   CI
+```
+
+## Limitaciones conocidas y próximos pasos
+
+- El índice único evita las reservas simultáneas del *mismo* inicio, pero no los solapamientos parciales simultáneos (p. ej. 10:00 y 10:15 a la vez). Una solución completa usaría una transacción o un bloqueo por estilista.
+- Los recordatorios usan `node-cron` dentro del proceso: necesitan un servidor siempre activo (no sirven en hosting que duerme).
+- El correo se envía sin cola de reintentos.
+- Pendiente: estadísticas para el administrador, lista de espera, valoraciones y despliegue.
+
+## Licencia
+
+MIT © Tu nombre
