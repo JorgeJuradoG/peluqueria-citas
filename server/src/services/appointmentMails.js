@@ -90,13 +90,15 @@ export function textSignature(salon) {
   );
 }
 
-function loadAppointment(id) {
-  return Appointment.findById(id)
+async function loadAppointment(id) {
+  const a = await Appointment.findById(id)
     .populate("client", "name email")
     .populate("service", "name price durationMinutes")
     .populate({ path: "stylist", populate: { path: "user", select: "name email" } });
-}
 
+  // Si faltan datos (por ejemplo, el estilista se borró), no hay correo que enviar
+  return a?.service && a.stylist?.user ? a : null;
+}
 // ---------- Confirmación (al cliente) ----------
 export const sendAppointmentConfirmation = safe(async (appointmentId, salon) => {
   const a = await loadAppointment(appointmentId);
