@@ -20,6 +20,8 @@ import AdminHome from "./pages/AdminHome";
 import AdminServices from "./pages/AdminServices";
 import AdminStylists from "./pages/AdminStylists";
 import NotFound from "./pages/NotFound";
+import Appearance from "./pages/Appearance";
+
 
 function PlatformApp() {
   return (
@@ -91,6 +93,14 @@ function SalonApp() {
                   </ProtectedRoute>
                 }
               />
+              <Route
+                path="/admin/apariencia"
+                 element={
+             <ProtectedRoute roles={["admin"]}>
+             <Appearance />
+             </ProtectedRoute>
+               }
+/>
               <Route path="*" element={<NotFound />} />
             </Routes>
           </div>

@@ -12,6 +12,8 @@ import authRoutes from "./routes/authRoutes.js";
 import serviceRoutes from "./routes/serviceRoutes.js";
 import stylistRoutes from "./routes/stylistRoutes.js";
 import appointmentRoutes from "./routes/appointmentRoutes.js";
+import salonSettingsRoutes from "./routes/salonSettingsRoutes.js";
+
 
 const app = express();
 
@@ -29,6 +31,7 @@ app.use("/api/salons", salonRoutes);
 app.use("/api", resolveSalon);
 
 app.use("/api/auth", authRoutes);
+app.use("/api/salon-settings", salonSettingsRoutes);
 app.use("/api/services", serviceRoutes);
 app.use("/api/stylists", stylistRoutes);
 app.use("/api/appointments", appointmentRoutes);

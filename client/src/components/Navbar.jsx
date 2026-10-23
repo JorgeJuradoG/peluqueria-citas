@@ -9,6 +9,7 @@ import {
   LogIn,
   LogOut,
   Menu,
+  Palette,
   Scissors,
   UserRound,
   Users,
@@ -16,9 +17,8 @@ import {
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { useSalon } from "../context/SalonContext";
+import BrandIcon from "./BrandIcon";
 import ThemeToggle from "./ThemeToggle";
-import BrandIcon from "../components/BrandIcon";
-
 
 const ROLE_LABELS = { client: "Cliente", stylist: "Estilista", admin: "Administrador" };
 
@@ -35,7 +35,8 @@ function buildLinks(user) {
     links.push(
       { to: "/admin", label: "Panel", icon: LayoutDashboard, end: true },
       { to: "/admin/servicios", label: "Servicios", icon: Scissors },
-      { to: "/admin/estilistas", label: "Estilistas", icon: Users }
+      { to: "/admin/estilistas", label: "Estilistas", icon: Users },
+      { to: "/admin/apariencia", label: "Apariencia", icon: Palette }
     );
   }
   return links;
@@ -115,7 +116,11 @@ export default function Navbar() {
           to="/"
           className="flex min-w-0 items-center gap-2 font-display text-2xl font-bold tracking-tight"
         >
-          <BrandIcon name={salon.branding.icon} className="h-5 w-5 shrink-0 text-gold" aria-hidden="true" />
+          <BrandIcon
+            name={salon.branding.icon}
+            className="h-5 w-5 shrink-0 text-gold"
+            aria-hidden="true"
+          />
           <span className="truncate">
             {salon.name}
             <span className="text-gold">.</span>
@@ -124,7 +129,7 @@ export default function Navbar() {
 
         {/* Enlaces de escritorio */}
         {user && (
-          <div className="hidden items-center gap-1 lg:flex">
+          <div className="hidden items-center gap-1 xl:flex">
             {links.map(({ to, label, icon: Icon, end }) => (
               <NavLink key={to} to={to} end={end} className={desktopLink}>
                 <Icon className="h-4 w-4" aria-hidden="true" />
@@ -140,7 +145,7 @@ export default function Navbar() {
           {user ? (
             <>
               {/* Menú de usuario (escritorio) */}
-              <div className="relative hidden lg:block" ref={userMenuRef}>
+              <div className="relative hidden xl:block" ref={userMenuRef}>
                 <button
                   onClick={() => setUserOpen(!userOpen)}
                   aria-expanded={userOpen}
@@ -188,12 +193,12 @@ export default function Navbar() {
                 )}
               </div>
 
-              {/* Botón hamburguesa (móvil) */}
+              {/* Botón hamburguesa (móvil y pantallas medianas) */}
               <button
                 onClick={() => setMobileOpen(!mobileOpen)}
                 aria-expanded={mobileOpen}
                 aria-label={mobileOpen ? "Cerrar menú" : "Abrir menú"}
-                className="rounded-lg border border-sand bg-surface p-2 transition hover:border-gold lg:hidden"
+                className="rounded-lg border border-sand bg-surface p-2 transition hover:border-gold xl:hidden"
               >
                 {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
               </button>
@@ -209,7 +214,7 @@ export default function Navbar() {
 
       {/* Panel móvil */}
       {mobileOpen && user && (
-        <div className="animate-fade-up border-t border-sand bg-cream lg:hidden">
+        <div className="animate-fade-up border-t border-sand bg-cream xl:hidden">
           <div className="mx-auto max-w-6xl px-4 py-3">
             <div className="flex items-center gap-3 px-3 py-2">
               <span className="flex h-10 w-10 items-center justify-center rounded-full bg-ink font-display text-cream">

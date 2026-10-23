@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import api from "../services/api";
 import { SALON_SLUG } from "../lib/salon";
 import { applyTheme, resolveBranding } from "../lib/theme";
@@ -9,16 +9,18 @@ export function SalonProvider({ children }) {
   const [salon, setSalon] = useState(null);
   const [notFound, setNotFound] = useState(false);
 
+  const adopt = useCallback((data) => {
+    applyTheme(data.branding, data.name); // antes de pintar: sin parpadeo de colores
+    document.title = data.name;
+    setSalon(data);
+  }, []);
+
   useEffect(() => {
     api
       .get(`/salons/${SALON_SLUG}`)
-      .then((res) => {
-        applyTheme(res.data.branding, res.data.name); // antes de pintar: sin parpadeo de colores
-        document.title = res.data.name;
-        setSalon(res.data);
-      })
+      .then((res) => adopt(res.data))
       .catch(() => setNotFound(true));
-  }, []);
+  }, [adopt]);
 
   // Siempre entrega una marca completa y las secciones con valores por defecto,
   // así las peluquerías antiguas (sin personalización guardada) se ven como siempre
@@ -30,9 +32,10 @@ export function SalonProvider({ children }) {
             branding: resolveBranding(salon.branding),
             social: salon.social ?? {},
             sections: { howItWorks: true, perks: true, ...(salon.sections ?? {}) },
+            updateSalon: adopt,
           }
         : null,
-    [salon]
+    [salon, adopt]
   );
 
   if (notFound) {

@@ -18,16 +18,35 @@ function validTimezone(tz) {
   }
 }
 
-// Público: datos de la peluquería necesarios para pintar su web
+// Datos públicos de una peluquería (los necesarios para pintar su web)
+function publicSalon(salon) {
+  const s = salon.toObject();
+  return {
+    name: s.name,
+    slug: s.slug,
+    timezone: s.timezone,
+    branding: s.branding,
+    tagline: s.tagline,
+    heroTitle: s.heroTitle,
+    about: s.about,
+    hours: s.hours,
+    address: s.address,
+    phone: s.phone,
+    social: s.social,
+    sections: s.sections,
+  };
+}
+
+// Público: datos de la peluquería para pintar su web
 export async function getSalonPublic(req, res) {
   const salon = await Salon.findOne({
     slug: String(req.params.slug).toLowerCase(),
     active: true,
-    }).select("name slug timezone branding tagline heroTitle about hours address phone social sections");
+  });
   if (!salon) {
     return res.status(404).json({ message: "Peluquería no encontrada" });
   }
-  res.json(salon);
+  res.json(publicSalon(salon));
 }
 
 // Público: el dueño crea su peluquería y su cuenta de administrador
@@ -40,7 +59,9 @@ export async function createSalon(req, res) {
   const password = String(req.body.password || "");
 
   if (salonName.length < 2 || salonName.length > 80) {
-    return res.status(400).json({ message: "El nombre del negocio debe tener entre 2 y 80 caracteres" });
+    return res
+      .status(400)
+      .json({ message: "El nombre del negocio debe tener entre 2 y 80 caracteres" });
   }
   if (slug.length < 3 || slug.length > 40 || !SLUG_RE.test(slug) || RESERVED.has(slug)) {
     return res.status(400).json({
@@ -99,4 +120,35 @@ export async function createSalon(req, res) {
     user: publicUser(admin),
     salon: { name: salon.name, slug: salon.slug },
   });
+}
+
+// Admin: edita nombre, marca y contenido de SU peluquería (req.salon sale de la cabecera)
+export async function updateSalonSettings(req, res) {
+  const salon = req.salon;
+
+  const name = String(req.body.name ?? salon.name).trim();
+  if (name.length < 2 || name.length > 80) {
+    return res.status(400).json({ message: "El nombre debe tener entre 2 y 80 caracteres" });
+  }
+
+  const branding = parseBranding(req.body.branding);
+  if (branding.error) return res.status(400).json({ message: branding.error });
+
+  const profile = parseProfile(req.body);
+  if (profile.error) return res.status(400).json({ message: profile.error });
+
+  // Solo estos campos: ni slug, ni zona horaria, ni estado
+  salon.name = name;
+  salon.branding = branding.value;
+  salon.tagline = profile.value.tagline;
+  salon.heroTitle = profile.value.heroTitle;
+  salon.about = profile.value.about;
+  salon.hours = profile.value.hours;
+  salon.address = profile.value.address;
+  salon.phone = profile.value.phone;
+  salon.social = profile.value.social;
+  salon.sections = profile.value.sections;
+  await salon.save();
+
+  res.json(publicSalon(salon));
 }
