@@ -279,3 +279,65 @@ export async function rescheduleAppointment(req, res) {
 
   res.json(appointment);
 }
+  // Staff: citas de hoy (todo el equipo si es admin, solo las suyas si es estilista)
+// y la siguiente cita abierta (puede ser de otro día o estar en curso)
+export async function getToday(req, res) {
+  const salon = req.salon._id;
+  const tz = req.salon.timezone;
+
+  const filter = { salon };
+  let stylistId = null;
+  if (req.user.role !== "admin") {
+    const profile = await Stylist.findOne({ user: req.user.id, salon });
+    if (!profile) {
+      return res.status(404).json({ message: "No tienes perfil de estilista" });
+    }
+    filter.stylist = profile._id;
+    stylistId = profile._id;
+  }
+
+  const dayStart = DateTime.now().setZone(tz).startOf("day");
+  const dayEnd = dayStart.plus({ days: 1 });
+
+  const populate = [
+    { path: "client", select: "name email phone" },
+    { path: "service", select: "name durationMinutes price" },
+    { path: "stylist", select: "user", populate: { path: "user", select: "name" } },
+  ];
+
+  const [appointments, next] = await Promise.all([
+    Appointment.find({
+      ...filter,
+      status: { $in: [...ACTIVE_STATUSES, "completed"] },
+      start: { $gte: dayStart.toJSDate(), $lt: dayEnd.toJSDate() },
+    })
+      .sort({ start: 1 })
+      .populate(populate),
+    Appointment.findOne({
+      ...filter,
+      status: { $in: ACTIVE_STATUSES },
+      end: { $gt: new Date() },
+    })
+      .sort({ start: 1 })
+      .populate(populate),
+  ]);
+
+  const total = (list) =>
+    Math.round(list.reduce((t, a) => t + (a.service?.price ?? 0), 0) * 100) / 100;
+  const done = appointments.filter((a) => a.status === "completed");
+  const open = appointments.filter((a) => ACTIVE_STATUSES.includes(a.status));
+
+  res.json({
+    date: dayStart.toISODate(),
+    stylistId,
+    appointments,
+    next,
+    summary: {
+      total: appointments.length,
+      completed: done.length,
+      pending: open.length,
+      revenue: total(done),
+      expected: total(open),
+    },
+  });
+}
