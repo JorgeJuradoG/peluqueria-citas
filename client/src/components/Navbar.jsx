@@ -31,6 +31,7 @@ function mainLinks(user) {
     { to: "/inicio", label: "Inicio", icon: Home },
     { to: "/reservar", label: "Reservar", icon: CalendarPlus },
     { to: "/mis-citas", label: "Mis citas", icon: CalendarCheck },
+   
   ];
   if (user.role === "admin" || user.role === "stylist") {
     links.push({ to: "/agenda", label: "Agenda", icon: CalendarDays });

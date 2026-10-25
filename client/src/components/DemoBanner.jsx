@@ -7,9 +7,9 @@ import { useSalon } from "../context/SalonContext";
 import { useToast } from "../context/UIContext";
 
 const ROLES = {
-  admin: { label: "Administrador", icon: LayoutDashboard, to: "/admin" },
-  stylist: { label: "Estilista", icon: CalendarDays, to: "/agenda" },
-  client: { label: "Cliente", icon: UserRound, to: "/reservar" },
+  admin: { label: "Administrador", icon: LayoutDashboard, to: "/inicio" },
+  stylist: { label: "Estilista", icon: CalendarDays, to: "/inicio" },
+  client: { label: "Cliente", icon: UserRound, to: "/inicio" },
 };
 
 export default function DemoBanner() {

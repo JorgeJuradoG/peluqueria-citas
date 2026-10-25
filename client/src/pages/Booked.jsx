@@ -1,4 +1,6 @@
 import { Link, Navigate, useLocation } from "react-router-dom";
+import { Check } from "lucide-react";
+import Confetti from "../components/Confetti";
 import { useSalon } from "../context/SalonContext";
 import { formatDateTime } from "../lib/dates";
 import {
@@ -29,9 +31,10 @@ export default function Booked() {
 
   return (
     <div className="mx-auto max-w-md">
+      <Confetti />
       <div className="card text-center">
-        <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-emerald-100 text-2xl text-emerald-700">
-          ✓
+        <span className="mx-auto flex h-14 w-14 animate-pop items-center justify-center rounded-full bg-emerald-100 text-emerald-700">
+          <Check className="h-7 w-7" aria-hidden="true" />
         </span>
         <h1 className="mt-4 text-3xl font-bold">¡Cita reservada!</h1>
         <p className="mt-1 text-sm text-ink/70">Te hemos enviado la confirmación por correo.</p>
@@ -57,12 +60,7 @@ export default function Booked() {
             <p>
               <dt className="inline text-ink/70">Dónde: </dt>
               <dd className="inline font-medium">
-                <a
-                  href={mapUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="underline"
-                >
+                <a href={mapUrl} target="_blank" rel="noopener noreferrer" className="underline">
                   {salon.address}
                 </a>
               </dd>
@@ -86,7 +84,7 @@ export default function Booked() {
             Abrir en Google Calendar
           </a>
           <div className="flex gap-3 pt-2">
-            <Link to="/mis-citas" className="btn-outline flex-1">Mis citas</Link>
+            <Link to="/inicio" className="btn-outline flex-1">Inicio</Link>
             <Link to="/reservar" className="btn-outline flex-1">Reservar otra</Link>
           </div>
         </div>
