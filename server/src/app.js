@@ -10,6 +10,9 @@ import serviceRoutes from "./routes/serviceRoutes.js";
 import stylistRoutes from "./routes/stylistRoutes.js";
 import appointmentRoutes from "./routes/appointmentRoutes.js";
 import statsRoutes from "./routes/statsRoutes.js";
+import path from "path";
+import { fileURLToPath } from "url";
+
 
 const app = express();
 
@@ -34,6 +37,16 @@ app.use("/api/stylists", stylistRoutes);
 app.use("/api/appointments", appointmentRoutes);
 app.use("/api/stats", statsRoutes);
 
+// En producción, el mismo servidor entrega la web ya compilada
+if (process.env.NODE_ENV === "production") {
+  const dist = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../client/dist");
+  app.use(express.static(dist));
+  // Cualquier GET que no sea API devuelve la app (así funcionan /s/demo, /inicio...)
+  app.use((req, res, next) => {
+    if (req.method !== "GET" || req.path.startsWith("/api")) return next();
+    res.sendFile(path.join(dist, "index.html"));
+  });
+}
 app.use(notFound);
 app.use(errorHandler);
 
