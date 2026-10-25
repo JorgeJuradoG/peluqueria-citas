@@ -72,8 +72,8 @@ const EVENTS = [
 
 function AgendaMock() {
   return (
-    <div className="p-5" aria-hidden="true">
-      <div className="grid grid-cols-[2.5rem_repeat(5,minmax(0,1fr))] gap-x-1 text-[11px]">
+    <div className="overflow-x-auto p-5" aria-hidden="true">
+      <div className="grid min-w-[28rem] grid-cols-[2.5rem_repeat(5,minmax(0,1fr))] gap-x-1 text-[11px]">
         <div />
         {DAYS.map((d) => (
           <div key={d} className="pb-2 text-center font-medium text-ink/70">
@@ -158,8 +158,8 @@ function StatsMock() {
     <div className="space-y-4 p-5" aria-hidden="true">
       <div className="grid grid-cols-3 gap-3">
         {kpis.map((k) => (
-          <div key={k.label} className="rounded-xl border border-sand p-3">
-            <p className="text-xs text-ink/70">{k.label}</p>
+          <div key={k.label} className="min-w-0 rounded-xl border border-sand p-3">
+            <p className="truncate text-xs text-ink/70">{k.label}</p>
             <p className="mt-1 font-display text-2xl font-semibold leading-none">
               <CountUp value={k.value} format={k.format} />
             </p>
@@ -229,7 +229,7 @@ function EmailMock() {
           ].map(([k, v]) => (
             <div key={k} className="flex gap-3">
               <dt className="w-16 shrink-0 text-ink/60">{k}</dt>
-              <dd className="font-medium">{v}</dd>
+              <dd className="min-w-0 font-medium">{v}</dd>
             </div>
           ))}
         </dl>
@@ -284,11 +284,11 @@ export default function ProductTour() {
   const isUrl = tab.url.startsWith("/");
 
   return (
-    <div className="mt-12 grid items-start gap-8 lg:grid-cols-[20rem_minmax(0,1fr)]">
+    <div className="mt-12 grid grid-cols-1 items-start gap-8 lg:grid-cols-[20rem_minmax(0,1fr)]">
       <div
         role="group"
         aria-label="Qué incluye"
-        className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-2 lg:mx-0 lg:flex-col lg:overflow-visible lg:px-0 lg:pb-0"
+        className="-mx-1 flex min-w-0 gap-2 overflow-x-auto px-1 pb-2 lg:mx-0 lg:flex-col lg:overflow-visible lg:px-0 lg:pb-0"
       >
         {TABS.map(({ key: k, icon: Icon, title, text }) => (
           <button
@@ -312,7 +312,7 @@ export default function ProductTour() {
         ))}
       </div>
 
-      <div>
+      <div className="min-w-0">
         <BrowserFrame
           url={isUrl ? `${window.location.host}/s/peluqueria-lola${tab.url}` : tab.url}
         >

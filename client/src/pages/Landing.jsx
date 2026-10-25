@@ -11,21 +11,18 @@ import {
   Mail,
   Palette,
   Scissors,
-  UserRound,
   Users,
   Zap,
 } from "lucide-react";
 import api from "../services/api";
 import PlatformLayout from "../components/platform/PlatformLayout";
 import LiveSlots from "../components/platform/LiveSlots";
+import ProductTour from "../components/platform/ProductTour";
 import Reveal from "../components/Reveal";
 import { BrandingPreview } from "../components/BrandingPicker";
 import { ErrorAlert } from "../components/FormField";
 import { FONTS, PRESETS, ensureFont } from "../lib/theme";
 import { DEMO_SLUG, FAQ, PLANS, PRODUCT_NAME } from "../lib/brand";
-import ProductTour from "../components/platform/ProductTour";
-
-
 
 const FEATURES = [
   {
@@ -99,7 +96,7 @@ function BrandShowcase() {
   }, []);
 
   return (
-    <div className="mt-12 grid items-center gap-8 lg:grid-cols-[1fr_24rem]">
+    <div className="mt-12 grid grid-cols-1 items-center gap-8 lg:grid-cols-[1fr_24rem]">
       <div>
         <p className="label">Elige un estilo de partida</p>
         <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-1">
@@ -150,7 +147,7 @@ function BrandShowcase() {
 
 function Pricing() {
   return (
-    <div className="mx-auto mt-12 grid max-w-4xl gap-6 md:grid-cols-2">
+    <div className="mx-auto mt-12 grid max-w-4xl grid-cols-1 gap-6 md:grid-cols-2">
       {PLANS.map((plan, i) => (
         <Reveal key={plan.key} delay={i * 100}>
           <div
@@ -300,8 +297,8 @@ export default function Landing() {
           className="pointer-events-none absolute -left-32 top-1/2 h-80 w-80 rounded-full bg-gold/10 blur-3xl"
         />
 
-        <div className="relative mx-auto grid max-w-6xl items-center gap-12 px-4 py-16 lg:grid-cols-2 lg:py-24">
-          <div className="animate-fade-up">
+        <div className="relative mx-auto grid max-w-6xl grid-cols-1 items-center gap-12 px-4 py-16 lg:grid-cols-2 lg:py-24">
+          <div className="min-w-0 animate-fade-up">
             <p className="inline-flex items-center gap-2 rounded-full border border-gold/40 bg-gold/10 px-4 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-gold-dark">
               <Zap className="h-3.5 w-3.5" aria-hidden="true" />
               Reservas en tiempo real
@@ -338,12 +335,13 @@ export default function Landing() {
             </ul>
           </div>
 
-          <div className="animate-fade-up [animation-delay:150ms]">
+          <div className="min-w-0 animate-fade-up [animation-delay:150ms]">
             <LiveSlots />
           </div>
         </div>
       </section>
-            {/* Producto por dentro */}
+
+      {/* Producto por dentro */}
       <section id="producto" className="scroll-mt-24 bg-sand/40 px-4 py-20">
         <div className="mx-auto max-w-6xl">
           <SectionTitle
@@ -354,6 +352,7 @@ export default function Landing() {
           <ProductTour />
         </div>
       </section>
+
       {/* Funciones */}
       <section id="funciones" className="scroll-mt-24 px-4 py-20">
         <div className="mx-auto max-w-6xl">
@@ -362,7 +361,7 @@ export default function Landing() {
             title="Todo lo que necesita tu peluquería"
             text="Pensada para el día a día de un salón, sin complicaciones."
           />
-          <ul className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <ul className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {FEATURES.map(({ icon: Icon, title, text }, i) => (
               <Reveal key={title} delay={(i % 3) * 100}>
                 <li className="card h-full transition hover:-translate-y-1 hover:border-gold hover:shadow-md">
@@ -382,7 +381,7 @@ export default function Landing() {
       <section id="como-funciona" className="scroll-mt-24 bg-sand/40 px-4 py-20">
         <div className="mx-auto max-w-6xl">
           <SectionTitle kicker="Cómo funciona" title="En marcha en tres pasos" />
-          <ol className="mt-12 grid gap-6 md:grid-cols-3">
+          <ol className="mt-12 grid grid-cols-1 gap-6 md:grid-cols-3">
             {STEPS.map(({ icon: Icon, title, text }, i) => (
               <Reveal key={title} delay={i * 100}>
                 <li className="card h-full text-center">
