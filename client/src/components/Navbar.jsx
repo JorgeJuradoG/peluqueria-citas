@@ -16,6 +16,7 @@ import {
   UserRound,
   Users,
   X,
+  Home
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { useSalon } from "../context/SalonContext";
@@ -27,6 +28,7 @@ const ROLE_LABELS = { client: "Cliente", stylist: "Estilista", admin: "Administr
 function mainLinks(user) {
   if (!user) return [];
   const links = [
+    { to: "/inicio", label: "Inicio", icon: Home },
     { to: "/reservar", label: "Reservar", icon: CalendarPlus },
     { to: "/mis-citas", label: "Mis citas", icon: CalendarCheck },
   ];

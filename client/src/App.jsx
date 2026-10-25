@@ -24,6 +24,9 @@ import Appearance from "./pages/Appearance";
 import Legal from "./pages/Legal";
 import DemoBanner from "./components/DemoBanner";
 import Stats from "./pages/Stats";
+import Home from "./pages/Home";
+
+
 
 
 function PlatformApp() {
@@ -116,8 +119,12 @@ function SalonApp() {
                   </ProtectedRoute>
                 }
               />
+              <Route path="/inicio" element={<ProtectedRoute><Home /></ProtectedRoute>} />
+              
               <Route path="*" element={<NotFound />} />
+
             </Routes>
+
           </div>
         </main>
         <Footer />
