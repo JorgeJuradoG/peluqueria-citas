@@ -47,3 +47,26 @@ export async function sendStylistInvitation(user, salon, rawToken) {
     return false;
   }
 }
+
+// Al crear una peluquería: el dueño confirma que el correo es suyo
+export async function sendEmailVerification(user, salon, rawToken) {
+  try {
+    const link = `${baseUrl(salon)}/confirmar-correo?token=${rawToken}`;
+    return await sendMail({
+      to: user.email,
+      fromName: salon.name,
+      subject: `Confirma tu correo · ${salon.name}`,
+      html: layout(
+        salon,
+        "Confirma tu correo",
+        `<p style="color:#1c1917">Hola ${esc(user.name)}, tu peluquería <b>${esc(salon.name)}</b> ya está creada. Confirma que este correo es tuyo para completar el alta:</p>
+         ${button(link, "Confirmar mi correo", salon)}
+         <p style="color:#78716c;font-size:13px;margin-top:20px">El enlace caduca en 48 horas y solo se puede usar una vez. Si no has creado tú esta peluquería, ignora este correo.</p>`
+      ),
+      text: `Hola ${user.name}, tu peluquería ${salon.name} ya está creada.\nConfirma tu correo aquí (caduca en 48 horas):\n${link}\n\nSi no la has creado tú, ignora este correo.${textSignature(salon)}`,
+    });
+  } catch (err) {
+    console.error("[mail]", err.message);
+    return false;
+  }
+}

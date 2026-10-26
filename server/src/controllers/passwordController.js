@@ -40,6 +40,7 @@ export async function tokenInfo(req, res) {
   const doc = await AuthToken.findOne({
     tokenHash: hashToken(raw),
     salon: req.salon._id,
+    type: { $in: ["reset","invite"]},
     usedAt: null,
     expiresAt: { $gt: new Date() },
   }).populate("user", "name email");
@@ -65,6 +66,7 @@ export async function resetPassword(req, res) {
     {
       tokenHash: hashToken(raw),
       salon: req.salon._id,
+      type: { $in: ["reset","invite"]},
       usedAt: null,
       expiresAt: { $gt: new Date() },
     },
@@ -78,6 +80,7 @@ export async function resetPassword(req, res) {
   user.passwordHash = await bcrypt.hash(password, 10);
   user.tokenVersion = (user.tokenVersion ?? 0) + 1; // cierra las sesiones abiertas
   user.pendingInvite = false;
+  user.emailVerified = true;
   await user.save();
 
   await AuthToken.deleteMany({ user: user._id, usedAt: null });

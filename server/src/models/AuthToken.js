@@ -4,7 +4,7 @@ const authTokenSchema = new mongoose.Schema(
   {
     salon: { type: mongoose.Schema.Types.ObjectId, ref: "Salon", required: true },
     user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true, index: true },
-    type: { type: String, enum: ["reset", "invite"], required: true },
+    type: { type: String, enum: ["reset", "invite", "verify"], required: true },
     tokenHash: { type: String, required: true, unique: true },
     expiresAt: { type: Date, required: true },
     usedAt: { type: Date, default: null },

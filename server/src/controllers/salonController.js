@@ -3,6 +3,8 @@ import Salon from "../models/Salon.js";
 import User from "../models/User.js";
 import { signToken, publicUser } from "./authController.js";
 import { parseBranding, parseProfile } from "../utils/branding.js";
+import { issueToken, VERIFY_TTL_MS } from "../services/authTokens.js"; // NUEVO
+import { sendEmailVerification } from "../services/authMails.js"; // NUEVO
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const PASSWORD_RE = /^(?=.*[A-Za-z])(?=.*\d).{8,}$/;
@@ -112,10 +114,19 @@ export async function createSalon(req, res) {
       email,
       passwordHash: await bcrypt.hash(password, 10),
       role: "admin",
+      emailVerified: false, // NUEVO: hasta que abra el enlace del correo
     });
   } catch (err) {
     await Salon.deleteOne({ _id: salon._id }); // no dejamos una peluquería sin dueño
     throw err;
+  }
+
+  // NUEVO: primer correo de confirmación. Si falla, el dueño puede reenviarlo desde el panel
+  try {
+    const raw = await issueToken({ user: admin, type: "verify", ttlMs: VERIFY_TTL_MS });
+    sendEmailVerification(admin, salon, raw); // sin await: no retrasa el alta
+  } catch (err) {
+    console.error("[verify]", err.message);
   }
 
   res.status(201).json({

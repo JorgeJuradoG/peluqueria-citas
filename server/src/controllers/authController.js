@@ -24,6 +24,7 @@ export function publicUser(user) {
     email: user.email,
     phone: user.phone || "",
     role: user.role,
+    emailVerified: user.emailVerified !== false,
     createdAt: user.createdAt,
   };
 }

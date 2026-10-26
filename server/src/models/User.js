@@ -20,6 +20,10 @@ const userSchema = new mongoose.Schema(
     },
     tokenVersion: { type: Number, default: 0 },
     pendingInvite: { type: Boolean, default: false },
+
+    // Solo se pone en false al crear el dueño de una peluquería nueva.
+    // Con default true, las cuentas que ya existen cuentan como verificadas sin migrar nada
+    emailVerified: { type: Boolean, default: true },
   },
   { timestamps: true }
 );

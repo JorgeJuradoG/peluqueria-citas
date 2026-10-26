@@ -58,6 +58,30 @@ function buildFrom(fromName) {
   return name ? `"${name}" <${address}>` : configured;
 }
 
+// Envío por API HTTPS (Resend). Sirve donde el hosting bloquea los puertos SMTP
+async function sendWithResend({ to, subject, html, text, fromName }) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 10_000);
+  try {
+    const res = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ from: buildFrom(fromName), to: [to], subject, html, text }),
+      signal: controller.signal,
+    });
+    if (!res.ok) {
+      const body = await res.text().catch(() => "");
+      throw new Error(`Resend respondió ${res.status}: ${body.slice(0, 200)}`);
+    }
+    return true;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 // Guarda el HTML para poder abrirlo en el navegador
 function saveHtmlPreview({ subject, html }) {
   try {
@@ -88,6 +112,18 @@ export async function sendMail({ to, subject, html, text, fromName }) {
   if (process.env.NODE_ENV === "test") {
     outbox.push({ to, subject, html, text, fromName });
     return true;
+  }
+
+  // Con clave de API, el envío es real: un fallo es un fallo, no se disimula
+  if (process.env.RESEND_API_KEY && process.env.MAIL_MODE !== "console") {
+    try {
+      await sendWithResend({ to, subject, html, text, fromName });
+      console.log(`[mail] Enviado a ${to}: ${subject}`);
+      return true;
+    } catch (err) {
+      console.error("[mail] Error al enviar:", err.message);
+      return false;
+    }
   }
 
   const hasSmtp = Boolean(process.env.SMTP_HOST);

@@ -13,6 +13,10 @@ import {
   tokenInfo,
   resetPassword,
 } from "../controllers/passwordController.js";
+import {
+  sendVerification,
+  confirmEmail,
+} from "../controllers/emailVerificationController.js";
 import { requireAuth } from "../middlewares/auth.js";
 
 const router = Router();
@@ -44,6 +48,10 @@ router.post("/demo", authLimiter, demoLogin);
 router.post("/forgot-password", forgotLimiter, forgotPassword);
 router.post("/token-info", authLimiter, tokenInfo);
 router.post("/reset-password", authLimiter, resetPassword);
+
+// Confirmación del correo del dueño
+router.post("/confirm-email", authLimiter, confirmEmail);
+router.post("/send-verification", forgotLimiter, requireAuth, sendVerification);
 
 router.get("/me", requireAuth, getMe);
 router.put("/me", requireAuth, updateMe);

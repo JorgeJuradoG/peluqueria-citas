@@ -5,12 +5,15 @@ import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import ScrollToTop from "./components/ScrollToTop";
 import ProtectedRoute from "./components/ProtectedRoute";
+import DemoBanner from "./components/DemoBanner";
+import VerifyEmailBanner from "./components/VerifyEmailBanner";
 import Landing from "./pages/Landing";
 import CreateSalon from "./pages/CreateSalon";
 import Services from "./pages/Services";
 import Login from "./pages/Login";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
+import ConfirmEmail from "./pages/ConfirmEmail";
 import Book from "./pages/Book";
 import Booked from "./pages/Booked";
 import MyAppointments from "./pages/MyAppointments";
@@ -22,12 +25,8 @@ import AdminStylists from "./pages/AdminStylists";
 import NotFound from "./pages/NotFound";
 import Appearance from "./pages/Appearance";
 import Legal from "./pages/Legal";
-import DemoBanner from "./components/DemoBanner";
 import Stats from "./pages/Stats";
 import Home from "./pages/Home";
-
-
-
 
 function PlatformApp() {
   return (
@@ -39,7 +38,6 @@ function PlatformApp() {
         <Route path="/privacidad" element={<Legal kind="privacidad" />} />
         <Route path="/terminos" element={<Legal kind="terminos" />} />
         <Route path="*" element={<Navigate to="/" replace />} />
-        
       </Routes>
     </>
   );
@@ -60,6 +58,7 @@ function SalonApp() {
         </a>
         <DemoBanner />
         <Navbar />
+        <VerifyEmailBanner />
         <main id="contenido" className="mx-auto w-full max-w-6xl flex-1 px-4 py-10">
           <div key={pathname} className="animate-fade-in">
             <Routes>
@@ -67,6 +66,7 @@ function SalonApp() {
               <Route path="/login" element={<Login />} />
               <Route path="/recuperar" element={<ForgotPassword />} />
               <Route path="/restablecer" element={<ResetPassword />} />
+              <Route path="/confirmar-correo" element={<ConfirmEmail />} />
               <Route path="/reservar" element={<ProtectedRoute><Book /></ProtectedRoute>} />
               <Route path="/reservada" element={<ProtectedRoute><Booked /></ProtectedRoute>} />
               <Route path="/mis-citas" element={<ProtectedRoute><MyAppointments /></ProtectedRoute>} />
@@ -105,13 +105,13 @@ function SalonApp() {
               />
               <Route
                 path="/admin/apariencia"
-                 element={
-             <ProtectedRoute roles={["admin"]}>
-             <Appearance />
-             </ProtectedRoute>
-               }
+                element={
+                  <ProtectedRoute roles={["admin"]}>
+                    <Appearance />
+                  </ProtectedRoute>
+                }
               />
-             <Route
+              <Route
                 path="/admin/estadisticas"
                 element={
                   <ProtectedRoute roles={["admin"]}>
@@ -120,11 +120,8 @@ function SalonApp() {
                 }
               />
               <Route path="/inicio" element={<ProtectedRoute><Home /></ProtectedRoute>} />
-              
               <Route path="*" element={<NotFound />} />
-
             </Routes>
-
           </div>
         </main>
         <Footer />
