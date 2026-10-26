@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
 import {
-  Clock,
   ExternalLink,
   Globe,
   Loader2,
@@ -17,6 +16,7 @@ import api from "../services/api";
 import { useSalon } from "../context/SalonContext";
 import { useToast } from "../context/UIContext";
 import Switch from "../components/Switch";
+import StaffTermPicker from "../components/StaffTermPicker";
 import { InstagramIcon } from "../components/SocialLinks";
 import BrandingPicker, { BrandingPreview } from "../components/BrandingPicker";
 import { ErrorAlert, Field } from "../components/FormField";
@@ -28,6 +28,7 @@ const BRAND_KEYS = Object.keys(DEFAULT_BRANDING);
 // Estado editable a partir de la peluquería guardada
 const toState = (s) => ({
   name: s.name ?? "",
+  staffTerm: s.staffTerm ?? "estilista",
   heroTitle: s.heroTitle ?? "",
   tagline: s.tagline ?? "",
   about: s.about ?? "",
@@ -50,6 +51,7 @@ const toState = (s) => ({
 const fingerprint = (v) =>
   JSON.stringify([
     v.name,
+    v.staffTerm,
     v.heroTitle,
     v.tagline,
     v.about,
@@ -172,8 +174,12 @@ export default function Appearance() {
         </a>
       </div>
 
-      <form onSubmit={handleSubmit} noValidate className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-start">
-        <div className="space-y-6">
+      <form
+        onSubmit={handleSubmit}
+        noValidate
+        className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-start"
+      >
+        <div className="min-w-0 space-y-6">
           <div className="lg:hidden">
             <p className="label">Vista previa</p>
             <BrandingPreview
@@ -199,6 +205,10 @@ export default function Appearance() {
               <b className="text-ink">{salon.timezone}</b>. Estos dos datos no se pueden cambiar
               porque los clientes ya pueden tener tu enlace y tus citas dependen de la zona horaria.
             </p>
+            <StaffTermPicker
+              value={form.staffTerm}
+              onChange={(staffTerm) => setForm({ ...form, staffTerm })}
+            />
           </Section>
 
           <Section title="Estilo" text="Elige un punto de partida y ajusta cada detalle.">
@@ -282,7 +292,7 @@ export default function Appearance() {
               max={200}
               rows={3}
               placeholder={"Lunes a viernes: 9:00-20:00\nSábados: 10:00-14:00"}
-              hint="Es informativo: los horarios de reserva los defines por estilista."
+              hint="Es informativo: los horarios de reserva los defines por miembro del equipo."
             />
           </Section>
 

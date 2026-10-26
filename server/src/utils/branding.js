@@ -5,6 +5,10 @@ export const HEROES = ["dark", "accent", "light"];
 export const DECORS = ["glow", "dots", "none"];
 export const CARDS = ["shadow", "outline", "flat"];
 
+// Cómo llama cada peluquería a su equipo en toda la web
+export const STAFF_TERMS = ["estilista", "barbero", "profesional"];
+export const DEFAULT_STAFF_TERM = "estilista";
+
 export const DEFAULT_BRANDING = {
   accent: "#b08d57",
   font: "classic",
@@ -63,6 +67,10 @@ export function parseProfile(body) {
   if (address.length > 160) return { error: "La dirección admite hasta 160 caracteres" };
   if (phone && !PHONE_RE.test(phone)) return { error: "Teléfono no válido" };
 
+  // Término del equipo: solo valores de la lista (así nunca llega texto libre a los correos)
+  const staffTerm = text(body.staffTerm) || DEFAULT_STAFF_TERM;
+  if (!STAFF_TERMS.includes(staffTerm)) return { error: "Término del equipo no válido" };
+
   const social = body.social && typeof body.social === "object" ? body.social : {};
 
   // Instagram: vale "@usuario", "usuario" o la URL completa
@@ -102,6 +110,7 @@ export function parseProfile(body) {
       hours,
       address,
       phone,
+      staffTerm,
       social: { instagram, whatsapp, website },
       sections: {
         howItWorks: sections.howItWorks !== false,

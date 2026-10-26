@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import BrandIcon from "./BrandIcon";
 import { HERO_STYLES } from "../lib/theme";
+import { termsFor } from "../lib/terms";
 
 // Decoración de fondo de la portada
 export function Decor({ kind, hero }) {
@@ -38,7 +39,7 @@ export default function SalonHero({ salon, user }) {
   const title = salon.heroTitle || "Tu próxima cita, a un par de clics";
   const tagline =
     salon.tagline ||
-    "Elige servicio, profesional y hueco. Los horarios se actualizan en tiempo real, sin llamadas ni esperas.";
+    `Elige servicio, ${termsFor(salon.staffTerm).one} y hueco. Los horarios se actualizan en tiempo real, sin llamadas ni esperas.`;
 
   return (
     <section

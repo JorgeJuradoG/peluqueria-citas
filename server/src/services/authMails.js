@@ -27,6 +27,8 @@ export async function sendPasswordReset(user, salon, rawToken) {
 export async function sendStylistInvitation(user, salon, rawToken) {
   try {
     const link = `${baseUrl(salon)}/restablecer?token=${rawToken}`;
+    // Término elegido por la peluquería (solo valores de una lista cerrada)
+    const term = salon.staffTerm || "estilista";
     return await sendMail({
       to: user.email,
       fromName: salon.name,
@@ -34,11 +36,11 @@ export async function sendStylistInvitation(user, salon, rawToken) {
       html: layout(
         salon,
         "Te damos la bienvenida al equipo",
-        `<p style="color:#1c1917">Hola ${esc(user.name)}, ya tienes una cuenta de estilista en ${esc(salon.name)}. Elige tu contraseña para empezar a ver tu agenda:</p>
+        `<p style="color:#1c1917">Hola ${esc(user.name)}, ya tienes una cuenta de ${esc(term)} en ${esc(salon.name)}. Elige tu contraseña para empezar a ver tu agenda:</p>
          ${button(link, "Activar mi cuenta", salon)}
          <p style="color:#78716c;font-size:13px;margin-top:20px">Tu usuario es ${esc(user.email)}. El enlace caduca en 7 días y solo se puede usar una vez.</p>`
       ),
-      text: `Hola ${user.name}, ya tienes cuenta de estilista en ${salon.name}.\nElige tu contraseña aquí (caduca en 7 días):\n${link}\n\nTu usuario es ${user.email}.${textSignature(salon)}`,
+      text: `Hola ${user.name}, ya tienes cuenta de ${term} en ${salon.name}.\nElige tu contraseña aquí (caduca en 7 días):\n${link}\n\nTu usuario es ${user.email}.${textSignature(salon)}`,
     });
   } catch (err) {
     console.error("[mail]", err.message);

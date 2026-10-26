@@ -7,7 +7,7 @@ import { parseBranding, parseProfile } from "../utils/branding.js";
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const PASSWORD_RE = /^(?=.*[A-Za-z])(?=.*\d).{8,}$/;
 const SLUG_RE = /^[a-z0-9]+(-[a-z0-9]+)*$/;
-const RESERVED = new Set(["admin", "api", "app", "www", "login", "crear-peluqueria", "s","demo"]);
+const RESERVED = new Set(["admin", "api", "app", "www", "login", "crear-peluqueria", "s", "demo"]);
 
 function validTimezone(tz) {
   try {
@@ -26,6 +26,7 @@ function publicSalon(salon) {
     slug: s.slug,
     timezone: s.timezone,
     branding: s.branding,
+    staffTerm: s.staffTerm,
     tagline: s.tagline,
     heroTitle: s.heroTitle,
     about: s.about,
@@ -34,7 +35,7 @@ function publicSalon(salon) {
     phone: s.phone,
     social: s.social,
     sections: s.sections,
-    demo: s.demo === true, // para que el frontend muestre el banner de demo
+    demo: s.demo === true,
   };
 }
 
@@ -138,9 +139,10 @@ export async function updateSalonSettings(req, res) {
   const profile = parseProfile(req.body);
   if (profile.error) return res.status(400).json({ message: profile.error });
 
-  // Solo estos campos: ni slug, ni zona horaria, ni estado
+  // Solo estos campos: ni slug, ni zona horaria, ni estado, ni demo
   salon.name = name;
   salon.branding = branding.value;
+  salon.staffTerm = profile.value.staffTerm;
   salon.tagline = profile.value.tagline;
   salon.heroTitle = profile.value.heroTitle;
   salon.about = profile.value.about;

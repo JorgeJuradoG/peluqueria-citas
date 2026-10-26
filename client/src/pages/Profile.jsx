@@ -13,6 +13,8 @@ import {
 import api from "../services/api";
 import { useAuth } from "../context/AuthContext";
 import { useToast } from "../context/UIContext";
+import useTerms from "../hooks/useTerms";
+import Avatar from "../components/Avatar";
 import { Skeleton } from "../components/Skeleton";
 import { ErrorAlert, Field, PasswordField } from "../components/FormField";
 
@@ -107,6 +109,7 @@ function PasswordForm() {
 export default function Profile() {
   const { updateUser } = useAuth();
   const toast = useToast();
+  const terms = useTerms();
   const [profile, setProfile] = useState(null);
   const [form, setForm] = useState({ name: "", phone: "" });
   const [stats, setStats] = useState({ upcoming: 0, completed: 0 });
@@ -178,14 +181,13 @@ export default function Profile() {
       <h1 className="text-4xl font-bold">Mi perfil</h1>
 
       <section className="card mt-6 flex flex-wrap items-center gap-5">
-        <span className="flex h-16 w-16 items-center justify-center rounded-full bg-ink font-display text-2xl text-cream">
-          {profile.name[0]}
-        </span>
+        <Avatar name={profile.name} size="xl" />
         <div className="min-w-0 flex-1 basis-48">
           <p className="truncate font-display text-2xl font-semibold">{profile.name}</p>
           <p className="truncate text-sm text-ink/70">{profile.email}</p>
           <p className="mt-1 text-xs text-ink/60">
-            {ROLE_LABELS[profile.role]} · Miembro desde {since}
+            {profile.role === "stylist" ? terms.One : ROLE_LABELS[profile.role]} · Miembro desde{" "}
+            {since}
           </p>
         </div>
         <dl className="flex gap-6 text-center">

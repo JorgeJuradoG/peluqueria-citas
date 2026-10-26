@@ -27,6 +27,7 @@ const PROFILE = {
   phone: "+34 600 123 456",
   social: { instagram: "salon_demo", whatsapp: "34600123456", website: "" },
   sections: { howItWorks: true, perks: true },
+  staffTerm: "profesional",
   branding: {
     accent: "#5b8fd1",
     font: "modern",

@@ -26,9 +26,9 @@ import { useConfirm, useToast } from "../context/UIContext";
 import { useSalon } from "../context/SalonContext";
 import { todayISO, formatTime } from "../lib/dates";
 import useStylistSocket from "../hooks/useStylistSocket";
+import useTerms from "../hooks/useTerms";
 import StatusBadge from "../components/StatusBadge";
 import Modal from "../components/Modal";
-
 
 const STATUS_COLORS = {
   pending: { color: "#b45309", contrastColor: "#ffffff" }, // ámbar
@@ -83,6 +83,7 @@ export default function Agenda() {
   const { user } = useAuth();
   const confirm = useConfirm();
   const toast = useToast();
+  const terms = useTerms();
   const { timezone } = useSalon();
   const isAdmin = user.role === "admin";
 
@@ -129,7 +130,6 @@ export default function Agenda() {
   }, [view, date, selectedStylist, rangeFrom, rangeTo]);
 
   useStylistSocket(stylistId, load);
-
 
   async function changeStatus(appointment, status) {
     if (status === "cancelled") {
@@ -203,9 +203,9 @@ export default function Agenda() {
               className="input min-w-52 pl-9"
               value={selectedStylist}
               onChange={(e) => setSelectedStylist(e.target.value)}
-              aria-label="Estilista"
+              aria-label={terms.One}
             >
-              <option value="">Elige un estilista</option>
+              <option value="">Elige un {terms.one}</option>
               {stylists.map((s) => (
                 <option key={s._id} value={s._id}>{s.user.name}</option>
               ))}
@@ -232,7 +232,7 @@ export default function Agenda() {
       {needsStylist && (
         <EmptyState
           icon={Users}
-          title="Elige un estilista"
+          title={`Elige un ${terms.one}`}
           text="Selecciona a quién quieres ver para cargar su agenda."
         />
       )}
@@ -242,7 +242,7 @@ export default function Agenda() {
           <div className="mt-6">
             <Legend />
           </div>
-          <div className="keep palette card mt-3 p-2 sm:p-4">
+          <div className="keep-palette card mt-3 p-2 sm:p-4">
             <FullCalendar
               plugins={[timeGridPlugin, themePlugin]}
               initialView="timeGridWeek"
@@ -317,7 +317,7 @@ export default function Agenda() {
         </>
       )}
 
-            {selected && (
+      {selected && (
         <Modal onClose={() => setSelected(null)} labelledBy="detalle-titulo">
           <div className="flex items-start justify-between gap-3">
             <div>

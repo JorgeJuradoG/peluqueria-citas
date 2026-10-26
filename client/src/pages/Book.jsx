@@ -12,11 +12,14 @@ import {
 } from "lucide-react";
 import api from "../services/api";
 import useStylistSocket from "../hooks/useStylistSocket";
+import useTerms from "../hooks/useTerms";
+import Avatar from "../components/Avatar";
 import { useConfirm, useToast } from "../context/UIContext";
 import { useSalon } from "../context/SalonContext";
 import { todayISO } from "../lib/dates";
 
-const STEP_NAMES = ["Servicio", "Profesional", "Día y hora"];
+// El segundo paso lleva el término que use la peluquería (estilista, barbero...)
+const stepNames = (t) => ["Servicio", t.One, "Día y hora"];
 
 // Suma días a una fecha AAAA-MM-DD sin depender de la zona horaria del navegador
 function addDays(iso, n) {
@@ -34,10 +37,10 @@ function dayParts(iso) {
   };
 }
 
-function Progress({ current }) {
+function Progress({ current, names }) {
   return (
     <ol className="flex items-center" aria-label="Progreso de la reserva">
-      {STEP_NAMES.map((name, i) => {
+      {names.map((name, i) => {
         const done = i < current;
         const active = i === current;
         return (
@@ -63,7 +66,7 @@ function Progress({ current }) {
                 {name}
               </span>
             </div>
-            {i < STEP_NAMES.length - 1 && (
+            {i < names.length - 1 && (
               <span
                 aria-hidden="true"
                 className={`mx-3 h-0.5 flex-1 rounded transition ${
@@ -126,6 +129,7 @@ export default function Book() {
   const navigate = useNavigate();
   const confirm = useConfirm();
   const toast = useToast();
+  const terms = useTerms();
   const { timezone } = useSalon();
   const today = todayISO(timezone);
 
@@ -217,7 +221,7 @@ export default function Book() {
       <p className="mt-1 text-ink/70">Tres pasos y listo.</p>
 
       <div className="mt-6">
-        <Progress current={current} />
+        <Progress current={current} names={stepNames(terms)} />
       </div>
 
       <div className="mt-8 space-y-5">
@@ -237,7 +241,7 @@ export default function Book() {
                 className={choiceClass(serviceId === s._id)}
               >
                 {serviceId === s._id && (
-                  <span className="absolute right-3 top-3 flex h-5 w-5 items-center justify-center rounded-full bg-gold text-white">
+                  <span className="absolute right-3 top-3 flex h-5 w-5 items-center justify-center rounded-full bg-gold text-[#1c1917]">
                     <Check className="h-3 w-3" aria-hidden="true" />
                   </span>
                 )}
@@ -255,7 +259,7 @@ export default function Book() {
         </Step>
 
         {serviceId && (
-          <Step icon={UserRound} title="Elige profesional">
+          <Step icon={UserRound} title={`Elige ${terms.one}`}>
             {availableStylists.length === 0 ? (
               <p className="text-ink/60">Nadie ofrece este servicio por ahora.</p>
             ) : (
@@ -267,9 +271,7 @@ export default function Book() {
                     aria-pressed={stylistId === s._id}
                     className={`${choiceClass(stylistId === s._id)} flex items-center gap-3`}
                   >
-                    <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-ink font-display text-lg text-cream">
-                      {s.user.name[0]}
-                    </span>
+                    <Avatar name={s.user.name} size="lg" />
                     <span className="min-w-0">
                       <span className="block font-medium">{s.user.name}</span>
                       {s.bio && (
@@ -277,7 +279,7 @@ export default function Book() {
                       )}
                     </span>
                     {stylistId === s._id && (
-                      <span className="ml-auto flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-gold text-white">
+                      <span className="ml-auto flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-gold text-[#1c1917]">
                         <Check className="h-3 w-3" aria-hidden="true" />
                       </span>
                     )}
@@ -339,7 +341,9 @@ export default function Book() {
                 <div className="mt-4 flex flex-col items-center rounded-xl bg-sand/40 px-4 py-8 text-center">
                   <CalendarX className="h-8 w-8 text-ink/40" aria-hidden="true" />
                   <p className="mt-2 font-medium">No hay huecos libres este día</p>
-                  <p className="text-sm text-ink/70">Prueba con otra fecha u otro profesional.</p>
+                  <p className="text-sm text-ink/70">
+                    Prueba con otra fecha u otro {terms.one}.
+                  </p>
                 </div>
               )}
 

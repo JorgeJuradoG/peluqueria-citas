@@ -3,7 +3,6 @@ import { Link } from "react-router-dom";
 import {
   ArrowLeft,
   ArrowRight,
-  Clock,
   Globe,
   Link2,
   Loader2,
@@ -22,6 +21,7 @@ import ThemeToggle from "../components/ThemeToggle";
 import BrandIcon from "../components/BrandIcon";
 import Stepper from "../components/Stepper";
 import Switch from "../components/Switch";
+import StaffTermPicker from "../components/StaffTermPicker";
 import { InstagramIcon } from "../components/SocialLinks";
 import BrandingPicker, { BrandingPreview } from "../components/BrandingPicker";
 import { ErrorAlert, Field, PasswordField } from "../components/FormField";
@@ -87,6 +87,7 @@ export default function CreateSalon() {
     salonName: "",
     slug: "",
     timezone: "Europe/Madrid",
+    staffTerm: "estilista",
     heroTitle: "",
     tagline: "",
     about: "",
@@ -175,7 +176,7 @@ export default function CreateSalon() {
       // Dejamos la sesión lista para esa peluquería y entramos en su panel
       localStorage.setItem(`token:${data.salon.slug}`, data.token);
       localStorage.setItem(`user:${data.salon.slug}`, JSON.stringify(data.user));
-            window.location.href = `/s/${data.salon.slug}/admin?bienvenida=1`;
+      window.location.href = `/s/${data.salon.slug}/admin?bienvenida=1`;
     } catch (err) {
       if (err.response?.status === 409) setStep(0); // la dirección ya existe
       setError(err.response?.data?.message || "No se pudo conectar con el servidor");
@@ -183,7 +184,6 @@ export default function CreateSalon() {
     }
   }
 
-  const showPreviewOnMobile = step === 1 || step === 2;
   const preview = (
     <BrandingPreview
       branding={branding}
@@ -211,8 +211,8 @@ export default function CreateSalon() {
           Volver
         </Link>
 
-        <div className="mt-4 grid gap-6 lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-start">
-          <form onSubmit={handleSubmit} className="card" noValidate>
+        <div className="mt-4 grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-start">
+          <form onSubmit={handleSubmit} className="card min-w-0" noValidate>
             <h1 className="text-3xl font-bold">Crea tu peluquería</h1>
             <p className="mt-1 text-sm text-ink/70">
               Tú serás el administrador. Todo lo que elijas se puede cambiar más adelante.
@@ -263,6 +263,10 @@ export default function CreateSalon() {
                       ))}
                     </select>
                   </Field>
+                  <StaffTermPicker
+                    value={form.staffTerm}
+                    onChange={(staffTerm) => setForm({ ...form, staffTerm })}
+                  />
                 </div>
               )}
 
@@ -359,7 +363,7 @@ export default function CreateSalon() {
                       max={200}
                       rows={3}
                       placeholder={"Lunes a viernes: 9:00-20:00\nSábados: 10:00-14:00"}
-                      hint="Es informativo: los horarios de reserva los defines por estilista."
+                      hint="Es informativo: los horarios de reserva los defines por miembro del equipo."
                     />
                   </section>
 

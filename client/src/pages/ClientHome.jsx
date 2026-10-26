@@ -9,6 +9,7 @@ import { useAuth } from "../context/AuthContext";
 import { useSalon } from "../context/SalonContext";
 import { useConfirm, useToast } from "../context/UIContext";
 import useNow from "../hooks/useNow";
+import useTerms from "../hooks/useTerms";
 import { formatDateTime } from "../lib/dates";
 import { buildICS, downloadICS, eventFromAppointment } from "../lib/calendar";
 import { countdown, greeting } from "../lib/time";
@@ -18,6 +19,7 @@ export default function ClientHome() {
   const salon = useSalon();
   const confirm = useConfirm();
   const toast = useToast();
+  const terms = useTerms();
   const now = useNow();
   const [list, setList] = useState(null);
   const [rescheduling, setRescheduling] = useState(null);
@@ -86,7 +88,7 @@ export default function ClientHome() {
         <div className="card mt-6 flex flex-col items-center py-12 text-center">
           <h2 className="text-2xl font-bold">No tienes ninguna cita próxima</h2>
           <p className="mt-1 max-w-sm text-sm text-ink/70">
-            Reserva en menos de un minuto: servicio, profesional y hueco.
+            Reserva en menos de un minuto: servicio, {terms.one} y hueco.
           </p>
           <Link to="/reservar" className="btn-primary mt-6">
             <CalendarPlus className="h-4 w-4" aria-hidden="true" />

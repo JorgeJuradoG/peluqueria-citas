@@ -13,14 +13,16 @@ import {
 import api from "../services/api";
 import { useAuth } from "../context/AuthContext";
 import { useSalon } from "../context/SalonContext";
+import useTerms from "../hooks/useTerms";
 import { ServiceCardSkeleton } from "../components/Skeleton";
 import Reveal from "../components/Reveal";
 import SalonHero from "../components/SalonHero";
 import ContactCard from "../components/ContactCard";
 
+// «{term}» se sustituye por el término de la peluquería (estilista, barbero...)
 const STEPS = [
   { icon: Scissors, title: "Elige tu servicio", text: "Corte, barba, color... con su duración y su precio a la vista." },
-  { icon: UserRound, title: "Elige profesional", text: "Reserva con quien prefieras entre los que ofrecen ese servicio." },
+  { icon: UserRound, title: "Elige {term}", text: "Reserva con quien prefieras entre los que ofrecen ese servicio." },
   { icon: CalendarCheck, title: "Confirma tu hueco", text: "Ves solo los huecos libres, en tiempo real, y reservas con un clic." },
 ];
 
@@ -33,6 +35,7 @@ const PERKS = [
 export default function Services() {
   const { user } = useAuth();
   const salon = useSalon();
+  const terms = useTerms();
   const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -42,7 +45,8 @@ export default function Services() {
   useEffect(() => {
     api
       .get("/services")
-      .then((res) => setServices(res.data))
+      .then((res) => setServices(Array.isArray(res.data) ? res.data : []))
+      .catch(() => setServices([]))
       .finally(() => setLoading(false));
   }, []);
 
@@ -69,7 +73,9 @@ export default function Services() {
                   <p className="mt-1 text-xs font-medium uppercase tracking-widest text-ink/60">
                     Paso {i + 1}
                   </p>
-                  <h3 className="mt-2 text-xl font-semibold">{title}</h3>
+                  <h3 className="mt-2 text-xl font-semibold">
+                    {title.replace("{term}", terms.one)}
+                  </h3>
                   <p className="mt-2 text-sm text-ink/70">{text}</p>
                 </li>
               </Reveal>

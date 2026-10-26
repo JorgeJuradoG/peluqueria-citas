@@ -22,6 +22,8 @@ import {
 } from "lucide-react";
 import api from "../services/api";
 import { useToast } from "../context/UIContext";
+import useTerms from "../hooks/useTerms";
+import Avatar from "../components/Avatar";
 import { Skeleton } from "../components/Skeleton";
 
 const DAYS = [
@@ -114,6 +116,7 @@ function ServiceChips({ services, selectedIds, onToggle }) {
 
 function CreateStylistForm({ allServices, onCreated, onCancel }) {
   const toast = useToast();
+  const terms = useTerms();
   const [form, setForm] = useState(emptyForm);
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
@@ -141,7 +144,7 @@ function CreateStylistForm({ allServices, onCreated, onCancel }) {
     setSaving(true);
     try {
       const { data } = await api.post("/stylists", form);
-      toast.success("Estilista creado");
+      toast.success(`${terms.One} creado`);
       setCreated({
         name: form.name,
         email: form.email.trim(),
@@ -150,7 +153,7 @@ function CreateStylistForm({ allServices, onCreated, onCancel }) {
       });
       onCreated();
     } catch (err) {
-      setError(err.response?.data?.message || "No se pudo crear el estilista");
+      setError(err.response?.data?.message || `No se pudo crear el ${terms.one}`);
     } finally {
       setSaving(false);
     }
@@ -189,7 +192,7 @@ function CreateStylistForm({ allServices, onCreated, onCancel }) {
     <form onSubmit={handleSubmit} className="card mt-6 animate-fade-up" noValidate>
       <h2 className="flex items-center gap-2 text-xl font-semibold">
         <Plus className="h-5 w-5 text-gold-dark" aria-hidden="true" />
-        Añadir estilista
+        Añadir {terms.one}
       </h2>
       <p className="mt-1 text-sm text-ink/70">
         Le enviaremos un correo para que elija su contraseña y active su cuenta.
@@ -411,9 +414,7 @@ function StylistCard({ stylist, allServices, onChanged, defaultOpen }) {
           aria-controls={panelId}
           className="flex min-w-0 flex-1 basis-60 items-center gap-3 rounded-lg text-left"
         >
-          <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-ink font-display text-xl text-cream">
-            {stylist.user.name[0]}
-          </span>
+          <Avatar name={stylist.user.name} size="lg" />
           <span className="min-w-0">
             <span className="block truncate text-xl font-semibold">{stylist.user.name}</span>
             <span className="block truncate text-sm text-ink/70">{stylist.user.email}</span>
@@ -558,6 +559,7 @@ function StylistCard({ stylist, allServices, onChanged, defaultOpen }) {
 }
 
 export default function AdminStylists() {
+  const terms = useTerms();
   const [stylists, setStylists] = useState([]);
   const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -584,13 +586,13 @@ export default function AdminStylists() {
     <div className="mx-auto max-w-4xl">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-4xl font-bold">Estilistas</h1>
+          <h1 className="text-4xl font-bold">{terms.Many}</h1>
           <p className="mt-1 text-ink/70">Tu equipo, sus servicios y sus horarios.</p>
         </div>
         {!adding && (
           <button onClick={() => setAdding(true)} className="btn-primary">
             <Plus className="h-4 w-4" aria-hidden="true" />
-            Añadir estilista
+            Añadir {terms.one}
           </button>
         )}
       </div>
@@ -622,7 +624,7 @@ export default function AdminStylists() {
           <span className="flex h-16 w-16 items-center justify-center rounded-full bg-sand text-ink/40">
             <Users className="h-8 w-8" aria-hidden="true" />
           </span>
-          <h2 className="mt-4 text-2xl font-bold">Todavía no tienes estilistas</h2>
+          <h2 className="mt-4 text-2xl font-bold">Todavía no tienes {terms.many}</h2>
           <p className="mt-1 max-w-sm text-sm text-ink/70">
             Añade a tu equipo para que los clientes puedan reservar con ellos.
           </p>

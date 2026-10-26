@@ -5,6 +5,7 @@ import {
   CalendarDays,
   CalendarPlus,
   ChevronDown,
+  Home,
   LayoutDashboard,
   LogIn,
   LogOut,
@@ -16,14 +17,13 @@ import {
   UserRound,
   Users,
   X,
-  Home
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { useSalon } from "../context/SalonContext";
+import useTerms from "../hooks/useTerms";
+import Avatar from "./Avatar";
 import BrandIcon from "./BrandIcon";
 import ThemeToggle from "./ThemeToggle";
-
-const ROLE_LABELS = { client: "Cliente", stylist: "Estilista", admin: "Administrador" };
 
 function mainLinks(user) {
   if (!user) return [];
@@ -31,7 +31,6 @@ function mainLinks(user) {
     { to: "/inicio", label: "Inicio", icon: Home },
     { to: "/reservar", label: "Reservar", icon: CalendarPlus },
     { to: "/mis-citas", label: "Mis citas", icon: CalendarCheck },
-   
   ];
   if (user.role === "admin" || user.role === "stylist") {
     links.push({ to: "/agenda", label: "Agenda", icon: CalendarDays });
@@ -39,12 +38,12 @@ function mainLinks(user) {
   return links;
 }
 
-function adminLinks(user) {
+function adminLinks(user, terms) {
   if (user?.role !== "admin") return [];
   return [
     { to: "/admin", label: "Panel", icon: LayoutDashboard, end: true },
     { to: "/admin/servicios", label: "Servicios", icon: Scissors },
-    { to: "/admin/estilistas", label: "Estilistas", icon: Users },
+    { to: "/admin/estilistas", label: terms.Many, icon: Users },
     { to: "/admin/estadisticas", label: "Estadísticas", icon: TrendingUp },
     { to: "/admin/apariencia", label: "Apariencia", icon: Palette },
   ];
@@ -92,6 +91,7 @@ function useDropdown(pathname) {
 export default function Navbar() {
   const { user, logout } = useAuth();
   const salon = useSalon();
+  const terms = useTerms();
   const navigate = useNavigate();
   const { pathname } = useLocation();
 
@@ -100,8 +100,9 @@ export default function Navbar() {
   const userMenu = useDropdown(pathname);
   const adminMenu = useDropdown(pathname);
 
+  const roleLabels = { client: "Cliente", stylist: terms.One, admin: "Administrador" };
   const main = mainLinks(user);
-  const admin = adminLinks(user);
+  const admin = adminLinks(user, terms);
   const adminActive = pathname.startsWith("/admin");
 
   // Al cambiar de página se cierra el menú móvil
@@ -211,9 +212,7 @@ export default function Navbar() {
                   aria-haspopup="menu"
                   className="flex items-center gap-2 rounded-full border border-sand bg-surface py-1 pl-1 pr-3 text-sm font-medium transition hover:border-gold"
                 >
-                  <span className="flex h-8 w-8 items-center justify-center rounded-full bg-ink font-display text-cream">
-                    {user.name[0]}
-                  </span>
+                  <Avatar name={user.name} size="sm" />
                   <span className="max-w-32 truncate">{user.name}</span>
                   <ChevronDown
                     className={`h-4 w-4 transition ${userMenu.open ? "rotate-180" : ""}`}
@@ -229,7 +228,7 @@ export default function Navbar() {
                     <div className="px-3 py-2">
                       <p className="truncate font-medium">{user.name}</p>
                       <p className="truncate text-xs text-ink/70">{user.email}</p>
-                      <p className="mt-1 text-xs text-gold-dark">{ROLE_LABELS[user.role]}</p>
+                      <p className="mt-1 text-xs text-gold-dark">{roleLabels[user.role]}</p>
                     </div>
                     <div className="my-1 border-t border-sand" />
                     <Link
@@ -276,12 +275,10 @@ export default function Navbar() {
         <div className="animate-fade-up border-t border-sand bg-cream xl:hidden">
           <div className="mx-auto max-h-[75vh] max-w-6xl overflow-y-auto px-4 py-3">
             <div className="flex items-center gap-3 px-3 py-2">
-              <span className="flex h-10 w-10 items-center justify-center rounded-full bg-ink font-display text-cream">
-                {user.name[0]}
-              </span>
+              <Avatar name={user.name} />
               <div className="min-w-0">
                 <p className="truncate font-medium">{user.name}</p>
-                <p className="text-xs text-gold-dark">{ROLE_LABELS[user.role]}</p>
+                <p className="text-xs text-gold-dark">{roleLabels[user.role]}</p>
               </div>
             </div>
 

@@ -1,5 +1,14 @@
 import mongoose from "mongoose";
-import { CARDS, DECORS, FONTS, HEROES, ICONS, RADII } from "../utils/branding.js";
+import {
+  CARDS,
+  DECORS,
+  DEFAULT_STAFF_TERM,
+  FONTS,
+  HEROES,
+  ICONS,
+  RADII,
+  STAFF_TERMS,
+} from "../utils/branding.js";
 
 const brandingSchema = new mongoose.Schema(
   {
@@ -30,6 +39,9 @@ const salonSchema = new mongoose.Schema(
     active: { type: Boolean, default: true },
 
     branding: { type: brandingSchema, default: () => ({}) },
+
+    // Cómo llama la peluquería a su equipo en toda la web
+    staffTerm: { type: String, enum: STAFF_TERMS, default: DEFAULT_STAFF_TERM },
 
     tagline: { type: String, trim: true, maxlength: 120, default: "" },
     heroTitle: { type: String, trim: true, maxlength: 80, default: "" },

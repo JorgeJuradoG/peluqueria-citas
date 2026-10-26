@@ -16,6 +16,7 @@ import api from "../services/api";
 import { useAuth } from "../context/AuthContext";
 import { useSalon } from "../context/SalonContext";
 import { useToast } from "../context/UIContext";
+import useTerms from "../hooks/useTerms";
 import { Skeleton } from "../components/Skeleton";
 
 function Stat({ icon: Icon, label, value, to, tone = "gold" }) {
@@ -74,18 +75,19 @@ function Step({ number, done, current, icon: Icon, title, text, to, action }) {
   );
 }
 
-const NEXT_TEXT = [
-  "crea tu primer servicio.",
-  "añade a tu equipo.",
-  "comparte tu enlace con tus clientes.",
-];
-
 export default function AdminHome() {
   const { user } = useAuth();
   const salon = useSalon();
   const toast = useToast();
+  const terms = useTerms();
   const [params, setParams] = useSearchParams();
   const welcome = params.get("bienvenida") === "1";
+
+  const nextText = [
+    "crea tu primer servicio.",
+    `añade a tu equipo (${terms.many}).`,
+    "comparte tu enlace con tus clientes.",
+  ];
 
   const sharedKey = `shared:${salon.slug}`;
   const [counts, setCounts] = useState(null);
@@ -205,7 +207,7 @@ export default function AdminHome() {
 
           {firstPending >= 0 && (
             <p className="mt-3 text-sm text-ink/70">
-              Tu siguiente paso: <b className="text-ink">{NEXT_TEXT[firstPending]}</b>
+              Tu siguiente paso: <b className="text-ink">{nextText[firstPending]}</b>
             </p>
           )}
         </section>
@@ -213,7 +215,13 @@ export default function AdminHome() {
 
       <div className="mt-6 grid gap-4 sm:grid-cols-3">
         <Stat icon={Scissors} label="Servicios" value={counts.services} to="/admin/servicios" />
-        <Stat icon={Users} label="Estilistas activos" value={counts.stylists} to="/admin/estilistas" tone="ink" />
+        <Stat
+          icon={Users}
+          label={`${terms.Many} activos`}
+          value={counts.stylists}
+          to="/admin/estilistas"
+          tone="ink"
+        />
         {counts.pending > 0 ? (
           <Stat
             icon={MailWarning}
@@ -265,9 +273,9 @@ export default function AdminHome() {
           current={firstPending === 1}
           icon={Users}
           title="Añade a tu equipo"
-          text="Crea la cuenta de cada estilista y elige qué servicios ofrece."
+          text={`Crea la cuenta de cada ${terms.one} y elige qué servicios ofrece.`}
           to="/admin/estilistas"
-          action="Añadir estilista"
+          action={`Añadir ${terms.one}`}
         />
         <li
           className={`card transition ${steps[2] ? "opacity-70" : ""} ${

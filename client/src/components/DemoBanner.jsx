@@ -5,6 +5,7 @@ import api from "../services/api";
 import { useAuth } from "../context/AuthContext";
 import { useSalon } from "../context/SalonContext";
 import { useToast } from "../context/UIContext";
+import useTerms from "../hooks/useTerms";
 
 const ROLES = {
   admin: { label: "Administrador", icon: LayoutDashboard, to: "/inicio" },
@@ -17,6 +18,7 @@ export default function DemoBanner() {
   const { user, saveSession } = useAuth();
   const navigate = useNavigate();
   const toast = useToast();
+  const terms = useTerms();
   const [loading, setLoading] = useState(null);
 
   if (!salon.demo) return null;
@@ -65,7 +67,7 @@ export default function DemoBanner() {
                 ) : (
                   <Icon className="h-3.5 w-3.5" aria-hidden="true" />
                 )}
-                {label}
+                {role === "stylist" ? terms.One : label}
               </button>
             );
           })}

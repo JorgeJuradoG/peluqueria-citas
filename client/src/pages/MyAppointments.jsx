@@ -16,6 +16,7 @@ import RescheduleModal from "../components/RescheduleModal";
 import { AppointmentSkeleton } from "../components/Skeleton";
 import { useConfirm, useToast } from "../context/UIContext";
 import { useSalon } from "../context/SalonContext";
+import useTerms from "../hooks/useTerms";
 import { formatDateTime } from "../lib/dates";
 import { buildICS, downloadICS, eventFromAppointment } from "../lib/calendar";
 
@@ -95,6 +96,7 @@ export default function MyAppointments() {
   const confirm = useConfirm();
   const toast = useToast();
   const salon = useSalon();
+  const terms = useTerms();
   const { timezone } = salon;
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -142,7 +144,7 @@ export default function MyAppointments() {
       serviceName: a.service?.name,
       stylistName: a.stylist?.user?.name,
       salonName: salon.name,
-      location:salon.address,
+      location: salon.address,
       phone: salon.phone,
     });
     downloadICS("cita.ics", buildICS(event));
@@ -195,7 +197,7 @@ export default function MyAppointments() {
           </span>
           <h2 className="mt-4 text-2xl font-bold">Aún no tienes citas</h2>
           <p className="mt-1 max-w-sm text-sm text-ink/70">
-            Reserva tu primera cita en menos de un minuto: elige servicio, profesional y hueco.
+            Reserva tu primera cita en menos de un minuto: elige servicio, {terms.one} y hueco.
           </p>
           <Link to="/reservar" className="btn-primary mt-6">
             Reservar ahora

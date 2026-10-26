@@ -15,6 +15,7 @@ import Avatar from "../components/Avatar";
 import CountUp from "../components/CountUp";
 import { Skeleton } from "../components/Skeleton";
 import { ErrorAlert } from "../components/FormField";
+import useTerms from "../hooks/useTerms";
 
 const PERIODS = [
   { key: "7d", label: "7 días" },
@@ -154,6 +155,7 @@ function DayChart({ days }) {
 }
 
 export default function Stats() {
+  const terms = useTerms();
   const [period, setPeriod] = useState("30d");
   const [data, setData] = useState(null);
   const [error, setError] = useState("");
@@ -330,7 +332,7 @@ export default function Stats() {
                 Ocupación del equipo
               </h2>
               {data.stylists.length === 0 ? (
-                <p className="mt-4 text-sm text-ink/70">Todavía no hay estilistas.</p>
+                <p className="mt-4 text-sm text-ink/70">Todavía no hay {terms.many}.</p>
               ) : (
                 <ul className="mt-5 space-y-4">
                   {data.stylists.map((s, i) => (
@@ -374,7 +376,7 @@ export default function Stats() {
                 </ul>
               )}
               <p className="mt-5 text-xs text-ink/60">
-                Ocupación = horas reservadas ÷ horas de trabajo del estilista en el periodo, según
+                Ocupación = horas reservadas ÷ horas de trabajo del {terms.one} en el periodo, según
                 su horario y sus días libres.
               </p>
             </section>
