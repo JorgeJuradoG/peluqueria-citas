@@ -1,3 +1,5 @@
+import { CANCELLATION_HOURS } from "./cancellation.js";
+
 export const FONTS = ["classic", "modern", "warm", "elegant", "bold"];
 export const RADII = ["sharp", "soft", "round"];
 export const ICONS = ["scissors", "sparkles", "crown", "flower", "gem", "star"];
@@ -71,6 +73,15 @@ export function parseProfile(body) {
   const staffTerm = text(body.staffTerm) || DEFAULT_STAFF_TERM;
   if (!STAFF_TERMS.includes(staffTerm)) return { error: "Término del equipo no válido" };
 
+  // Antelación mínima para cancelar o mover (0 = sin límite). Solo valores de una lista
+  const rawHours =
+    body.cancellationHours === undefined || body.cancellationHours === ""
+      ? 0
+      : Number(body.cancellationHours);
+  if (!CANCELLATION_HOURS.includes(rawHours)) {
+    return { error: "Antelación de cancelación no válida" };
+  }
+
   const social = body.social && typeof body.social === "object" ? body.social : {};
 
   // Instagram: vale "@usuario", "usuario" o la URL completa
@@ -111,6 +122,7 @@ export function parseProfile(body) {
       address,
       phone,
       staffTerm,
+      cancellationHours: rawHours,
       social: { instagram, whatsapp, website },
       sections: {
         howItWorks: sections.howItWorks !== false,

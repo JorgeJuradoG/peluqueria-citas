@@ -19,8 +19,21 @@ import { useSalon } from "../context/SalonContext";
 import useTerms from "../hooks/useTerms";
 import { formatDateTime } from "../lib/dates";
 import { buildICS, downloadICS, eventFromAppointment } from "../lib/calendar";
+import { canChange, policyText } from "../lib/policy";
 
-function AppointmentCard({ a, upcoming, timezone, onCalendar, onReschedule, onCancel }) {
+function AppointmentCard({
+  a,
+  upcoming,
+  timezone,
+  cancellationHours,
+  now,
+  onCalendar,
+  onReschedule,
+  onCancel,
+}) {
+  // Dentro del plazo mínimo, el cliente ya no puede cancelar ni mover la cita
+  const locked = upcoming && !canChange(a.start, cancellationHours, now);
+
   return (
     <li
       className={`card flex flex-wrap items-center justify-between gap-4 transition ${
@@ -53,6 +66,11 @@ function AppointmentCard({ a, upcoming, timezone, onCalendar, onReschedule, onCa
               {a.service?.durationMinutes} min · {a.service?.price} €
             </span>
           </p>
+          {locked && (
+            <p className="mt-2 text-xs text-amber-700">
+              {policyText(cancellationHours)} Contacta con la peluquería para cambiarla.
+            </p>
+          )}
         </div>
       </div>
 
@@ -71,7 +89,8 @@ function AppointmentCard({ a, upcoming, timezone, onCalendar, onReschedule, onCa
             </button>
             <button
               onClick={() => onReschedule(a)}
-              className="btn-outline"
+              disabled={locked}
+              className="btn-outline disabled:cursor-not-allowed disabled:opacity-50"
               aria-label="Reprogramar cita"
             >
               <CalendarClock className="h-4 w-4" aria-hidden="true" />
@@ -79,7 +98,8 @@ function AppointmentCard({ a, upcoming, timezone, onCalendar, onReschedule, onCa
             </button>
             <button
               onClick={() => onCancel(a._id)}
-              className="btn-danger"
+              disabled={locked}
+              className="btn-danger disabled:cursor-not-allowed disabled:opacity-50"
               aria-label="Cancelar cita"
             >
               <Trash2 className="h-4 w-4" aria-hidden="true" />
@@ -161,6 +181,8 @@ export default function MyAppointments() {
 
   const cardProps = {
     timezone,
+    cancellationHours: salon.cancellationHours ?? 0,
+    now,
     onCalendar: addToCalendar,
     onReschedule: setRescheduling,
     onCancel: cancel,

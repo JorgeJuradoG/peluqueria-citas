@@ -9,6 +9,7 @@ import {
   RADII,
   STAFF_TERMS,
 } from "../utils/branding.js";
+import { CANCELLATION_HOURS } from "../utils/cancellation.js";
 
 const brandingSchema = new mongoose.Schema(
   {
@@ -42,7 +43,8 @@ const salonSchema = new mongoose.Schema(
 
     // Cómo llama la peluquería a su equipo en toda la web
     staffTerm: { type: String, enum: STAFF_TERMS, default: DEFAULT_STAFF_TERM },
-
+        // Horas de antelación mínima para que un cliente cancele o mueva su cita (0 = sin límite)
+    cancellationHours: { type: Number, enum: CANCELLATION_HOURS, default: 0 },
     tagline: { type: String, trim: true, maxlength: 120, default: "" },
     heroTitle: { type: String, trim: true, maxlength: 80, default: "" },
     about: { type: String, trim: true, maxlength: 600, default: "" },

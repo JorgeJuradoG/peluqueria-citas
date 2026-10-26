@@ -13,6 +13,7 @@ import useTerms from "../hooks/useTerms";
 import { formatDateTime } from "../lib/dates";
 import { buildICS, downloadICS, eventFromAppointment } from "../lib/calendar";
 import { countdown, greeting } from "../lib/time";
+import { canChange, policyText } from "../lib/policy";
 
 export default function ClientHome() {
   const { user } = useAuth();
@@ -76,6 +77,10 @@ export default function ClientHome() {
     .sort((x, y) => new Date(x.start) - new Date(y.start));
   const [next, ...others] = upcoming;
 
+  // Dentro del plazo mínimo, el cliente ya no puede cancelar ni mover la cita
+  const hours = salon.cancellationHours ?? 0;
+  const locked = Boolean(next) && !canChange(next.start, hours, now);
+
   return (
     <div className="mx-auto max-w-3xl">
       <h1 className="text-4xl font-bold">
@@ -121,15 +126,28 @@ export default function ClientHome() {
               <CalendarPlus className="h-4 w-4" aria-hidden="true" />
               Añadir al calendario
             </button>
-            <button onClick={() => setRescheduling(next)} className="btn-outline">
+            <button
+              onClick={() => setRescheduling(next)}
+              disabled={locked}
+              className="btn-outline disabled:cursor-not-allowed disabled:opacity-50"
+            >
               <CalendarClock className="h-4 w-4" aria-hidden="true" />
               Reprogramar
             </button>
-            <button onClick={() => cancel(next)} className="btn-danger">
+            <button
+              onClick={() => cancel(next)}
+              disabled={locked}
+              className="btn-danger disabled:cursor-not-allowed disabled:opacity-50"
+            >
               <Trash2 className="h-4 w-4" aria-hidden="true" />
               Cancelar
             </button>
           </div>
+          {locked && (
+            <p className="mt-3 text-sm text-amber-700">
+              {policyText(hours)} Contacta con la peluquería para cambiarla.
+            </p>
+          )}
         </section>
       )}
 

@@ -21,6 +21,7 @@ import { InstagramIcon } from "../components/SocialLinks";
 import BrandingPicker, { BrandingPreview } from "../components/BrandingPicker";
 import { ErrorAlert, Field } from "../components/FormField";
 import { DEFAULT_BRANDING, ensureFont } from "../lib/theme";
+import { CANCELLATION_OPTIONS } from "../lib/policy";
 
 const PHONE_RE = /^\+?[\d\s-]{9,15}$/;
 const BRAND_KEYS = Object.keys(DEFAULT_BRANDING);
@@ -29,6 +30,7 @@ const BRAND_KEYS = Object.keys(DEFAULT_BRANDING);
 const toState = (s) => ({
   name: s.name ?? "",
   staffTerm: s.staffTerm ?? "estilista",
+  cancellationHours: s.cancellationHours ?? 0,
   heroTitle: s.heroTitle ?? "",
   tagline: s.tagline ?? "",
   about: s.about ?? "",
@@ -52,6 +54,7 @@ const fingerprint = (v) =>
   JSON.stringify([
     v.name,
     v.staffTerm,
+    v.cancellationHours,
     v.heroTitle,
     v.tagline,
     v.about,
@@ -216,6 +219,28 @@ export default function Appearance() {
               value={form.branding}
               onChange={(branding) => setForm({ ...form, branding })}
             />
+          </Section>
+
+          <Section
+            title="Política de cancelación"
+            text="Hasta cuándo pueden tus clientes cancelar o mover su cita. Tu equipo puede cancelar siempre."
+          >
+            <label className="block">
+              <span className="label">Antelación mínima</span>
+              <select
+                className="input max-w-xs"
+                value={form.cancellationHours}
+                onChange={(e) =>
+                  setForm({ ...form, cancellationHours: Number(e.target.value) })
+                }
+              >
+                {CANCELLATION_OPTIONS.map((o) => (
+                  <option key={o.value} value={o.value}>
+                    {o.label}
+                  </option>
+                ))}
+              </select>
+            </label>
           </Section>
 
           <Section title="Tu portada">

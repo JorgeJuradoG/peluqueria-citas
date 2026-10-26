@@ -10,6 +10,7 @@ import {
 } from "../services/appointmentMails.js";
 import { DateTime } from "luxon";
 import { initialReminderSentAt } from "../utils/reminders.js";
+import { canClientChange, cancellationMessage } from "../utils/cancellation.js";
 
 const ACTIVE_STATUSES = ["pending", "confirmed"];
 
@@ -103,6 +104,14 @@ export async function cancelAppointment(req, res) {
   if (!isOwner && req.user.role !== "admin") {
     return res.status(403).json({ message: "No puedes cancelar esta cita" });
   }
+
+  // Los clientes respetan la antelación mínima; el personal puede cancelar siempre
+  if (req.user.role === "client" && !canClientChange(appointment.start, req.salon.cancellationHours)) {
+    return res
+      .status(403)
+      .json({ message: cancellationMessage(req.salon.cancellationHours, req.salon.phone) });
+  }
+
   appointment.status = "cancelled";
   await appointment.save();
 
@@ -231,6 +240,13 @@ export async function rescheduleAppointment(req, res) {
     return res.status(400).json({ message: "No se puede reprogramar una cita pasada" });
   }
 
+  // La antelación se mide sobre la hora ACTUAL de la cita, no sobre la nueva
+  if (req.user.role === "client" && !canClientChange(appointment.start, req.salon.cancellationHours)) {
+    return res
+      .status(403)
+      .json({ message: cancellationMessage(req.salon.cancellationHours, req.salon.phone) });
+  }
+
   const newStart = new Date(req.body.start);
   if (isNaN(newStart.getTime()) || newStart <= new Date()) {
     return res.status(400).json({ message: "La nueva fecha debe ser válida y futura" });
@@ -279,7 +295,8 @@ export async function rescheduleAppointment(req, res) {
 
   res.json(appointment);
 }
-  // Staff: citas de hoy (todo el equipo si es admin, solo las suyas si es estilista)
+
+// Staff: citas de hoy (todo el equipo si es admin, solo las suyas si es estilista)
 // y la siguiente cita abierta (puede ser de otro día o estar en curso)
 export async function getToday(req, res) {
   const salon = req.salon._id;

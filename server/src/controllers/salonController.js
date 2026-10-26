@@ -27,6 +27,7 @@ function publicSalon(salon) {
     timezone: s.timezone,
     branding: s.branding,
     staffTerm: s.staffTerm,
+    cancellationHours: s.cancellationHours ?? 0,
     tagline: s.tagline,
     heroTitle: s.heroTitle,
     about: s.about,
@@ -143,6 +144,7 @@ export async function updateSalonSettings(req, res) {
   salon.name = name;
   salon.branding = branding.value;
   salon.staffTerm = profile.value.staffTerm;
+  salon.cancellationHours = profile.value.cancellationHours;
   salon.tagline = profile.value.tagline;
   salon.heroTitle = profile.value.heroTitle;
   salon.about = profile.value.about;
