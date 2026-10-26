@@ -1,6 +1,7 @@
 import { Link, Navigate, useLocation } from "react-router-dom";
 import { Check } from "lucide-react";
 import Confetti from "../components/Confetti";
+import PolicyNotice from "../components/PolicyNotice";
 import { useSalon } from "../context/SalonContext";
 import { formatDateTime } from "../lib/dates";
 import {
@@ -67,6 +68,8 @@ export default function Booked() {
             </p>
           )}
         </dl>
+
+        <PolicyNotice className="mt-4 text-left" />
 
         <div className="mt-6 space-y-3">
           <button

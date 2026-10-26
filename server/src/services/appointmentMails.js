@@ -81,6 +81,24 @@ function whereText(salon) {
   return salon.address ? `\nDónde: ${salon.address}` : "";
 }
 
+// Política de cancelación: solo si la peluquería tiene un límite (0 = sin límite)
+function policySentence(salon) {
+  const h = salon.cancellationHours ?? 0;
+  return h > 0 ? `Puedes cancelar o cambiar tu cita hasta ${h} horas antes.` : "";
+}
+
+function policyHtml(salon) {
+  const s = policySentence(salon);
+  return s
+    ? `<p style="margin:16px 0 0;padding:10px 12px;background:#faf7f2;border-radius:8px;font-size:13px;color:#57534e"><b>Política de cancelación.</b> ${esc(s)}</p>`
+    : "";
+}
+
+function policyText(salon) {
+  const s = policySentence(salon);
+  return s ? `\n\nPolítica de cancelación: ${s}` : "";
+}
+
 // Firma de los correos en texto plano
 export function textSignature(salon) {
   return (
@@ -118,6 +136,7 @@ export const sendAppointmentConfirmation = safe(async (appointmentId, salon) => 
        ${whereRow(salon)}
        ${row("Precio", `${a.service.price} €`)}
      </table>
+     ${policyHtml(salon)}
      ${button(link, "Ver o cambiar mi cita", salon)}`
   );
 
@@ -128,7 +147,7 @@ export const sendAppointmentConfirmation = safe(async (appointmentId, salon) => 
     html,
     text:
       `Tu cita está confirmada\n\n${when}\n${a.service.name} con ${a.stylist.user.name} (${a.service.price} €)` +
-      `${whereText(salon)}\n\nGestiona tu cita: ${link}${textSignature(salon)}`,
+      `${whereText(salon)}${policyText(salon)}\n\nGestiona tu cita: ${link}${textSignature(salon)}`,
   });
 });
 
@@ -208,9 +227,10 @@ export const sendAppointmentRescheduled = safe(async (appointmentId, salon, oldS
         "Tu cita ha cambiado de hora",
         `<p style="color:#1c1917">Hola ${esc(a.client.name)}, estos son los nuevos datos:</p>
          ${details}
+         ${policyHtml(salon)}
          ${button(link, "Ver mi cita", salon)}`
       ),
-      text: `Tu cita ha cambiado de hora\n\nAntes: ${oldWhen}\nAhora: ${newWhen}\n${a.service.name} con ${a.stylist.user.name}${whereText(salon)}\n\n${link}${textSignature(salon)}`,
+      text: `Tu cita ha cambiado de hora\n\nAntes: ${oldWhen}\nAhora: ${newWhen}\n${a.service.name} con ${a.stylist.user.name}${whereText(salon)}${policyText(salon)}\n\n${link}${textSignature(salon)}`,
     });
   }
 
@@ -255,8 +275,9 @@ export const sendAppointmentReminder = safe(async (appointmentId, salon) => {
          ${whereRow(salon)}
        </table>
        <p style="color:#78716c;font-size:13px">Si no puedes venir, cancélala o cámbiala para dejar el hueco a otra persona.</p>
+       ${policyHtml(salon)}
        ${button(link, "Gestionar mi cita", salon)}`
     ),
-    text: `Te recordamos tu próxima cita\n\n${when}\n${a.service.name} con ${a.stylist.user.name}${whereText(salon)}\n\nGestiona tu cita: ${link}${textSignature(salon)}`,
+    text: `Te recordamos tu próxima cita\n\n${when}\n${a.service.name} con ${a.stylist.user.name}${whereText(salon)}${policyText(salon)}\n\nGestiona tu cita: ${link}${textSignature(salon)}`,
   });
 });
