@@ -1,10 +1,10 @@
 # Citas — gestor de reservas en tiempo real para peluquerías
 
-[![Tests](https://github.com/JorgeJuradoG/peluqueria-citas/actions/workflows/tests.yml/badge.svg)](https://github.com/TU_USUARIO/peluqueria-citas/actions/workflows/tests.yml)
+[![Tests](https://github.com/JorgeJuradoG/peluqueria-citas/actions/workflows/tests.yml/badge.svg)](https://github.com/JorgeJuradoG/peluqueria-citas/actions/workflows/tests.yml)
 
 Aplicación web **multi-peluquería**: cada negocio crea su espacio, da de alta a su equipo y comparte un enlace para que sus clientes reserven. Los huecos libres se actualizan **en tiempo real** y cada peluquería tiene su propia imagen (color, tipografía, estilo y contenido).
 
-![Demo: dos ventanas sincronizadas en tiempo real](docs/demo-tiempo-real.gif)
+![Demo: dos ventanas sincronizadas en tiempo real](docs/demo-tiempo-real.gif) > La demo en línea no usa contraseñas: se entra con los botones de rol del banner. Las cuentas con contraseña (`Demo1234`) son las del `seed` local.
 
 ## Qué hace
 
@@ -45,7 +45,7 @@ Aplicación web **multi-peluquería**: cada negocio crea su espacio, da de alta 
 Necesitas Node 22 y una base de datos MongoDB (un clúster gratuito de Atlas sirve).
 
 ```bash
-git clone https://github.com/TU_USUARIO/peluqueria-citas.git
+git clone https://github.com/JorgeJuradoG/peluqueria-citas.git
 cd peluqueria-citas
 
 # Backend
@@ -132,4 +132,4 @@ server/   Express + Mongoose
 
 ## Licencia
 
-MIT © Tu nombre
+MIT © Jorge Jurado
