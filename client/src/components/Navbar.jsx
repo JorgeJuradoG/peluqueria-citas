@@ -13,6 +13,7 @@ import {
   Palette,
   Scissors,
   Settings,
+  Store,
   TrendingUp,
   UserRound,
   Users,
@@ -46,6 +47,7 @@ function adminLinks(user, terms) {
     { to: "/admin/estilistas", label: terms.Many, icon: Users },
     { to: "/admin/estadisticas", label: "Estadísticas", icon: TrendingUp },
     { to: "/admin/apariencia", label: "Apariencia", icon: Palette },
+    { to: "/admin/negocio", label: "Mi negocio", icon: Store },
   ];
 }
 

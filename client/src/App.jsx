@@ -27,6 +27,8 @@ import Appearance from "./pages/Appearance";
 import Legal from "./pages/Legal";
 import Stats from "./pages/Stats";
 import Home from "./pages/Home";
+import AdminAccount from "./pages/AdminAccount";
+
 
 function PlatformApp() {
   return (
@@ -116,6 +118,14 @@ function SalonApp() {
                 element={
                   <ProtectedRoute roles={["admin"]}>
                     <Stats />
+                  </ProtectedRoute>
+                }
+              />
+                            <Route
+                path="/admin/negocio"
+                element={
+                  <ProtectedRoute roles={["admin"]}>
+                    <AdminAccount />
                   </ProtectedRoute>
                 }
               />

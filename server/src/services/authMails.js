@@ -70,3 +70,24 @@ export async function sendEmailVerification(user, salon, rawToken) {
     return false;
   }
 }
+
+  // Al cerrar una peluquería: confirmación de que sus datos se han borrado
+export async function sendSalonClosed(recipient, salon) {
+  try {
+    return await sendMail({
+      to: recipient.email,
+      fromName: salon.name,
+      subject: `Tu peluquería ${salon.name} se ha cerrado`,
+      html: layout(
+        salon,
+        "Tu peluquería se ha cerrado",
+        `<p style="color:#1c1917">Hola ${esc(recipient.name)}, hemos cerrado <b>${esc(salon.name)}</b> y borrado sus datos: servicios, equipo, clientes y citas.</p>
+         <p style="color:#78716c;font-size:13px;margin-top:20px">Si no has sido tú, responde a este correo cuanto antes. Si querías conservar una copia, tendrías que haberla descargado antes del cierre.</p>`
+      ),
+      text: `Hola ${recipient.name}, hemos cerrado ${salon.name} y borrado sus datos: servicios, equipo, clientes y citas.\n\nSi no has sido tú, responde a este correo cuanto antes.${textSignature(salon)}`,
+    });
+  } catch (err) {
+    console.error("[mail]", err.message);
+    return false;
+  }
+}
