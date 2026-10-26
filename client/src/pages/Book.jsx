@@ -17,6 +17,8 @@ import Avatar from "../components/Avatar";
 import { useConfirm, useToast } from "../context/UIContext";
 import { useSalon } from "../context/SalonContext";
 import { todayISO } from "../lib/dates";
+import PolicyNotice from "../components/PolicyNotice";
+
 
 // El segundo paso lleva el término que use la peluquería (estilista, barbero...)
 const stepNames = (t) => ["Servicio", t.One, "Día y hora"];
@@ -219,7 +221,7 @@ export default function Book() {
     <div className="mx-auto max-w-3xl">
       <h1 className="text-4xl font-bold">Reservar cita</h1>
       <p className="mt-1 text-ink/70">Tres pasos y listo.</p>
-
+      <PolicyNotice className="mt-4" />
       <div className="mt-6">
         <Progress current={current} names={stepNames(terms)} />
       </div>

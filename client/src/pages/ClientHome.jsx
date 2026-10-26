@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { CalendarClock, CalendarPlus, Clock, Scissors, Trash2, UserRound } from "lucide-react";
 import api from "../services/api";
 import Avatar from "../components/Avatar";
+import PolicyNotice from "../components/PolicyNotice";
 import RescheduleModal from "../components/RescheduleModal";
 import { Skeleton } from "../components/Skeleton";
 import { useAuth } from "../context/AuthContext";
@@ -13,7 +14,7 @@ import useTerms from "../hooks/useTerms";
 import { formatDateTime } from "../lib/dates";
 import { buildICS, downloadICS, eventFromAppointment } from "../lib/calendar";
 import { countdown, greeting } from "../lib/time";
-import { canChange, policyText } from "../lib/policy";
+import { canChange } from "../lib/policy";
 
 export default function ClientHome() {
   const { user } = useAuth();
@@ -87,6 +88,8 @@ export default function ClientHome() {
         {greeting(now, salon.timezone)}, {user.name.split(" ")[0]}
       </h1>
 
+      <PolicyNotice className="mt-4" />
+
       {list === null && <Skeleton className="mt-6 h-48 w-full" />}
 
       {list && !next && (
@@ -145,7 +148,7 @@ export default function ClientHome() {
           </div>
           {locked && (
             <p className="mt-3 text-sm text-amber-700">
-              {policyText(hours)} Contacta con la peluquería para cambiarla.
+              Ya no se puede cambiar online. Contacta con la peluquería.
             </p>
           )}
         </section>

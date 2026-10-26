@@ -13,13 +13,14 @@ import {
 import api from "../services/api";
 import StatusBadge from "../components/StatusBadge";
 import RescheduleModal from "../components/RescheduleModal";
+import PolicyNotice from "../components/PolicyNotice";
 import { AppointmentSkeleton } from "../components/Skeleton";
 import { useConfirm, useToast } from "../context/UIContext";
 import { useSalon } from "../context/SalonContext";
 import useTerms from "../hooks/useTerms";
 import { formatDateTime } from "../lib/dates";
 import { buildICS, downloadICS, eventFromAppointment } from "../lib/calendar";
-import { canChange, policyText } from "../lib/policy";
+import { canChange } from "../lib/policy";
 
 function AppointmentCard({
   a,
@@ -68,7 +69,7 @@ function AppointmentCard({
           </p>
           {locked && (
             <p className="mt-2 text-xs text-amber-700">
-              {policyText(cancellationHours)} Contacta con la peluquería para cambiarla.
+              Ya no se puede cambiar online. Contacta con la peluquería.
             </p>
           )}
         </div>
@@ -203,6 +204,8 @@ export default function MyAppointments() {
           {error}
         </p>
       )}
+
+      <PolicyNotice className="mt-6" />
 
       {loading && (
         <ul className="mt-6 space-y-3">
