@@ -1,5 +1,5 @@
-const CREAM = "#faf7f2"; // fondo claro
-const INK = "#1c1917"; // texto oscuro
+const CREAM = "#ffffff"; // fondo claro
+const INK = "#17191c"; // texto oscuro
 
 export const DEFAULT_BRANDING = {
   accent: "#b08d57",
@@ -24,7 +24,7 @@ export const PALETTES = [
 ];
 
 export const FONTS = {
-  classic: { label: "Clásica", family: '"Playfair Display", Georgia, serif', query: null }, // ya carga en index.html
+  classic: { label: "Clásica", family: '"Source Serif 4", Georgia, serif', query: null }, // ya carga en index.html
   modern: { label: "Moderna", family: '"Montserrat", system-ui, sans-serif', query: "Montserrat:wght@600;700" },
   warm: { label: "Cálida", family: '"Lora", Georgia, serif', query: "Lora:wght@600;700" },
   elegant: {
@@ -37,7 +37,7 @@ export const FONTS = {
 
 export const RADII = {
   sharp: { label: "Rectas", md: "0.125rem", lg: "0.125rem", xl: "0.25rem", "2xl": "0.25rem", "3xl": "0.375rem" },
-  soft: { label: "Suaves", md: "0.375rem", lg: "0.5rem", xl: "0.75rem", "2xl": "1rem", "3xl": "1.5rem" },
+  soft: { label: "Suaves", md: "0.5rem", lg: "0.75rem", xl: "1rem", "2xl": "1.25rem", "3xl": "1.5rem" },
   round: { label: "Redondas", md: "0.625rem", lg: "0.875rem", xl: "1.25rem", "2xl": "1.75rem", "3xl": "2.25rem" },
 };
 
@@ -95,6 +95,12 @@ export const HERO_STYLES = {
 
 // Estilos completos de partida
 export const PRESETS = [
+  {
+    key: "editorial",
+    label: "Editorial",
+    text: "Sereno, blanco y melocotón",
+    branding: { accent: "#fbe1d1", font: "classic", radius: "soft", icon: "scissors", hero: "light", decor: "none", cards: "flat" },
+  },
   {
     key: "classic",
     label: "Clásico",

@@ -35,9 +35,9 @@ const RAIL = 56; // ancho de la columna de horas
 // Bloques de color sólido: tapan por completo las líneas de la rejilla
 const BLOCK = {
   confirmed:
-    "border-gold-dark bg-gold text-[#1c1917] hover:brightness-95",
+    "border-gold-dark bg-gold text-[#17191c] hover:brightness-95",
   pending:
-    "border-amber-600 bg-amber-400 text-[#1c1917] hover:brightness-95",
+    "border-amber-600 bg-amber-400 text-[#17191c] hover:brightness-95",
   completed:
     "border-stone-400 bg-sand text-ink/70 hover:brightness-95",
 };
@@ -288,7 +288,7 @@ function FocusCard({ appointments, now, timezone, onOpen, onComplete }) {
   return (
     <div
       className="relative mt-6 overflow-hidden rounded-2xl p-5 shadow-sm sm:p-6"
-      style={{ background: "linear-gradient(135deg,#1c1917 0%,#2b2622 100%)", color: "#faf7f2" }}
+      style={{ background: "linear-gradient(135deg,#17191c 0%,#24272c 100%)", color: "#ffffff" }}
     >
       <span
         aria-hidden="true"
@@ -327,7 +327,7 @@ function FocusCard({ appointments, now, timezone, onOpen, onComplete }) {
             {current && (
               <button
                 onClick={() => onComplete(current)}
-                className="flex items-center gap-2 rounded-lg bg-gold px-4 py-2 text-sm font-semibold text-[#1c1917] transition hover:brightness-110"
+                className="flex items-center gap-2 rounded-lg bg-gold px-4 py-2 text-sm font-semibold text-[#17191c] transition hover:brightness-110"
               >
                 <CheckCheck className="h-4 w-4" aria-hidden="true" />
                 Completar
@@ -423,7 +423,7 @@ function TimeGrid({ days, appointments, timezone, now, today, onOpen, onPickDay 
                     </p>
                     <p
                       className={`mx-auto mt-1 flex h-9 w-9 items-center justify-center rounded-full font-display text-lg font-semibold ${
-                        isT ? "bg-gold text-[#1c1917]" : ""
+                        isT ? "bg-gold text-[#17191c]" : ""
                       }`}
                     >
                       {Number(d.slice(8))}
@@ -465,7 +465,7 @@ function TimeGrid({ days, appointments, timezone, now, today, onOpen, onPickDay 
               {showNow && (
                 <span
                   aria-hidden="true"
-                  className="absolute right-1 z-20 -translate-y-1/2 rounded bg-gold px-1.5 py-0.5 text-[11px] font-bold leading-none tabular-nums text-[#1c1917]"
+                  className="absolute right-1 z-20 -translate-y-1/2 rounded bg-gold px-1.5 py-0.5 text-[11px] font-bold leading-none tabular-nums text-[#17191c]"
                   style={{ top: toPx(nowMin) }}
                 >
                   {hm(nowMin)}
@@ -792,7 +792,7 @@ export default function Agenda() {
             <h2 className="text-lg font-semibold capitalize sm:text-xl">
               {view === "day" ? longDate(date) : rangeLabel(weekDays)}
               {onCurrent && (
-                <span className="ml-2 rounded-full bg-gold px-2 py-0.5 align-middle text-xs font-semibold normal-case text-[#1c1917]">
+                <span className="ml-2 rounded-full bg-gold px-2 py-0.5 align-middle font-sans text-xs font-semibold normal-case tracking-normal text-[#17191c]">
                   {view === "day" ? "Hoy" : "Esta semana"}
                 </span>
               )}

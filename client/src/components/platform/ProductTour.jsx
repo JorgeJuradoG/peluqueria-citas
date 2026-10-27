@@ -233,7 +233,7 @@ function EmailMock() {
             </div>
           ))}
         </dl>
-        <span className="mt-4 inline-block rounded-lg bg-gold px-4 py-2 text-sm font-bold text-[#1c1917]">
+        <span className="mt-4 inline-block rounded-lg bg-gold px-4 py-2 text-sm font-bold text-[#17191c]">
           Ver o cambiar mi cita
         </span>
       </div>

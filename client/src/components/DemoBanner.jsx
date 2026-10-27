@@ -58,7 +58,7 @@ export default function DemoBanner() {
                 aria-pressed={current}
                 className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium transition ${
                   current
-                    ? "border-gold bg-gold text-[#1c1917]"
+                    ? "border-gold bg-gold text-[#17191c]"
                     : "border-cream/30 hover:border-gold hover:text-gold"
                 }`}
               >
@@ -73,7 +73,7 @@ export default function DemoBanner() {
           })}
           <a
             href="/crear-peluqueria"
-            className="inline-flex items-center gap-1.5 rounded-full bg-gold px-3 py-1 text-xs font-semibold text-[#1c1917] transition hover:bg-cream"
+            className="inline-flex items-center gap-1.5 rounded-full bg-gold px-3 py-1 text-xs font-semibold text-[#17191c] transition hover:bg-cream"
           >
             <Store className="h-3.5 w-3.5" aria-hidden="true" />
             Crear la mía

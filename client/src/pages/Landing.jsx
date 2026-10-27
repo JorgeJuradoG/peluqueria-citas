@@ -304,7 +304,7 @@ export default function Landing() {
               Reservas en tiempo real
             </p>
             <h1 className="mt-6 text-4xl font-bold leading-[1.1] sm:text-6xl">
-              Llena tu agenda sin coger el teléfono
+              Llena tu agenda <em>sin coger</em> el teléfono
             </h1>
             <p className="mt-6 max-w-xl text-lg text-ink/70">
               Tus clientes reservan solos desde el móvil, ven solo los huecos libres y reciben su

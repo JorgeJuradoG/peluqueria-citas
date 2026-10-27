@@ -170,7 +170,7 @@ export default function AdminHome() {
         <section className="card mt-6 animate-pop border-gold bg-gold/10">
           <div className="flex items-start justify-between gap-3">
             <div className="flex items-start gap-3">
-              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-gold text-[#1c1917]">
+              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-gold text-[#17191c]">
                 <PartyPopper className="h-5 w-5" aria-hidden="true" />
               </span>
               <div>

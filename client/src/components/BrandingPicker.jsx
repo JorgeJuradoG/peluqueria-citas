@@ -39,7 +39,7 @@ function Choice({ selected, onClick, label, children }) {
 const sameBranding = (a, b) =>
   Object.keys(DEFAULT_BRANDING).every((k) => String(a[k]).toLowerCase() === String(b[k]).toLowerCase());
 
-const HERO_SWATCH = { dark: "#1c1917", light: "#ece5d8" };
+const HERO_SWATCH = { dark: "#17191c", light: "#f2f2f3" };
 
 export default function BrandingPicker({ value, onChange }) {
   const b = resolveBranding(value);
@@ -112,7 +112,7 @@ export default function BrandingPicker({ value, onChange }) {
                   selected ? "ring-2 ring-ink" : "ring-1 ring-ink/20"
                 }`}
               >
-                {selected && <Check className="h-4 w-4 text-[#1c1917]" aria-hidden="true" />}
+                {selected && <Check className="h-4 w-4 text-[#17191c]" aria-hidden="true" />}
               </button>
             );
           })}

@@ -86,7 +86,7 @@ export default function StaffHome() {
                   </p>
                 </div>
                 <div className="text-right">
-                  <p className="inline-flex items-center gap-1.5 rounded-full bg-gold px-3 py-1 text-xs font-semibold text-[#1c1917]">
+                  <p className="inline-flex items-center gap-1.5 rounded-full bg-gold px-3 py-1 text-xs font-semibold text-[#17191c]">
                     <Clock className="h-3.5 w-3.5" aria-hidden="true" />
                     {countdown(next.start, now)}
                   </p>

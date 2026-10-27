@@ -102,7 +102,7 @@ export default function Services() {
             <Reveal key={s._id} delay={(i % 3) * 80}>
               <li className="card group h-full transition hover:-translate-y-1 hover:border-gold hover:shadow-md">
                 <div className="flex items-start justify-between gap-3">
-                  <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-sand text-gold-dark transition group-hover:bg-gold group-hover:text-[#1c1917]">
+                  <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-sand text-gold-dark transition group-hover:bg-gold group-hover:text-[#17191c]">
                     <Scissors className="h-5 w-5" aria-hidden="true" />
                   </span>
                   <p className="font-display text-2xl text-gold-dark">{s.price} €</p>

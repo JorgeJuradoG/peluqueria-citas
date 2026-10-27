@@ -243,7 +243,7 @@ export default function Book() {
                 className={choiceClass(serviceId === s._id)}
               >
                 {serviceId === s._id && (
-                  <span className="absolute right-3 top-3 flex h-5 w-5 items-center justify-center rounded-full bg-gold text-[#1c1917]">
+                  <span className="absolute right-3 top-3 flex h-5 w-5 items-center justify-center rounded-full bg-gold text-[#17191c]">
                     <Check className="h-3 w-3" aria-hidden="true" />
                   </span>
                 )}
@@ -281,7 +281,7 @@ export default function Book() {
                       )}
                     </span>
                     {stylistId === s._id && (
-                      <span className="ml-auto flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-gold text-[#1c1917]">
+                      <span className="ml-auto flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-gold text-[#17191c]">
                         <Check className="h-3 w-3" aria-hidden="true" />
                       </span>
                     )}

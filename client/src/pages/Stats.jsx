@@ -272,7 +272,7 @@ export default function Stats() {
           </div>
 
           <div className="card flex flex-wrap items-center gap-4 border-gold/50 bg-gold/10">
-            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gold text-[#1c1917]">
+            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gold text-[#17191c]">
               <CalendarClock className="h-5 w-5" aria-hidden="true" />
             </span>
             <div>
