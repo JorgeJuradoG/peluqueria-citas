@@ -205,12 +205,12 @@ export default function Navbar() {
                 {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
               </button>
             </>
-          ) : (
+          ) : pathname !== "/login" ? (
             <Link to="/login" className="btn-primary">
               <LogIn className="h-4 w-4" aria-hidden="true" />
               Entrar
             </Link>
-          )}
+          ) : null}
         </div>
       </nav>
 

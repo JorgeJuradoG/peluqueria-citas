@@ -1,6 +1,7 @@
+// Tonos apagados, acordes con la paleta editorial; todos con contraste suficiente para texto blanco
 const COLORS = [
-  "#7c2d12", "#065f46", "#1e40af", "#6b21a8",
-  "#9f1239", "#115e59", "#92400e", "#3f3f46",
+  "#8a4b38", "#4f6146", "#475a75", "#6e5470",
+  "#7d6233", "#3d5c58", "#6b5a4e", "#4f5863",
 ];
 
 const SIZES = {

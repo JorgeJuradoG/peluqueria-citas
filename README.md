@@ -125,7 +125,7 @@ server/   Express + Mongoose
 - El índice único evita las reservas simultáneas del *mismo* inicio, pero no los solapamientos parciales simultáneos (p. ej. 10:00 y 10:15 a la vez). Una solución completa usaría una transacción o un bloqueo por estilista.
 - Los recordatorios usan `node-cron` dentro del proceso: necesitan un servidor siempre activo (no sirven en hosting que duerme).
 - El correo se envía sin cola de reintentos.
-- Pendiente: lista de espera y valoraciones.
+- El listado completo de lo que falta para venderla está en [docs/PENDIENTES.md](docs/PENDIENTES.md).
 
 ## Licencia
 

@@ -21,3 +21,13 @@ export function formatDateTime(iso, tz) {
     timeZone: tz,
   });
 }
+
+// «miércoles, 28 de octubre» (sin hora)
+export function formatLongDate(iso, tz) {
+  return new Date(iso).toLocaleDateString("es-ES", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    timeZone: tz,
+  });
+}

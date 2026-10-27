@@ -1,9 +1,12 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
+  ArrowRight,
+  CalendarDays,
   Check,
   CalendarX,
   Clock,
+  Euro,
   Loader2,
   Moon,
   Scissors,
@@ -14,11 +17,11 @@ import api from "../services/api";
 import useStylistSocket from "../hooks/useStylistSocket";
 import useTerms from "../hooks/useTerms";
 import Avatar from "../components/Avatar";
-import { useConfirm, useToast } from "../context/UIContext";
+import Modal from "../components/Modal";
+import { useToast } from "../context/UIContext";
 import { useSalon } from "../context/SalonContext";
-import { todayISO } from "../lib/dates";
+import { formatLongDate, formatTime, todayISO } from "../lib/dates";
 import PolicyNotice from "../components/PolicyNotice";
-
 
 // El segundo paso lleva el término que use la peluquería (estilista, barbero...)
 const stepNames = (t) => ["Servicio", t.One, "Día y hora"];
@@ -52,10 +55,10 @@ function Progress({ current, names }) {
                 aria-current={active ? "step" : undefined}
                 className={`flex h-8 w-8 items-center justify-center rounded-full text-sm font-medium transition ${
                   done
-                    ? "bg-emerald-600 text-white"
-                    : active
                     ? "bg-ink text-cream"
-                    : "bg-sand text-ink/60"
+                    : active
+                    ? "bg-surface text-ink ring-2 ring-ink"
+                    : "bg-sand text-ink/50"
                 }`}
               >
                 {done ? <Check className="h-4 w-4" aria-hidden="true" /> : i + 1}
@@ -72,7 +75,7 @@ function Progress({ current, names }) {
               <span
                 aria-hidden="true"
                 className={`mx-3 h-0.5 flex-1 rounded transition ${
-                  done ? "bg-emerald-600" : "bg-sand"
+                  done ? "bg-ink" : "bg-sand"
                 }`}
               />
             )}
@@ -83,9 +86,9 @@ function Progress({ current, names }) {
   );
 }
 
-function Step({ icon: Icon, title, children }) {
+function Step({ icon: Icon, title, children, ref }) {
   return (
-    <section className="card animate-fade-up">
+    <section ref={ref} className="card animate-fade-up scroll-mt-24">
       <div className="flex items-center gap-3">
         <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-gold/15 text-gold-dark">
           <Icon className="h-5 w-5" aria-hidden="true" />
@@ -103,6 +106,77 @@ const choiceClass = (selected) =>
       ? "border-gold bg-gold/10 ring-2 ring-gold/30"
       : "border-sand hover:-translate-y-0.5 hover:border-gold hover:shadow-sm"
   }`;
+
+// Baja hasta el paso siguiente (sin animación si el sistema la tiene desactivada)
+function scrollToStep(ref) {
+  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  ref.current?.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
+}
+
+function SummaryRow({ icon: Icon, label, children }) {
+  return (
+    <div className="flex items-start gap-3 py-3">
+      <Icon className="mt-0.5 h-4 w-4 shrink-0 text-ink/40" aria-hidden="true" />
+      <dt className="w-24 shrink-0 text-sm text-ink/60">{label}</dt>
+      <dd className="min-w-0 font-medium">{children}</dd>
+    </div>
+  );
+}
+
+// Resumen completo antes de confirmar: el último vistazo del cliente
+function ConfirmBooking({ booking, timezone, staffTerm, onCancel, onConfirm }) {
+  const [saving, setSaving] = useState(false);
+  const { slot, service, stylist } = booking;
+  const end = new Date(new Date(slot.start).getTime() + service.durationMinutes * 60000);
+
+  async function confirm() {
+    setSaving(true);
+    const ok = await onConfirm();
+    if (!ok) setSaving(false);
+  }
+
+  return (
+    <Modal onClose={saving ? () => {} : onCancel} labelledBy="resumen-titulo">
+      <h2 id="resumen-titulo" className="text-2xl">Revisa tu cita</h2>
+      <p className="mt-1 text-sm text-ink/60">Comprueba los datos antes de confirmar.</p>
+
+      <dl className="mt-5 divide-y divide-ink/10 rounded-2xl bg-sand/60 px-4">
+        <SummaryRow icon={Scissors} label="Servicio">
+          {service.name}
+        </SummaryRow>
+        <SummaryRow icon={UserRound} label={staffTerm}>
+          {stylist.user.name}
+        </SummaryRow>
+        <SummaryRow icon={CalendarDays} label="Día">
+          <span className="inline-block capitalize-first">{formatLongDate(slot.start, timezone)}</span>
+        </SummaryRow>
+        <SummaryRow icon={Clock} label="Hora">
+          {slot.label} – {formatTime(end, timezone)}
+          <span className="font-normal text-ink/60"> · {service.durationMinutes} min</span>
+        </SummaryRow>
+        <SummaryRow icon={Euro} label="Precio">
+          {service.price} €<span className="font-normal text-ink/60"> · se paga en el local</span>
+        </SummaryRow>
+      </dl>
+
+      <PolicyNotice className="mt-4" />
+
+      <div className="mt-6 flex flex-wrap justify-end gap-3">
+        <button onClick={onCancel} disabled={saving} className="btn-outline">
+          Cambiar
+        </button>
+        <button onClick={confirm} disabled={saving} className="btn-primary">
+          {saving ? (
+            <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+          ) : (
+            <Check className="h-4 w-4" aria-hidden="true" />
+          )}
+          Confirmar reserva
+        </button>
+      </div>
+    </Modal>
+  );
+}
 
 function SlotGroup({ title, icon: Icon, slots, onPick }) {
   if (slots.length === 0) return null;
@@ -129,7 +203,6 @@ function SlotGroup({ title, icon: Icon, slots, onPick }) {
 
 export default function Book() {
   const navigate = useNavigate();
-  const confirm = useConfirm();
   const toast = useToast();
   const terms = useTerms();
   const { timezone } = useSalon();
@@ -142,6 +215,17 @@ export default function Book() {
   const [date, setDate] = useState(today);
   const [slots, setSlots] = useState([]);
   const [loadingSlots, setLoadingSlots] = useState(false);
+  const [booking, setBooking] = useState(null); // hueco elegido, pendiente de confirmar
+  const stylistStep = useRef(null);
+  const timeStep = useRef(null);
+
+  // Al completar un paso, la página baja sola al siguiente
+  useEffect(() => {
+    if (serviceId) scrollToStep(stylistStep);
+  }, [serviceId]);
+  useEffect(() => {
+    if (stylistId) scrollToStep(timeStep);
+  }, [stylistId]);
 
   useEffect(() => {
     api.get("/services").then((res) => setServices(res.data));
@@ -177,17 +261,17 @@ export default function Book() {
 
   useStylistSocket(stylistId, loadSlots);
 
-  async function reserve(slot) {
-    const service = services.find((s) => s._id === serviceId);
-    const stylist = stylists.find((s) => s._id === stylistId);
-
-    const ok = await confirm({
-      title: "Confirmar reserva",
-      message: `${service.name} con ${stylist.user.name} a las ${slot.label} (${service.price} €).`,
-      confirmText: "Reservar",
+  function pickSlot(slot) {
+    setBooking({
+      slot,
+      service: services.find((s) => s._id === serviceId),
+      stylist: stylists.find((s) => s._id === stylistId),
     });
-    if (!ok) return;
+  }
 
+  // Devuelve false si falla, para que el resumen vuelva a dejar pulsar
+  async function reserve() {
+    const { slot, service, stylist } = booking;
     try {
       const { data } = await api.post("/appointments", {
         stylistId,
@@ -206,9 +290,12 @@ export default function Book() {
           },
         },
       });
+      return true;
     } catch (err) {
       toast.error(err.response?.data?.message || "No se pudo reservar");
+      setBooking(null);
       loadSlots();
+      return false;
     }
   }
 
@@ -261,7 +348,7 @@ export default function Book() {
         </Step>
 
         {serviceId && (
-          <Step icon={UserRound} title={`Elige ${terms.one}`}>
+          <Step ref={stylistStep} icon={UserRound} title={`Elige ${terms.one}`}>
             {availableStylists.length === 0 ? (
               <p className="text-ink/60">Nadie ofrece este servicio por ahora.</p>
             ) : (
@@ -293,7 +380,7 @@ export default function Book() {
         )}
 
         {serviceId && stylistId && (
-          <Step icon={Clock} title="Elige día y hora">
+          <Step ref={timeStep} icon={Clock} title="Elige día y hora">
             <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-2">
               {days.map((iso) => {
                 const { weekday, day, month } = dayParts(iso);
@@ -346,15 +433,29 @@ export default function Book() {
                   <p className="text-sm text-ink/70">
                     Prueba con otra fecha u otro {terms.one}.
                   </p>
+                  <button onClick={() => setDate(addDays(date, 1))} className="btn-outline mt-4">
+                    Ver el día siguiente
+                    <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                  </button>
                 </div>
               )}
 
-              <SlotGroup title="Mañana" icon={Sun} slots={morning} onPick={reserve} />
-              <SlotGroup title="Tarde" icon={Moon} slots={afternoon} onPick={reserve} />
+              <SlotGroup title="Mañana" icon={Sun} slots={morning} onPick={pickSlot} />
+              <SlotGroup title="Tarde" icon={Moon} slots={afternoon} onPick={pickSlot} />
             </div>
           </Step>
         )}
       </div>
+
+      {booking && (
+        <ConfirmBooking
+          booking={booking}
+          timezone={timezone}
+          staffTerm={terms.One}
+          onCancel={() => setBooking(null)}
+          onConfirm={reserve}
+        />
+      )}
     </div>
   );
 }
