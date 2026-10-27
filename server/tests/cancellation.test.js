@@ -107,6 +107,27 @@ describe("Política de cancelación", () => {
     expect(res.status).toBe(200);
   });
 
+  it("una cita completada o ya cancelada no se puede cancelar", async () => {
+    const done = await appt(48);
+    await Appointment.updateOne({ _id: done._id }, { status: "completed" });
+    expect((await cancel(A.tokens.client, done._id)).status).toBe(409);
+    expect((await cancel(A.tokens.admin, done._id)).status).toBe(409);
+    expect((await Appointment.findById(done._id)).status).toBe("completed");
+
+    const cancelled = await appt(48);
+    expect((await cancel(A.tokens.client, cancelled._id)).status).toBe(200);
+    expect((await cancel(A.tokens.client, cancelled._id)).status).toBe(409);
+  });
+
+  it("el cliente no puede cancelar una cita que ya ha empezado", async () => {
+    const a = await appt(-1);
+    expect((await cancel(A.tokens.client, a._id)).status).toBe(400);
+    expect((await Appointment.findById(a._id)).status).toBe("confirmed");
+
+    // El administrador sí (por ejemplo, si el cliente no se presentó)
+    expect((await cancel(A.tokens.admin, a._id)).status).toBe(200);
+  });
+
   describe("ajuste en Apariencia", () => {
     const put = (token, cancellationHours) =>
       http(A.slug, token).put("/api/salon-settings").send({ cancellationHours });

@@ -67,6 +67,8 @@ export async function createAppointment(req, res) {
     start: startDate,
     end: endDate,
     notes,
+    // Si la cita ya cae dentro de la ventana, la confirmación hace de recordatorio
+    reminderSentAt: initialReminderSentAt(startDate),
   });
 
   emitToStylist(stylist._id, "appointment:created", {
@@ -103,6 +105,12 @@ export async function cancelAppointment(req, res) {
   const isOwner = appointment.client.equals(req.user.id);
   if (!isOwner && req.user.role !== "admin") {
     return res.status(403).json({ message: "No puedes cancelar esta cita" });
+  }
+  if (!ACTIVE_STATUSES.includes(appointment.status)) {
+    return res.status(409).json({ message: "Esta cita ya está cerrada" });
+  }
+  if (req.user.role === "client" && appointment.start <= new Date()) {
+    return res.status(400).json({ message: "No se puede cancelar una cita pasada" });
   }
 
   // Los clientes respetan la antelación mínima; el personal puede cancelar siempre
@@ -283,6 +291,8 @@ export async function rescheduleAppointment(req, res) {
   const oldStart = appointment.start;
   appointment.start = newStart;
   appointment.end = newEnd;
+  // Nueva hora, nuevo recordatorio (salvo que ya caiga dentro de la ventana)
+  appointment.reminderSentAt = initialReminderSentAt(newStart);
   await appointment.save();
 
   emitToStylist(stylist._id, "appointment:updated", {
