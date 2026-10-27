@@ -2,8 +2,11 @@ import { lazy, Suspense, useEffect } from "react";
 import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { SALON_SLUG } from "./lib/salon";
 import { SalonProvider, useSalon } from "./context/SalonContext";
+import { useAuth } from "./context/AuthContext";
+import { isPanelPath } from "./lib/panel";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
+import PanelLayout from "./components/PanelLayout";
 import ScrollToTop from "./components/ScrollToTop";
 import ProtectedRoute from "./components/ProtectedRoute";
 import DemoBanner from "./components/DemoBanner";
@@ -94,98 +97,116 @@ function PlatformApp() {
 
 function SalonApp() {
   const { pathname } = useLocation();
+  const { user } = useAuth();
+
+  const pages = (
+    <div key={pathname} className="animate-fade-in">
+      <Suspense fallback={<PageFallback />}>
+        <Routes>
+          <Route path="/" element={<Services />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/recuperar" element={<ForgotPassword />} />
+          <Route path="/restablecer" element={<ResetPassword />} />
+          <Route path="/confirmar-correo" element={<ConfirmEmail />} />
+          <Route path="/reservar" element={<ProtectedRoute><Book /></ProtectedRoute>} />
+          <Route path="/reservada" element={<ProtectedRoute><Booked /></ProtectedRoute>} />
+          <Route path="/mis-citas" element={<ProtectedRoute><MyAppointments /></ProtectedRoute>} />
+          <Route path="/perfil" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+          <Route
+            path="/agenda"
+            element={
+              <ProtectedRoute roles={["admin", "stylist"]}>
+                <Agenda />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin"
+            element={
+              <ProtectedRoute roles={["admin"]}>
+                <AdminHome />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/servicios"
+            element={
+              <ProtectedRoute roles={["admin"]}>
+                <AdminServices />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/estilistas"
+            element={
+              <ProtectedRoute roles={["admin"]}>
+                <AdminStylists />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/apariencia"
+            element={
+              <ProtectedRoute roles={["admin"]}>
+                <Appearance />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/estadisticas"
+            element={
+              <ProtectedRoute roles={["admin"]}>
+                <Stats />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/negocio"
+            element={
+              <ProtectedRoute roles={["admin"]}>
+                <AdminAccount />
+              </ProtectedRoute>
+            }
+          />
+          <Route path="/inicio" element={<ProtectedRoute><Home /></ProtectedRoute>} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </Suspense>
+    </div>
+  );
 
   return (
     <SalonProvider>
       <ScrollToTop />
       <RouteTitle pathname={pathname} />
-      <div className="flex min-h-screen flex-col">
-        <a
-          href="#contenido"
-          className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-lg focus:bg-ink focus:px-4 focus:py-2 focus:text-cream"
+      {isPanelPath(pathname, user) ? (
+        <PanelLayout
+          banners={
+            <>
+              <DemoBanner />
+              <VerifyEmailBanner />
+            </>
+          }
         >
-          Saltar al contenido
-        </a>
-        <DemoBanner />
-        <Navbar />
-        <VerifyEmailBanner />
-        <main id="contenido" className="mx-auto w-full max-w-6xl flex-1 px-4 py-10">
-          <div key={pathname} className="animate-fade-in">
-            <Suspense fallback={<PageFallback />}>
-              <Routes>
-                <Route path="/" element={<Services />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/recuperar" element={<ForgotPassword />} />
-                <Route path="/restablecer" element={<ResetPassword />} />
-                <Route path="/confirmar-correo" element={<ConfirmEmail />} />
-                <Route path="/reservar" element={<ProtectedRoute><Book /></ProtectedRoute>} />
-                <Route path="/reservada" element={<ProtectedRoute><Booked /></ProtectedRoute>} />
-                <Route path="/mis-citas" element={<ProtectedRoute><MyAppointments /></ProtectedRoute>} />
-                <Route path="/perfil" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
-                <Route
-                  path="/agenda"
-                  element={
-                    <ProtectedRoute roles={["admin", "stylist"]}>
-                      <Agenda />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/admin"
-                  element={
-                    <ProtectedRoute roles={["admin"]}>
-                      <AdminHome />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/admin/servicios"
-                  element={
-                    <ProtectedRoute roles={["admin"]}>
-                      <AdminServices />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/admin/estilistas"
-                  element={
-                    <ProtectedRoute roles={["admin"]}>
-                      <AdminStylists />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/admin/apariencia"
-                  element={
-                    <ProtectedRoute roles={["admin"]}>
-                      <Appearance />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/admin/estadisticas"
-                  element={
-                    <ProtectedRoute roles={["admin"]}>
-                      <Stats />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/admin/negocio"
-                  element={
-                    <ProtectedRoute roles={["admin"]}>
-                      <AdminAccount />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route path="/inicio" element={<ProtectedRoute><Home /></ProtectedRoute>} />
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </Suspense>
-          </div>
-        </main>
-        <Footer />
-      </div>
+          {pages}
+        </PanelLayout>
+      ) : (
+        <div className="flex min-h-screen flex-col">
+          <a
+            href="#contenido"
+            className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-lg focus:bg-ink focus:px-4 focus:py-2 focus:text-cream"
+          >
+            Saltar al contenido
+          </a>
+          <DemoBanner />
+          <Navbar />
+          <VerifyEmailBanner />
+          <main id="contenido" className="mx-auto w-full max-w-6xl flex-1 px-4 py-10">
+            {pages}
+          </main>
+          <Footer />
+        </div>
+      )}
     </SalonProvider>
   );
 }

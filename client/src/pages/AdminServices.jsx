@@ -106,7 +106,7 @@ export default function AdminServices() {
   }
 
   return (
-    <div className="mx-auto max-w-4xl">
+    <div className="mx-auto max-w-5xl">
       <h1 className="text-4xl font-bold">Servicios</h1>
       <p className="mt-1 text-ink/70">Lo que ofrece tu peluquería, con su duración y su precio.</p>
 

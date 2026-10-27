@@ -181,6 +181,13 @@ h1 {
          transition placeholder:text-ink/40 focus:border-ink/40 focus:ring-4 focus:ring-ink/5;
 }
 
+/* Solo la primera letra en mayúscula: «Miércoles, 28 de octubre», no «28 De Octubre» */
+@utility capitalize-first {
+  &::first-letter {
+    text-transform: uppercase;
+  }
+}
+
 @utility label {
   @apply mb-1.5 block text-sm text-ink/60;
 }

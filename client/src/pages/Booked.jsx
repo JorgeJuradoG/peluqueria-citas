@@ -43,7 +43,7 @@ export default function Booked() {
         <dl className="mt-6 space-y-2 rounded-lg bg-sand/50 p-4 text-left text-sm">
           <p>
             <dt className="inline text-ink/70">Cuándo: </dt>
-            <dd className="inline font-medium capitalize">
+            <dd className="inline-block font-medium capitalize-first">
               {formatDateTime(appointment.start, salon.timezone)}
             </dd>
           </p>

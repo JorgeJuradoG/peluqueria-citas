@@ -53,7 +53,7 @@ export default function StaffHome() {
   const inProgress = next && new Date(next.start) <= now;
 
   return (
-    <div className="mx-auto max-w-4xl">
+    <div className="mx-auto max-w-5xl">
       <h1 className="text-4xl font-bold">
         {greeting(now, salon.timezone)}, {user.name.split(" ")[0]}
       </h1>
@@ -65,7 +65,7 @@ export default function StaffHome() {
 
       {data && (
         <div className="mt-6 animate-fade-in space-y-6">
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
             <Kpi icon={CalendarCheck} label="Citas hoy" value={s.total ?? 0} />
             <Kpi icon={Hourglass} label="Pendientes" value={s.pending ?? 0} />
             <Kpi icon={Users} label="Completadas" value={s.completed ?? 0} />
@@ -90,7 +90,7 @@ export default function StaffHome() {
                     <Clock className="h-3.5 w-3.5" aria-hidden="true" />
                     {countdown(next.start, now)}
                   </p>
-                  <p className="mt-1 text-xs capitalize text-ink/70">
+                  <p className="mt-1 text-xs capitalize-first text-ink/70">
                     {formatDateTime(next.start, salon.timezone)}
                   </p>
                 </div>

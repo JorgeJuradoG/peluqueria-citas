@@ -111,7 +111,7 @@ export default function ClientHome() {
             <Clock className="h-3.5 w-3.5" aria-hidden="true" />
             {countdown(next.start, now)}
           </p>
-          <h2 className="mt-3 text-3xl font-bold capitalize">
+          <h2 className="mt-3 text-3xl font-bold capitalize-first">
             {formatDateTime(next.start, salon.timezone)}
           </h2>
           <p className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-2 text-ink/70">
@@ -160,7 +160,7 @@ export default function ClientHome() {
           <ul className="mt-3 space-y-2">
             {others.slice(0, 3).map((a) => (
               <li key={a._id} className="card flex flex-wrap items-center justify-between gap-2 py-3">
-                <span className="font-medium capitalize">{formatDateTime(a.start, salon.timezone)}</span>
+                <span className="inline-block font-medium capitalize-first">{formatDateTime(a.start, salon.timezone)}</span>
                 <span className="text-sm text-ink/70">
                   {a.service?.name} · {a.stylist?.user?.name}
                 </span>

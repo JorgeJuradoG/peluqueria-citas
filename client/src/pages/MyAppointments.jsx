@@ -50,7 +50,7 @@ function AppointmentCard({
           <CalendarCheck className="h-5 w-5" aria-hidden="true" />
         </span>
         <div>
-          <p className="font-display text-lg font-semibold capitalize">
+          <p className="font-display text-lg font-semibold capitalize-first">
             {formatDateTime(a.start, timezone)}
           </p>
           <p className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-ink/70">

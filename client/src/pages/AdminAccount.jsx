@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Download, Loader2, Store, Trash2, TriangleAlert } from "lucide-react";
+import { Download, Loader2, Trash2, TriangleAlert } from "lucide-react";
 import api from "../services/api";
 import { useAuth } from "../context/AuthContext";
 import { useSalon } from "../context/SalonContext";
@@ -65,86 +65,85 @@ export default function AdminAccount() {
   }
 
   return (
-    <div className="mx-auto max-w-2xl">
-      <h1 className="flex items-center gap-3 text-4xl font-bold">
-        <Store className="h-8 w-8 text-gold-dark" aria-hidden="true" />
-        Mi negocio
-      </h1>
+    <div className="mx-auto max-w-5xl">
+      <h1 className="text-4xl font-bold">Mi negocio</h1>
       <p className="mt-1 text-ink/70">Tus datos y el cierre de {salon.name}.</p>
 
-      <section className="card mt-6">
-        <h2 className="text-xl font-semibold">Descargar mis datos</h2>
-        <p className="mt-1 text-sm text-ink/70">
-          Un archivo con tu peluquería, servicios, equipo, clientes y citas. No incluye
-          contraseñas.
-        </p>
-        <button onClick={download} disabled={exporting} className="btn-outline mt-4">
-          {exporting ? (
-            <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
-          ) : (
-            <Download className="h-4 w-4" aria-hidden="true" />
-          )}
-          Descargar (.json)
-        </button>
-      </section>
-
-      <section className="card mt-6 border-red-300">
-        <h2 className="flex items-center gap-2 text-xl font-semibold text-red-700">
-          <TriangleAlert className="h-5 w-5" aria-hidden="true" />
-          Cerrar mi peluquería
-        </h2>
-
-        {salon.demo ? (
-          <p className="mt-2 text-sm text-ink/70">
-            La peluquería de demostración no se puede cerrar.
+      <div className="max-w-2xl">
+        <section className="card mt-6">
+          <h2 className="text-xl font-semibold">Descargar mis datos</h2>
+          <p className="mt-1 text-sm text-ink/70">
+            Un archivo con tu peluquería, servicios, equipo, clientes y citas. No incluye
+            contraseñas.
           </p>
-        ) : (
-          <form onSubmit={close} noValidate className="mt-2">
-            <p className="text-sm text-ink/70">
-              Se borrarán para siempre la peluquería, su equipo, sus clientes y todas sus citas, y
-              tu web dejará de existir. <b className="text-ink">No se puede deshacer.</b> Descarga
-              antes tus datos si quieres conservarlos.
+          <button onClick={download} disabled={exporting} className="btn-outline mt-4">
+            {exporting ? (
+              <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+            ) : (
+              <Download className="h-4 w-4" aria-hidden="true" />
+            )}
+            Descargar (.json)
+          </button>
+        </section>
+
+        <section className="card mt-6 border-red-300">
+          <h2 className="flex items-center gap-2 text-xl font-semibold text-red-700">
+            <TriangleAlert className="h-5 w-5" aria-hidden="true" />
+            Cerrar mi peluquería
+          </h2>
+
+          {salon.demo ? (
+            <p className="mt-2 text-sm text-ink/70">
+              La peluquería de demostración no se puede cerrar.
             </p>
+          ) : (
+            <form onSubmit={close} noValidate className="mt-2">
+              <p className="text-sm text-ink/70">
+                Se borrarán para siempre la peluquería, su equipo, sus clientes y todas sus citas, y
+                tu web dejará de existir. <b className="text-ink">No se puede deshacer.</b> Descarga
+                antes tus datos si quieres conservarlos.
+              </p>
 
-            <label className="mt-4 block">
-              <span className="label">
-                Escribe <b>{salon.slug}</b> para confirmar
-              </span>
-              <input
-                value={slug}
-                onChange={(e) => setSlug(e.target.value)}
-                autoComplete="off"
-                className="input"
-              />
-            </label>
+              <label className="mt-4 block">
+                <span className="label">
+                  Escribe <b>{salon.slug}</b> para confirmar
+                </span>
+                <input
+                  value={slug}
+                  onChange={(e) => setSlug(e.target.value)}
+                  autoComplete="off"
+                  className="input"
+                />
+              </label>
 
-            <label className="mt-4 block">
-              <span className="label">Tu contraseña</span>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                autoComplete="current-password"
-                className="input"
-              />
-            </label>
+              <label className="mt-4 block">
+                <span className="label">Tu contraseña</span>
+                <input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  autoComplete="current-password"
+                  className="input"
+                />
+              </label>
 
-            {error && <ErrorAlert>{error}</ErrorAlert>}
+              {error && <ErrorAlert>{error}</ErrorAlert>}
 
-            <button
-              className="btn-danger mt-5 disabled:cursor-not-allowed disabled:opacity-50"
-              disabled={!slugOk || !password || closing}
-            >
-              {closing ? (
-                <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
-              ) : (
-                <Trash2 className="h-4 w-4" aria-hidden="true" />
-              )}
-              {closing ? "Cerrando..." : "Cerrar y borrar todo"}
-            </button>
-          </form>
-        )}
-      </section>
+              <button
+                className="btn-danger mt-5 disabled:cursor-not-allowed disabled:opacity-50"
+                disabled={!slugOk || !password || closing}
+              >
+                {closing ? (
+                  <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+                ) : (
+                  <Trash2 className="h-4 w-4" aria-hidden="true" />
+                )}
+                {closing ? "Cerrando..." : "Cerrar y borrar todo"}
+              </button>
+            </form>
+          )}
+        </section>
+      </div>
     </div>
   );
 }

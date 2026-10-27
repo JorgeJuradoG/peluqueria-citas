@@ -158,7 +158,7 @@ export default function AdminHome() {
   const firstPending = steps.findIndex((s) => !s); // -1 si está todo hecho
 
   return (
-    <div className="mx-auto max-w-4xl">
+    <div className="mx-auto max-w-5xl">
       <h1 className="text-4xl font-bold">Hola, {user.name}</h1>
       <p className="mt-1 text-ink/70">
         {allDone

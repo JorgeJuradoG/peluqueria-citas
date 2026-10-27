@@ -523,9 +523,9 @@ function StylistCard({ stylist, allServices, onChanged, defaultOpen }) {
               {daysOff.map((day) => (
                 <li
                   key={day}
-                  className="flex items-center gap-1.5 rounded-full bg-sand py-1 pl-3 pr-1.5 text-sm capitalize"
+                  className="flex items-center gap-1.5 rounded-full bg-sand py-1 pl-3 pr-1.5 text-sm"
                 >
-                  {formatDay(day)}
+                  <span className="inline-block capitalize-first">{formatDay(day)}</span>
                   <button
                     onClick={() => removeDay(day)}
                     aria-label={`Quitar el día libre ${formatDay(day)}`}
@@ -583,7 +583,7 @@ export default function AdminStylists() {
   }, []);
 
   return (
-    <div className="mx-auto max-w-4xl">
+    <div className="mx-auto max-w-5xl">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="text-4xl font-bold">{terms.Many}</h1>

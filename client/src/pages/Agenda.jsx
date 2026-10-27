@@ -789,7 +789,7 @@ export default function Agenda() {
               </button>
             </div>
 
-            <h2 className="text-lg font-semibold capitalize sm:text-xl">
+            <h2 className="text-lg font-semibold capitalize-first sm:text-xl">
               {view === "day" ? longDate(date) : rangeLabel(weekDays)}
               {onCurrent && (
                 <span className="ml-2 rounded-full bg-gold px-2 py-0.5 align-middle font-sans text-xs font-semibold normal-case tracking-normal text-[#17191c]">
@@ -905,7 +905,7 @@ export default function Agenda() {
               <b>{selected.service?.name}</b> · {selected.service?.durationMinutes} min
             </DetailRow>
             <DetailRow icon={Clock}>
-              <span className="capitalize">{longDate(dayOf(selected.start, timezone))}</span>
+              <span className="inline-block capitalize-first">{longDate(dayOf(selected.start, timezone))}</span>
             </DetailRow>
             {selected.client?.email && (
               <DetailRow icon={Mail}>

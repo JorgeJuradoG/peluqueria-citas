@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from "react";
 import { NavLink, Link, useLocation, useNavigate } from "react-router-dom";
 import {
   CalendarCheck,
-  CalendarDays,
   CalendarPlus,
   ChevronDown,
   Home,
@@ -10,13 +9,7 @@ import {
   LogIn,
   LogOut,
   Menu,
-  Palette,
-  Scissors,
-  Settings,
-  Store,
-  TrendingUp,
   UserRound,
-  Users,
   X,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
@@ -26,39 +19,26 @@ import Avatar from "./Avatar";
 import BrandIcon from "./BrandIcon";
 import ThemeToggle from "./ThemeToggle";
 
+// La gestión vive en el panel lateral: aquí el equipo solo ve un acceso a él
 function mainLinks(user) {
   if (!user) return [];
-  const links = [
-    { to: "/inicio", label: "Inicio", icon: Home },
+  if (user.role === "client") {
+    return [
+      { to: "/inicio", label: "Inicio", icon: Home },
+      { to: "/reservar", label: "Reservar", icon: CalendarPlus },
+      { to: "/mis-citas", label: "Mis citas", icon: CalendarCheck },
+    ];
+  }
+  return [
     { to: "/reservar", label: "Reservar", icon: CalendarPlus },
     { to: "/mis-citas", label: "Mis citas", icon: CalendarCheck },
-  ];
-  if (user.role === "admin" || user.role === "stylist") {
-    links.push({ to: "/agenda", label: "Agenda", icon: CalendarDays });
-  }
-  return links;
-}
-
-function adminLinks(user, terms) {
-  if (user?.role !== "admin") return [];
-  return [
-    { to: "/admin", label: "Panel", icon: LayoutDashboard, end: true },
-    { to: "/admin/servicios", label: "Servicios", icon: Scissors },
-    { to: "/admin/estilistas", label: terms.Many, icon: Users },
-    { to: "/admin/estadisticas", label: "Estadísticas", icon: TrendingUp },
-    { to: "/admin/apariencia", label: "Apariencia", icon: Palette },
-    { to: "/admin/negocio", label: "Mi negocio", icon: Store },
+    { to: "/inicio", label: "Panel", icon: LayoutDashboard },
   ];
 }
 
 const desktopLink = ({ isActive }) =>
   `flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium transition ${
     isActive ? "bg-gold/15 text-gold-dark" : "text-ink/70 hover:bg-sand/60 hover:text-ink"
-  }`;
-
-const dropdownLink = ({ isActive }) =>
-  `flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition ${
-    isActive ? "bg-gold/15 font-medium text-gold-dark" : "hover:bg-sand/60"
   }`;
 
 const mobileLink = ({ isActive }) =>
@@ -100,12 +80,9 @@ export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const userMenu = useDropdown(pathname);
-  const adminMenu = useDropdown(pathname);
 
   const roleLabels = { client: "Cliente", stylist: terms.One, admin: "Administrador" };
   const main = mainLinks(user);
-  const admin = adminLinks(user, terms);
-  const adminActive = pathname.startsWith("/admin");
 
   // Al cambiar de página se cierra el menú móvil
   useEffect(() => setMobileOpen(false), [pathname]);
@@ -163,41 +140,6 @@ export default function Navbar() {
               </NavLink>
             ))}
 
-            {admin.length > 0 && (
-              <div className="relative" ref={adminMenu.ref}>
-                <button
-                  onClick={() => adminMenu.setOpen(!adminMenu.open)}
-                  aria-expanded={adminMenu.open}
-                  aria-haspopup="menu"
-                  className={`flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium transition ${
-                    adminActive
-                      ? "bg-gold/15 text-gold-dark"
-                      : "text-ink/70 hover:bg-sand/60 hover:text-ink"
-                  }`}
-                >
-                  <Settings className="h-4 w-4" aria-hidden="true" />
-                  Administración
-                  <ChevronDown
-                    className={`h-4 w-4 transition ${adminMenu.open ? "rotate-180" : ""}`}
-                    aria-hidden="true"
-                  />
-                </button>
-
-                {adminMenu.open && (
-                  <div
-                    role="menu"
-                    className="absolute left-0 mt-2 w-56 animate-pop rounded-xl border border-sand bg-surface p-2 shadow-lg"
-                  >
-                    {admin.map(({ to, label, icon: Icon, end }) => (
-                      <NavLink key={to} to={to} end={end} role="menuitem" className={dropdownLink}>
-                        <Icon className="h-4 w-4" aria-hidden="true" />
-                        {label}
-                      </NavLink>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
           </div>
         )}
 
@@ -292,19 +234,6 @@ export default function Navbar() {
                 </NavLink>
               ))}
 
-              {admin.length > 0 && (
-                <>
-                  <p className="px-3 pt-3 text-xs font-semibold uppercase tracking-widest text-ink/60">
-                    Administración
-                  </p>
-                  {admin.map(({ to, label, icon: Icon, end }) => (
-                    <NavLink key={to} to={to} end={end} className={mobileLink}>
-                      <Icon className="h-5 w-5" aria-hidden="true" />
-                      {label}
-                    </NavLink>
-                  ))}
-                </>
-              )}
 
               <NavLink to="/perfil" className={mobileLink}>
                 <UserRound className="h-5 w-5" aria-hidden="true" />
