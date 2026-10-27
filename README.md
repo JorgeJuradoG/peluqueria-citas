@@ -4,7 +4,9 @@
 
 Aplicación web **multi-peluquería**: cada negocio crea su espacio, da de alta a su equipo y comparte un enlace para que sus clientes reserven. Los huecos libres se actualizan **en tiempo real** y cada peluquería tiene su propia imagen (color, tipografía, estilo y contenido).
 
-![Demo: dos ventanas sincronizadas en tiempo real](docs/demo-tiempo-real.gif) > La demo en línea no usa contraseñas: se entra con los botones de rol del banner. Las cuentas con contraseña (`Demo1234`) son las del `seed` local.
+▶ **[Ver el vídeo de la demo](docs/demo.mp4)**: dos ventanas sincronizadas en tiempo real.
+
+> La demo en línea no usa contraseñas: se entra con los botones de rol del banner. Las cuentas con contraseña (`Demo1234`) son las del `seed` local.
 
 ## Qué hace
 
@@ -20,23 +22,15 @@ Aplicación web **multi-peluquería**: cada negocio crea su espacio, da de alta 
 **Para el dueño**
 - Alta de la peluquería con un asistente de cuatro pasos y **vista previa en vivo** de su web.
 - Panel con checklist de puesta en marcha, gestión de servicios, equipo (invitaciones por correo), horarios, días libres y apariencia.
-
-## Capturas
-
-| Portada de una peluquería | Reserva | Agenda semanal |
-|---|---|---|
-| ![](docs/portada.png) | ![](docs/reserva.png) | ![](docs/agenda.png) |
-
-| Asistente de alta con vista previa | Modo oscuro | Móvil |
-|---|---|---|
-| ![](docs/asistente.png) | ![](docs/oscuro.png) | ![](docs/movil.png) |
+- Estadísticas de citas, ingresos, servicios más pedidos y ocupación del equipo.
+- Política de cancelación configurable, exportación de datos y baja de la peluquería.
 
 ## Stack
 
 | Capa | Tecnologías |
 |---|---|
-| Frontend | React, Vite, Tailwind CSS v4, React Router, Axios, FullCalendar, Socket.IO client, Lucide |
-| Backend | Node.js, Express, Mongoose, Socket.IO, JWT, bcryptjs, Luxon, Nodemailer, node-cron |
+| Frontend | React 19, Vite, Tailwind CSS v4, React Router, Axios, Socket.IO client, Lucide |
+| Backend | Node.js, Express 5, Mongoose, Socket.IO, JWT, bcryptjs, Luxon, Nodemailer / Resend, node-cron |
 | Base de datos | MongoDB (Atlas) |
 | Calidad | Vitest, Supertest, mongodb-memory-server, GitHub Actions |
 
@@ -76,7 +70,7 @@ Abre `http://localhost:5173`. Vite reenvía `/api` y `/socket.io` al backend.
 
 El administrador de la peluquería demo usa el email y la contraseña de `ADMIN_EMAIL` y `ADMIN_PASSWORD` de tu `.env`.
 
-**Correo en desarrollo.** Con `MAIL_MODE=console` los correos se imprimen en la terminal del backend (con sus enlaces) y se guarda una vista previa HTML en `server/mail-preview`. Para enviar correos reales, configura las variables `SMTP_*`.
+**Correo en desarrollo.** Con `MAIL_MODE=console` los correos se imprimen en la terminal del backend (con sus enlaces) y se guarda una vista previa HTML en `server/mail-preview`. Para enviar correos reales, configura `RESEND_API_KEY` o las variables `SMTP_*`.
 
 ## Tests
 
@@ -85,12 +79,13 @@ cd server
 npm test
 ```
 
-130 tests contra una base de datos MongoDB **en memoria** (no tocan tu base real), ejecutados también en cada push con GitHub Actions. Cubren:
+199 tests contra una base de datos MongoDB **en memoria** (no tocan tu base real), ejecutados también en cada push con GitHub Actions. Cubren:
 
 - **Aislamiento entre peluquerías:** una peluquería no puede ver ni modificar datos de otra.
 - **Reservas:** solapamientos, citas consecutivas, horario laboral, días libres, reprogramar, cancelar y **reservas simultáneas del mismo hueco**.
 - **Autenticación:** roles, sesiones revocables, recuperación de contraseña e invitaciones.
 - **Marca y correos:** validación de la personalización, contraste de colores y escape de HTML.
+- **Agenda, estadísticas y recordatorios:** rangos por zona horaria, cifras del panel y envío sin duplicados.
 
 ## Decisiones técnicas
 
@@ -112,6 +107,8 @@ npm test
 
 **Robustez del correo.** Un fallo de envío nunca rompe una reserva. Sin SMTP, los correos se muestran en la consola.
 
+**Rendimiento del frontend.** Cada página se carga bajo demanda (`React.lazy`), así que la primera visita solo descarga el código común y la página abierta.
+
 ## Estructura
 
 ```
@@ -128,8 +125,8 @@ server/   Express + Mongoose
 - El índice único evita las reservas simultáneas del *mismo* inicio, pero no los solapamientos parciales simultáneos (p. ej. 10:00 y 10:15 a la vez). Una solución completa usaría una transacción o un bloqueo por estilista.
 - Los recordatorios usan `node-cron` dentro del proceso: necesitan un servidor siempre activo (no sirven en hosting que duerme).
 - El correo se envía sin cola de reintentos.
-- Pendiente: estadísticas para el administrador, lista de espera, valoraciones y despliegue.
+- Pendiente: lista de espera y valoraciones.
 
 ## Licencia
 
-MIT © Jorge Jurado
+[MIT](LICENSE) © Jorge Jurado

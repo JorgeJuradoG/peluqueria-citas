@@ -185,27 +185,6 @@ h1 {
   @apply mb-1.5 block text-sm text-ink/60;
 }
 
-/* Citas del calendario */
-.cita-evento {
-  font-weight: 600;
-  font-size: 0.8rem;
-  border-radius: 8px !important;
-  border-left: 5px solid var(--color-gold) !important;
-  box-shadow: 0 2px 6px rgb(28 25 23 / 0.35);
-  cursor: pointer;
-  transition: transform 0.15s, box-shadow 0.15s;
-}
-
-.cita-evento:hover {
-  transform: scale(1.02);
-  box-shadow: 0 4px 12px rgb(28 25 23 / 0.45);
-  z-index: 5;
-}
-
-.fc-timegrid-slot {
-  height: 3rem;
-}
-
 /* Estilo de tarjetas de la peluquería (lo fija applyTheme en <html data-cards>) */
 [data-cards="outline"] .card {
   box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-ink) 14%, transparent);
