@@ -141,9 +141,9 @@ export async function getAgenda(req, res) {
   let rangeEnd;
 
   if (req.query.from && req.query.to) {
-    // Rango (vista semanal)
-    rangeStart = new Date(String(req.query.from));
-    rangeEnd = new Date(String(req.query.to));
+    // Rango (vista semanal). Las fechas son días en la zona de la peluquería, no en UTC
+    rangeStart = DateTime.fromISO(String(req.query.from), { zone: TZ }).toJSDate();
+    rangeEnd = DateTime.fromISO(String(req.query.to), { zone: TZ }).toJSDate();
     if (isNaN(rangeStart) || isNaN(rangeEnd) || rangeEnd <= rangeStart) {
       return res.status(400).json({ message: "Rango de fechas inválido" });
     }

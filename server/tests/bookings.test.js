@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it } from "vitest";
+import { DateTime } from "luxon";
 import Appointment from "../src/models/Appointment.js";
 import Service from "../src/models/Service.js";
 import Stylist from "../src/models/Stylist.js";
@@ -294,6 +295,29 @@ describe("Reservas", () => {
 
       expect((await http(A.slug, A.tokens.client).get("/api/appointments/agenda").query(query)).status).toBe(403);
       expect((await http(A.slug).get("/api/appointments/agenda").query(query)).status).toBe(401);
+    });
+
+    it("el rango semanal usa los días de la zona horaria de la peluquería", async () => {
+      // Peluquería en Nueva York: la medianoche UTC cae a las 19:00/20:00 del día anterior
+      const B = await createSalonFixture("salon-ny", { timezone: "America/New_York" });
+      const day = futureDate(B.salon, 3);
+      const start = DateTime.fromISO(`${day}T21:00`, { zone: "America/New_York" }).toJSDate();
+      await Appointment.create({
+        salon: B.salon._id,
+        client: B.client._id,
+        stylist: B.stylist._id,
+        service: B.service._id,
+        start,
+        end: new Date(start.getTime() + 30 * 60000),
+        status: "confirmed",
+      });
+
+      const next = DateTime.fromISO(day).plus({ days: 1 }).toISODate();
+      const agenda = (from, to) =>
+        http(B.slug, B.tokens.stylist).get("/api/appointments/agenda").query({ from, to });
+
+      expect((await agenda(day, next)).body.appointments).toHaveLength(1);
+      expect((await agenda(next, DateTime.fromISO(next).plus({ days: 1 }).toISODate())).body.appointments).toHaveLength(0);
     });
 
     it("el estilista cierra sus citas, pero no las de otro estilista", async () => {
