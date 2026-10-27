@@ -1,7 +1,7 @@
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, useEffect } from "react";
 import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { SALON_SLUG } from "./lib/salon";
-import { SalonProvider } from "./context/SalonContext";
+import { SalonProvider, useSalon } from "./context/SalonContext";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import ScrollToTop from "./components/ScrollToTop";
@@ -13,6 +13,7 @@ import { Skeleton } from "./components/Skeleton";
 // Cada página se descarga solo cuando se visita
 const Landing = lazy(() => import("./pages/Landing"));
 const CreateSalon = lazy(() => import("./pages/CreateSalon"));
+const Access = lazy(() => import("./pages/Access"));
 const Services = lazy(() => import("./pages/Services"));
 const Login = lazy(() => import("./pages/Login"));
 const ForgotPassword = lazy(() => import("./pages/ForgotPassword"));
@@ -33,6 +34,35 @@ const Stats = lazy(() => import("./pages/Stats"));
 const Home = lazy(() => import("./pages/Home"));
 const AdminAccount = lazy(() => import("./pages/AdminAccount"));
 
+// Título de la pestaña: «Agenda · Peluquería Lola»
+const PAGE_TITLES = {
+  "/login": "Entrar",
+  "/recuperar": "Recuperar contraseña",
+  "/restablecer": "Nueva contraseña",
+  "/confirmar-correo": "Confirmar correo",
+  "/reservar": "Reservar cita",
+  "/reservada": "Cita reservada",
+  "/mis-citas": "Mis citas",
+  "/perfil": "Mi perfil",
+  "/agenda": "Agenda",
+  "/inicio": "Inicio",
+  "/admin": "Administración",
+  "/admin/servicios": "Servicios",
+  "/admin/estilistas": "Equipo",
+  "/admin/apariencia": "Apariencia",
+  "/admin/estadisticas": "Estadísticas",
+  "/admin/negocio": "Mi negocio",
+};
+
+function RouteTitle({ pathname }) {
+  const { name } = useSalon();
+  useEffect(() => {
+    const page = PAGE_TITLES[pathname.replace(/\/$/, "") || "/"];
+    document.title = page ? `${page} · ${name}` : name;
+  }, [pathname, name]);
+  return null;
+}
+
 // Mientras llega el código de la página
 function PageFallback() {
   return (
@@ -52,6 +82,7 @@ function PlatformApp() {
         <Routes>
           <Route path="/" element={<Landing />} />
           <Route path="/crear-peluqueria" element={<CreateSalon />} />
+          <Route path="/entrar" element={<Access />} />
           <Route path="/privacidad" element={<Legal kind="privacidad" />} />
           <Route path="/terminos" element={<Legal kind="terminos" />} />
           <Route path="*" element={<Navigate to="/" replace />} />
@@ -67,6 +98,7 @@ function SalonApp() {
   return (
     <SalonProvider>
       <ScrollToTop />
+      <RouteTitle pathname={pathname} />
       <div className="flex min-h-screen flex-col">
         <a
           href="#contenido"

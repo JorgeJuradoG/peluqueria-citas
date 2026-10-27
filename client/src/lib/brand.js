@@ -5,47 +5,84 @@ export const DEMO_SLUG = "demo"; // la peluquería que crea el seed
 export const NAV = [
   { href: "/#producto", label: "Producto" },
   { href: "/#funciones", label: "Funciones" },
-  { href: "/#como-funciona", label: "Cómo funciona" },
-  { href: "/#marca", label: "Tu marca" },
+  { href: "/#como-funciona", label: "Cómo funciona", secondary: true },
+  { href: "/#marca", label: "Tu marca", secondary: true },
   { href: "/#precios", label: "Precios" },
   { href: "/#preguntas", label: "Preguntas" },
 ];
 
-// Los precios y límites son un EJEMPLO: decide los tuyos antes de publicar.
-// Mientras no haya cobros, los planes de pago se marcan como "soon".
+// Precios y límites PROPUESTOS: revísalos antes de publicar. Todavía no hay cobros
+// ni se aplican límites, por eso la página avisa de que en el lanzamiento todo es gratis.
+// monthly = precio pagando mes a mes; yearly = precio al mes pagando un año.
+export const LAUNCH_FREE = true;
+
 export const PLANS = [
   {
-    key: "start",
+    key: "solo",
     name: "Inicio",
-    price: "0 €",
-    period: "al mes",
-    text: "Todo lo necesario para llevar tu agenda online.",
+    text: "Para quien trabaja solo y quiere dejar de apuntar citas a mano.",
+    monthly: 0,
+    yearly: 0,
     features: [
-      "Reservas en tiempo real",
-      "Estilistas, servicios y horarios",
-      "Agenda semanal para cada estilista",
-      "Correos de confirmación y recordatorio",
+      "1 profesional",
+      "Reservas online ilimitadas",
       "Tu web con tu propia imagen",
+      "Correos de confirmación y recordatorio",
     ],
-    cta: "Crear mi peluquería",
-    to: "/crear-peluqueria",
-    highlight: true,
   },
   {
-    key: "grow",
-    name: "Crece",
-    price: "—",
-    period: "",
-    text: "Para negocios que quieren ir más allá.",
+    key: "pro",
+    name: "Profesional",
+    text: "Para salones con un equipo pequeño que quiere crecer.",
+    monthly: 19,
+    yearly: 15,
+    highlight: true,
     features: [
+      "Hasta 5 profesionales",
       "Todo lo del plan Inicio",
+      "Agenda en tiempo real para cada profesional",
       "Estadísticas de citas e ingresos",
-      "Lista de espera",
-      "Dominio propio",
+      "Política de cancelación configurable",
     ],
-    soon: true,
+  },
+  {
+    key: "salon",
+    name: "Salón",
+    text: "Para negocios con varios equipos y mucho movimiento.",
+    monthly: 39,
+    yearly: 31,
+    features: [
+      "Profesionales ilimitados",
+      "Todo lo del plan Profesional",
+      "Horarios partidos y días libres por profesional",
+      "Exportación de todos tus datos",
+    ],
   },
 ];
+
+// Incluido en todos los planes
+export const PLAN_BASICS = [
+  "Sin instalar nada: funciona en el navegador",
+  "Modo claro y oscuro",
+  "Datos separados de otros negocios",
+  "Cambios y cancelaciones por el propio cliente",
+];
+
+// Lo que cambia al dejar la libreta y el teléfono
+export const BEFORE_AFTER = {
+  before: [
+    "Llamadas y mensajes en mitad de un corte",
+    "Citas apuntadas en una libreta que solo está en el local",
+    "Clientes que se olvidan y huecos que se quedan vacíos",
+    "Cambios de última hora a base de mensajes",
+  ],
+  after: [
+    "Tus clientes reservan solos, a cualquier hora",
+    "La agenda de todo el equipo, al día y en el móvil",
+    "Recordatorio automático el día anterior",
+    "Si alguien cancela, el hueco se libera al instante",
+  ],
+};
 
 export const FAQ = [
   {
@@ -76,5 +113,8 @@ export const FAQ = [
     q: "¿Y si mi cliente quiere cambiar o cancelar la cita?",
     a: "Lo hace él mismo desde «Mis citas». El hueco queda libre al instante y tanto el cliente como el estilista reciben el aviso por correo.",
   },
-  
+  {
+    q: "¿Puedo llevarme mis datos si me voy?",
+    a: "Sí. Desde el panel de administración puedes exportar en cualquier momento tus clientes, tu equipo, tus servicios y tus citas.",
+  },
 ];

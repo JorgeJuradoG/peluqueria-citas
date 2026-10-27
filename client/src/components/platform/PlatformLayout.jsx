@@ -46,12 +46,13 @@ export default function PlatformLayout({ children }) {
             <span className="text-gold">.</span>
           </Link>
 
+          {/* En la cabecera solo los enlaces principales; el resto va en el menú móvil y en el pie */}
           <nav className="hidden items-center gap-1 lg:flex" aria-label="Principal">
-            {NAV.map(({ href, label }) => (
+            {NAV.filter((n) => !n.secondary).map(({ href, label }) => (
               <a
                 key={href}
                 href={href}
-                className="rounded-lg px-3 py-2 text-sm font-medium text-ink/70 transition hover:bg-sand/60 hover:text-ink"
+                className="whitespace-nowrap rounded-full px-3 py-2 text-sm text-ink/70 transition hover:text-ink"
               >
                 {label}
               </a>
@@ -60,6 +61,12 @@ export default function PlatformLayout({ children }) {
 
           <div className="flex items-center gap-2">
             <ThemeToggle />
+            <Link
+              to="/entrar"
+              className="hidden rounded-full px-3 py-2 text-sm text-ink/80 transition hover:text-ink md:inline-flex"
+            >
+              Entrar
+            </Link>
             <a href={`/s/${DEMO_SLUG}`} className="btn-outline hidden sm:inline-flex">
               Ver demo
             </a>
@@ -98,6 +105,12 @@ export default function PlatformLayout({ children }) {
               >
                 Ver demo
               </a>
+              <Link
+                to="/entrar"
+                className="block rounded-lg px-3 py-3 text-base font-medium text-ink/80 transition hover:bg-sand/60"
+              >
+                Entrar en mi peluquería
+              </Link>
             </div>
           </nav>
         )}
@@ -135,6 +148,7 @@ export default function PlatformLayout({ children }) {
             <p className="font-semibold text-ink">Empieza</p>
             <ul className="mt-3 space-y-2">
               <li><Link to="/crear-peluqueria" className="transition hover:text-gold-dark">Crear mi peluquería</Link></li>
+              <li><Link to="/entrar" className="transition hover:text-gold-dark">Entrar</Link></li>
               <li><a href={`/s/${DEMO_SLUG}`} className="transition hover:text-gold-dark">Ver demo</a></li>
               <li><a href={`mailto:${CONTACT_EMAIL}`} className="transition hover:text-gold-dark">Contacto</a></li>
             </ul>

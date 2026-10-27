@@ -7,22 +7,29 @@ import {
   CalendarPlus,
   Check,
   ChevronDown,
-  Loader2,
   Mail,
   Palette,
   Scissors,
+  Sparkles,
   Users,
+  X,
   Zap,
 } from "lucide-react";
-import api from "../services/api";
 import PlatformLayout from "../components/platform/PlatformLayout";
 import LiveSlots from "../components/platform/LiveSlots";
 import ProductTour from "../components/platform/ProductTour";
 import Reveal from "../components/Reveal";
 import { BrandingPreview } from "../components/BrandingPicker";
-import { ErrorAlert } from "../components/FormField";
 import { FONTS, PRESETS, ensureFont } from "../lib/theme";
-import { DEMO_SLUG, FAQ, PLANS, PRODUCT_NAME } from "../lib/brand";
+import {
+  BEFORE_AFTER,
+  DEMO_SLUG,
+  FAQ,
+  LAUNCH_FREE,
+  PLAN_BASICS,
+  PLANS,
+  PRODUCT_NAME,
+} from "../lib/brand";
 
 const FEATURES = [
   {
@@ -145,55 +152,155 @@ function BrandShowcase() {
   );
 }
 
-function Pricing() {
+function BillingToggle({ yearly, onChange }) {
+  const option = (value, label) => (
+    <button
+      type="button"
+      onClick={() => onChange(value)}
+      aria-pressed={yearly === value}
+      className={`rounded-full px-4 py-2 text-sm transition ${
+        yearly === value ? "bg-ink text-cream shadow-sm" : "text-ink/70 hover:text-ink"
+      }`}
+    >
+      {label}
+    </button>
+  );
   return (
-    <div className="mx-auto mt-12 grid max-w-4xl grid-cols-1 gap-6 md:grid-cols-2">
-      {PLANS.map((plan, i) => (
-        <Reveal key={plan.key} delay={i * 100}>
-          <div
-            className={`card flex h-full flex-col ${
-              plan.highlight ? "border-gold ring-2 ring-gold/30" : ""
-            }`}
-          >
-            <div className="flex items-start justify-between gap-3">
-              <h3 className="text-2xl font-bold">{plan.name}</h3>
-              {plan.soon && (
-                <span className="rounded-full bg-sand px-2.5 py-0.5 text-xs font-medium text-ink/70">
-                  Próximamente
+    <div role="group" aria-label="Facturación" className="inline-flex rounded-full bg-surface p-1 shadow-card">
+      {option(false, "Mensual")}
+      {option(true, "Anual · ahorra 20 %")}
+    </div>
+  );
+}
+
+function PlanCard({ plan, yearly }) {
+  const price = yearly ? plan.yearly : plan.monthly;
+  const dark = plan.highlight;
+  const muted = dark ? "text-cream/70" : "text-ink/60";
+
+  return (
+    <div
+      className={`relative flex h-full flex-col rounded-3xl p-7 ${
+        dark ? "keep-palette bg-ink text-cream shadow-float" : "card"
+      }`}
+    >
+      <div className="flex items-center justify-between gap-3">
+        <h3 className="text-lg font-medium">{plan.name}</h3>
+        {dark && (
+          <span className="rounded-full bg-gold px-3 py-1 text-xs font-medium text-[#17191c]">
+            Recomendado
+          </span>
+        )}
+      </div>
+      <p className={`mt-2 min-h-10 text-sm ${muted}`}>{plan.text}</p>
+
+      <p className="mt-6 flex items-baseline gap-1.5">
+        <span className="font-display text-5xl tabular-nums">{price} €</span>
+        <span className={`text-sm ${muted}`}>/ mes</span>
+      </p>
+      <p className={`mt-1 h-5 text-xs ${muted}`}>
+        {price === 0 ? "Gratis para siempre" : yearly ? "Facturado una vez al año" : "Sin permanencia"}
+      </p>
+
+      <Link
+        to="/crear-peluqueria"
+        className={`mt-6 py-3 ${
+          dark
+            ? "btn border border-cream bg-cream text-ink hover:bg-cream/90"
+            : "btn-outline"
+        }`}
+      >
+        {price === 0 ? "Empezar gratis" : `Probar ${plan.name}`}
+        <ArrowRight className="h-4 w-4" aria-hidden="true" />
+      </Link>
+
+      <ul className={`mt-7 space-y-3 border-t pt-6 text-sm ${dark ? "border-cream/15" : "border-ink/10"}`}>
+        {plan.features.map((f) => (
+          <li key={f} className="flex items-start gap-2.5">
+            <Check
+              className={`mt-0.5 h-4 w-4 shrink-0 ${dark ? "text-gold" : "text-gold-dark"}`}
+              aria-hidden="true"
+            />
+            {f}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+function Pricing() {
+  const [yearly, setYearly] = useState(false);
+
+  return (
+    <>
+      <div className="mt-8 flex justify-center">
+        <BillingToggle yearly={yearly} onChange={setYearly} />
+      </div>
+
+      <div className="mx-auto mt-10 grid max-w-5xl grid-cols-1 items-stretch gap-6 md:grid-cols-3">
+        {PLANS.map((plan, i) => (
+          <Reveal key={plan.key} delay={i * 100}>
+            <PlanCard plan={plan} yearly={yearly} />
+          </Reveal>
+        ))}
+      </div>
+
+      <div className="mx-auto mt-10 max-w-5xl rounded-3xl bg-surface p-6 shadow-card">
+        <p className="text-sm font-medium">Incluido en todos los planes</p>
+        <ul className="mt-3 grid gap-x-6 gap-y-2 text-sm text-ink/70 sm:grid-cols-2 lg:grid-cols-4">
+          {PLAN_BASICS.map((b) => (
+            <li key={b} className="flex items-start gap-2">
+              <Check className="mt-0.5 h-4 w-4 shrink-0 text-gold-dark" aria-hidden="true" />
+              {b}
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      {LAUNCH_FREE && (
+        <p className="mx-auto mt-6 flex max-w-2xl items-center justify-center gap-2 text-center text-sm text-ink/70">
+          <Sparkles className="h-4 w-4 shrink-0 text-gold-dark" aria-hidden="true" />
+          Oferta de lanzamiento: ahora mismo todos los planes son gratis y sin tarjeta.
+        </p>
+      )}
+    </>
+  );
+}
+
+function BeforeAfter() {
+  return (
+    <div className="mx-auto mt-12 grid max-w-5xl grid-cols-1 gap-6 md:grid-cols-2">
+      <Reveal>
+        <div className="card h-full bg-sand shadow-none">
+          <p className="text-sm font-medium text-ink/60">Con la libreta y el teléfono</p>
+          <ul className="mt-5 space-y-4">
+            {BEFORE_AFTER.before.map((t) => (
+              <li key={t} className="flex items-start gap-3 text-ink/70">
+                <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-ink/10">
+                  <X className="h-3 w-3" aria-hidden="true" />
                 </span>
-              )}
-              {plan.highlight && (
-                <span className="rounded-full bg-gold/20 px-2.5 py-0.5 text-xs font-medium text-gold-dark">
-                  Disponible ya
+                {t}
+              </li>
+            ))}
+          </ul>
+        </div>
+      </Reveal>
+      <Reveal delay={100}>
+        <div className="h-full rounded-3xl bg-peach p-6 text-sienna">
+          <p className="text-sm font-medium opacity-80">Con {PRODUCT_NAME}</p>
+          <ul className="mt-5 space-y-4">
+            {BEFORE_AFTER.after.map((t) => (
+              <li key={t} className="flex items-start gap-3 font-medium">
+                <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-sienna text-peach">
+                  <Check className="h-3 w-3" aria-hidden="true" />
                 </span>
-              )}
-            </div>
-            <p className="mt-1 text-sm text-ink/70">{plan.text}</p>
-            <p className="mt-5">
-              <span className="font-display text-5xl font-bold">{plan.price}</span>{" "}
-              <span className="text-sm text-ink/70">{plan.period}</span>
-            </p>
-            <ul className="mt-6 flex-1 space-y-3 text-sm">
-              {plan.features.map((f) => (
-                <li key={f} className="flex items-start gap-2">
-                  <Check className="mt-0.5 h-4 w-4 shrink-0 text-gold-dark" aria-hidden="true" />
-                  {f}
-                </li>
-              ))}
-            </ul>
-            {plan.to ? (
-              <Link to={plan.to} className="btn-primary mt-8 py-3">
-                {plan.cta}
-                <ArrowRight className="h-4 w-4" aria-hidden="true" />
-              </Link>
-            ) : (
-              <button className="btn-outline mt-8 py-3" disabled>
-                Próximamente
-              </button>
-            )}
-          </div>
-        </Reveal>
-      ))}
+                {t}
+              </li>
+            ))}
+          </ul>
+        </div>
+      </Reveal>
     </div>
   );
 }
@@ -214,68 +321,6 @@ function Faq() {
         </details>
       ))}
     </div>
-  );
-}
-
-function SalonAccess() {
-  const [slug, setSlug] = useState("");
-  const [error, setError] = useState("");
-  const [checking, setChecking] = useState(false);
-
-  async function goToSalon(e) {
-    e.preventDefault();
-    setError("");
-    if (slug.length < 3) return setError("La dirección tiene al menos 3 caracteres");
-
-    setChecking(true);
-    try {
-      await api.get(`/salons/${slug}`);
-      window.location.href = `/s/${slug}`;
-    } catch (err) {
-      setError(
-        err.response?.status === 404
-          ? "No existe ninguna peluquería con esa dirección"
-          : "No se pudo conectar con el servidor"
-      );
-      setChecking(false);
-    }
-  }
-
-  return (
-    <form onSubmit={goToSalon} className="card mx-auto max-w-xl" noValidate>
-      <h2 className="text-2xl font-bold">¿Ya tienes tu peluquería?</h2>
-      <p className="mt-1 text-sm text-ink/70">Escribe su dirección para entrar.</p>
-
-      <label htmlFor="slug" className="label mt-4">
-        Dirección de la peluquería
-      </label>
-      <div className="flex flex-wrap gap-2">
-        <div className="flex min-w-0 flex-1 items-center gap-1">
-          <span className="text-sm text-ink/60">/s/</span>
-          <input
-            id="slug"
-            className="input"
-            placeholder="peluqueria-lola"
-            value={slug}
-            onChange={(e) => setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ""))}
-            autoComplete="off"
-          />
-        </div>
-        <button className="btn-primary" disabled={checking}>
-          {checking ? (
-            <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
-          ) : (
-            <ArrowRight className="h-4 w-4" aria-hidden="true" />
-          )}
-          Entrar
-        </button>
-      </div>
-      {error && (
-        <div className="mt-3">
-          <ErrorAlert>{error}</ErrorAlert>
-        </div>
-      )}
-    </form>
   );
 }
 
@@ -338,6 +383,18 @@ export default function Landing() {
           <div className="min-w-0 animate-fade-up [animation-delay:150ms]">
             <LiveSlots />
           </div>
+        </div>
+      </section>
+
+      {/* Antes y después */}
+      <section className="px-4 py-20">
+        <div className="mx-auto max-w-6xl">
+          <SectionTitle
+            kicker="Por qué"
+            title="Menos teléfono, más clientes en la silla"
+            text="Lo que cambia en tu día a día cuando las citas se gestionan solas."
+          />
+          <BeforeAfter />
         </div>
       </section>
 
@@ -417,8 +474,8 @@ export default function Landing() {
         <div className="mx-auto max-w-6xl">
           <SectionTitle
             kicker="Precios"
-            title="Empieza gratis"
-            text="Crea tu peluquería hoy. Los planes de pago llegarán más adelante."
+            title="Precios claros, sin sorpresas"
+            text="Empieza gratis y cambia de plan cuando tu negocio crezca."
           />
           <Pricing />
         </div>
@@ -441,33 +498,28 @@ export default function Landing() {
           />
           <div className="relative">
             <h2 className="mx-auto max-w-2xl text-3xl font-bold sm:text-5xl">
-              Tu próxima cita puede estar reservada esta noche
+              Tu próxima cita puede estar reservada <em>esta noche</em>
             </h2>
             <p className="mx-auto mt-4 max-w-xl text-lg text-cream/70">
-              Crea tu peluquería en unos minutos y comparte el enlace con tus clientes.
+              Crea tu peluquería en unos minutos y comparte el enlace con tus clientes. Sin tarjeta.
             </p>
             <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
               <Link
                 to="/crear-peluqueria"
-                className="inline-flex items-center gap-2 rounded-lg bg-gold px-6 py-3 font-medium text-ink transition hover:bg-cream active:scale-[0.98]"
+                className="btn border border-cream bg-cream px-6 py-3 text-base text-ink hover:bg-cream/90"
               >
                 Crear mi peluquería
                 <ArrowRight className="h-4 w-4" aria-hidden="true" />
               </Link>
               <a
                 href={`/s/${DEMO_SLUG}`}
-                className="inline-flex items-center gap-2 rounded-lg border border-cream/30 px-6 py-3 font-medium transition hover:border-gold hover:text-gold"
+                className="btn border border-cream/40 px-6 py-3 text-base hover:bg-cream/10"
               >
-                Ver demo
+                Ver demo en vivo
               </a>
             </div>
           </div>
         </div>
-      </section>
-
-      {/* Acceso */}
-      <section className="px-4 pb-20">
-        <SalonAccess />
       </section>
     </PlatformLayout>
   );

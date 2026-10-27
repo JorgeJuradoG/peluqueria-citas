@@ -1,4 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { Loader2 } from "lucide-react";
 import api from "../services/api";
 import { SALON_SLUG } from "../lib/salon";
 import { applyTheme, resolveBranding } from "../lib/theme";
@@ -49,7 +50,14 @@ export function SalonProvider({ children }) {
       </div>
     );
   }
-  if (!value) return <p className="p-10 text-center text-ink/70">Cargando...</p>;
+  if (!value) {
+    return (
+      <div className="flex min-h-screen items-center justify-center" role="status">
+        <Loader2 className="h-6 w-6 animate-spin text-ink/40" aria-hidden="true" />
+        <span className="sr-only">Cargando...</span>
+      </div>
+    );
+  }
 
   return <SalonContext.Provider value={value}>{children}</SalonContext.Provider>;
 }
