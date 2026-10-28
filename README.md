@@ -79,7 +79,7 @@ cd server
 npm test
 ```
 
-199 tests contra una base de datos MongoDB **en memoria** (no tocan tu base real), ejecutados también en cada push con GitHub Actions. Cubren:
+207 tests contra una base de datos MongoDB **en memoria** (no tocan tu base real), ejecutados también en cada push con GitHub Actions. Cubren:
 
 - **Aislamiento entre peluquerías:** una peluquería no puede ver ni modificar datos de otra.
 - **Reservas:** solapamientos, citas consecutivas, horario laboral, días libres, reprogramar, cancelar y **reservas simultáneas del mismo hueco**.
@@ -91,7 +91,7 @@ npm test
 
 **Multi-tenancy con base de datos compartida.** Cada documento lleva el `salon` al que pertenece y la API recibe la peluquería en la cabecera `X-Salon` (el frontend la toma de la URL `/s/<slug>`). Todas las consultas filtran por ella, incluso las búsquedas por `_id`, de modo que un id ajeno simplemente «no existe». El email es único *por peluquería* (índice compuesto), y la sesión de una peluquería no sirve en otra. Es la opción más sencilla y barata de operar; el riesgo es olvidar un filtro, y por eso el aislamiento tiene su propia batería de tests.
 
-**Sin dobles reservas.** El servidor calcula el fin de la cita, comprueba el solapamiento (`start < otroFin && fin > otroInicio`) y, como red de seguridad frente a peticiones simultáneas, un **índice único parcial** sobre `(estilista, inicio)` solo para citas activas. Un test lanza cinco reservas a la vez al mismo hueco y comprueba que solo una prospera.
+**Sin dobles reservas.** El servidor calcula el fin de la cita, comprueba el solapamiento (`start < otroFin && fin > otroInicio`) y, como red de seguridad frente a peticiones simultáneas, un **índice único parcial** sobre `(estilista, inicio)` solo para citas activas. Para los solapamientos parciales simultáneos (10:00 y 10:15 a la vez), tras guardar se vuelve a comprobar: si dos reservas se cruzan, al menos una se retira. Un test lanza cinco reservas a la vez al mismo hueco y comprueba que solo una prospera.
 
 **Zonas horarias.** Las citas se guardan en UTC. Los horarios se definen como hora local del salón (`"09:00"`) y se convierten con Luxon usando la zona de cada peluquería, así que el cambio de hora no rompe nada. Cada salón tiene la suya.
 
@@ -105,7 +105,9 @@ npm test
 
 **Recordatorios idempotentes.** Una tarea (`node-cron`) busca citas a menos de 24 h y «reclama» cada una con una actualización atómica antes de enviar, de modo que ni un reinicio ni varias instancias duplican avisos.
 
-**Robustez del correo.** Un fallo de envío nunca rompe una reserva. Sin SMTP, los correos se muestran en la consola.
+**Robustez del correo.** Un fallo de envío nunca rompe una reserva, y los fallos pasajeros (red, límite de peticiones, errores 5xx) se reintentan con espera creciente. Sin SMTP, los correos se muestran en la consola.
+
+**Seguridad y privacidad.** Cabeceras de seguridad con una política de contenido estricta (sin scripts incrustados ni recursos externos), CORS limitado a la web propia y tipografías incluidas en la propia web, sin llamadas a Google Fonts.
 
 **Rendimiento del frontend.** Cada página se carga bajo demanda (`React.lazy`), así que la primera visita solo descarga el código común y la página abierta.
 
@@ -122,9 +124,8 @@ server/   Express + Mongoose
 
 ## Limitaciones conocidas y próximos pasos
 
-- El índice único evita las reservas simultáneas del *mismo* inicio, pero no los solapamientos parciales simultáneos (p. ej. 10:00 y 10:15 a la vez). Una solución completa usaría una transacción o un bloqueo por estilista.
 - Los recordatorios usan `node-cron` dentro del proceso: necesitan un servidor siempre activo (no sirven en hosting que duerme).
-- El correo se envía sin cola de reintentos.
+- Los reintentos del correo viven en memoria: si el servidor se reinicia a mitad, ese correo se pierde.
 - El listado completo de lo que falta para venderla está en [docs/PENDIENTES.md](docs/PENDIENTES.md).
 
 ## Licencia

@@ -1,5 +1,7 @@
 import express from "express";
 import cors from "cors";
+import helmet from "helmet";
+import { allowedOrigins } from "./utils/origins.js";
 import { resolveSalon } from "./middlewares/salon.js";
 import { demoGuard } from "./middlewares/demo.js";
 import { notFound, errorHandler } from "./middlewares/errorHandler.js";
@@ -13,10 +15,31 @@ import statsRoutes from "./routes/statsRoutes.js";
 import path from "path";
 import { fileURLToPath } from "url";
 
-
 const app = express();
 
-app.use(cors());
+// Cabeceras de seguridad. La política de contenido cubre la web que entrega este mismo
+// servidor en producción: todo propio salvo los estilos en línea, que React usa a menudo
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'"],
+        styleSrc: ["'self'", "'unsafe-inline'"],
+        imgSrc: ["'self'", "data:", "blob:"],
+        fontSrc: ["'self'", "data:"],
+        connectSrc: ["'self'"],
+        objectSrc: ["'none'"],
+        baseUri: ["'self'"],
+        frameAncestors: ["'none'"],
+        formAction: ["'self'"],
+      },
+    },
+  })
+);
+
+// Solo la web propia puede llamar a la API desde el navegador
+app.use(cors({ origin: allowedOrigins() }));
 app.use(express.json());
 
 // --- Rutas públicas: NO necesitan peluquería ---

@@ -2,8 +2,8 @@
 
 @theme {
   /* Estilo editorial: lienzo blanco, grises neutros y serif fina para los titulares */
-  --font-sans: "Inter", system-ui, sans-serif;
-  --font-display: "Source Serif 4", Georgia, serif;
+  --font-sans: "Inter Variable", system-ui, sans-serif;
+  --font-display: "Source Serif 4 Variable", Georgia, serif;
   --color-ink: #17191c;
   --color-cream: #ffffff;
   --color-sand: #f2f2f3;

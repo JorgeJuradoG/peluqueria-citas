@@ -1,4 +1,4 @@
-export const PRODUCT_NAME = "Citas"; // cámbialo cuando elijas el nombre definitivo
+export const PRODUCT_NAME = "Bruki"; // cámbialo cuando elijas el nombre definitivo
 export const CONTACT_EMAIL = "hola@tudominio.com"; // pon un correo real
 export const DEMO_SLUG = "demo"; // la peluquería que crea el seed
 

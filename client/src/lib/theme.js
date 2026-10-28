@@ -23,16 +23,35 @@ export const PALETTES = [
   { name: "Rosa", hex: "#d4708f" },
 ];
 
+// Las tipografías van dentro de la web (sin Google Fonts): la clásica se incluye siempre
+// (main.jsx) y las demás se descargan solo cuando una peluquería las usa
 export const FONTS = {
-  classic: { label: "Clásica", family: '"Source Serif 4", Georgia, serif', query: null }, // ya carga en index.html
-  modern: { label: "Moderna", family: '"Montserrat", system-ui, sans-serif', query: "Montserrat:wght@600;700" },
-  warm: { label: "Cálida", family: '"Lora", Georgia, serif', query: "Lora:wght@600;700" },
+  classic: { label: "Clásica", family: '"Source Serif 4 Variable", Georgia, serif', load: null },
+  modern: {
+    label: "Moderna",
+    family: '"Montserrat", system-ui, sans-serif',
+    load: () => Promise.all([import("@fontsource/montserrat/400.css"), import("@fontsource/montserrat/700.css")]),
+  },
+  warm: {
+    label: "Cálida",
+    family: '"Lora", Georgia, serif',
+    load: () => Promise.all([import("@fontsource/lora/400.css"), import("@fontsource/lora/700.css")]),
+  },
   elegant: {
     label: "Elegante",
     family: '"Cormorant Garamond", Georgia, serif',
-    query: "Cormorant+Garamond:wght@600;700",
+    load: () =>
+      Promise.all([
+        import("@fontsource/cormorant-garamond/400.css"),
+        import("@fontsource/cormorant-garamond/700.css"),
+      ]),
   },
-  bold: { label: "Atrevida", family: '"Space Grotesk", system-ui, sans-serif', query: "Space+Grotesk:wght@600;700" },
+  bold: {
+    label: "Atrevida",
+    family: '"Space Grotesk", system-ui, sans-serif',
+    load: () =>
+      Promise.all([import("@fontsource/space-grotesk/400.css"), import("@fontsource/space-grotesk/700.css")]),
+  },
 };
 
 export const RADII = {
@@ -255,16 +274,9 @@ export function themeCss(raw) {
   );
 }
 
+// El navegador recuerda los módulos ya importados: llamarla varias veces no repite la descarga
 export function ensureFont(key) {
-  const font = FONTS[key];
-  if (!font?.query) return;
-  const id = `font-${key}`;
-  if (document.getElementById(id)) return;
-  const link = document.createElement("link");
-  link.id = id;
-  link.rel = "stylesheet";
-  link.href = `https://fonts.googleapis.com/css2?family=${font.query}&display=swap`;
-  document.head.appendChild(link);
+  FONTS[key]?.load?.().catch(() => {}); // sin la fuente, se ve la de respaldo
 }
 
 // Icono de la pestaña: la inicial de la peluquería con el color de la marca

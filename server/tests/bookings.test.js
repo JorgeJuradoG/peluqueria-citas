@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { DateTime } from "luxon";
 import Appointment from "../src/models/Appointment.js";
 import Service from "../src/models/Service.js";
@@ -150,6 +150,50 @@ describe("Reservas", () => {
       expect(created).toHaveLength(1);
       expect(rejected).toHaveLength(4);
       expect(await Appointment.countDocuments({ status: "confirmed" })).toBe(1);
+    });
+
+    // La carrera real no se puede provocar de forma fiable: se simula que la comprobación previa
+    // no vio la otra cita (como si las dos peticiones se hubieran cruzado)
+    const skipFirstCheck = () => {
+      const real = Appointment.findOne.bind(Appointment);
+      let skipped = false;
+      return vi.spyOn(Appointment, "findOne").mockImplementation((query, ...rest) => {
+        if (query?.end && !skipped) {
+          skipped = true; // solo la primera comprobación de solape; la segunda va de verdad
+          return Promise.resolve(null);
+        }
+        return real(query, ...rest);
+      });
+    };
+
+    it("una reserva que se solapa en parte con otra a la vez se rechaza al guardar", async () => {
+      expect((await post({ start: at(10) })).status).toBe(201);
+
+      const spy = skipFirstCheck();
+      try {
+        const res = await post({ start: at(10, 15) });
+        expect(res.status).toBe(409);
+      } finally {
+        spy.mockRestore();
+      }
+      expect(await Appointment.countDocuments({ status: "confirmed" })).toBe(1);
+    });
+
+    it("reprogramar encima de otra cita a la vez se rechaza y la cita conserva su hora", async () => {
+      await post({ start: at(10) });
+      const mine = (await post({ start: at(12) })).body;
+
+      const spy = skipFirstCheck();
+      try {
+        const res = await http(A.slug, A.tokens.client)
+          .patch(`/api/appointments/${mine._id}/reschedule`)
+          .send({ start: at(10, 15) });
+        expect(res.status).toBe(409);
+      } finally {
+        spy.mockRestore();
+      }
+      const stored = await Appointment.findById(mine._id);
+      expect(stored.start.toISOString()).toBe(new Date(at(12)).toISOString());
     });
 
     it("las reservas de huecos distintos a la vez se confirman todas", async () => {

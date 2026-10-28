@@ -24,7 +24,7 @@ const SALONS = [
     hours: "Lunes a viernes: 9:00-20:00\nSábados: 10:00-14:00",
     address: "Calle Mayor 12, Madrid",
     phone: "+34 600 123 456",
-    social: { instagram: "peluqueria_demo", whatsapp: "34600123456", website: "https://example.com" },
+    social: { instagram: "peluqueria_demo", whatsapp: "34600123456", website: "" },
     sections: { howItWorks: true, perks: true },
     branding: {
       accent: "#b08d57",

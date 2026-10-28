@@ -2,6 +2,7 @@ import { DateTime } from "luxon";
 import Appointment from "../models/Appointment.js";
 import { sendMail } from "./mailer.js";
 import { emailBrand, mapUrl } from "./emailTheme.js";
+import { publicUrl } from "../utils/origins.js";
 
 // Evita que un nombre con < > & rompa o inyecte HTML en el correo
 export const esc = (s) =>
@@ -64,7 +65,7 @@ export function button(href, label, salon) {
 }
 
 export function baseUrl(salon) {
-  return `${process.env.CLIENT_URL || "http://localhost:5173"}/s/${salon.slug}`;
+  return `${publicUrl()}/s/${salon.slug}`;
 }
 
 // Fila «Dónde» con enlace al mapa (vacía si la peluquería no tiene dirección)

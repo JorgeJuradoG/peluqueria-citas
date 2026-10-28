@@ -4,12 +4,13 @@ import mongoose from "mongoose";
 import User from "../models/User.js";
 import Salon from "../models/Salon.js";
 import Stylist from "../models/Stylist.js";
+import { allowedOrigins } from "../utils/origins.js";
 
 let io;
 
 export function initSockets(httpServer) {
   io = new Server(httpServer, {
-    cors: { origin: process.env.CLIENT_URL || "http://localhost:5173" },
+    cors: { origin: allowedOrigins() },
   });
 
   // Autenticación: mismo criterio que requireAuth

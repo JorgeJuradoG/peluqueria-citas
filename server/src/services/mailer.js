@@ -58,6 +58,25 @@ function buildFrom(fromName) {
   return name ? `"${name}" <${address}>` : configured;
 }
 
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+// Reintenta un envío ante fallos pasajeros (red, servidor saturado), con esperas crecientes.
+// Un error definitivo (dirección inválida, clave incorrecta) no se reintenta
+export async function withRetries(send, { delays = [2000, 8000], isTransient = () => true } = {}) {
+  for (let attempt = 0; ; attempt++) {
+    try {
+      return await send();
+    } catch (err) {
+      if (attempt >= delays.length || !isTransient(err)) throw err;
+      console.warn(`[mail] Fallo al enviar (${err.message}). Reintento en ${delays[attempt] / 1000} s`);
+      await sleep(delays[attempt]);
+    }
+  }
+}
+
+// Sin código de estado (corte de red, tiempo agotado), 429 o 5xx: merece la pena reintentar
+const isTransientResend = (err) => !err.status || err.status === 429 || err.status >= 500;
+
 // Envío por API HTTPS (Resend). Sirve donde el hosting bloquea los puertos SMTP
 async function sendWithResend({ to, subject, html, text, fromName }) {
   const controller = new AbortController();
@@ -74,7 +93,9 @@ async function sendWithResend({ to, subject, html, text, fromName }) {
     });
     if (!res.ok) {
       const body = await res.text().catch(() => "");
-      throw new Error(`Resend respondió ${res.status}: ${body.slice(0, 200)}`);
+      const err = new Error(`Resend respondió ${res.status}: ${body.slice(0, 200)}`);
+      err.status = res.status;
+      throw err;
     }
     return true;
   } finally {
@@ -117,7 +138,9 @@ export async function sendMail({ to, subject, html, text, fromName }) {
   // Con clave de API, el envío es real: un fallo es un fallo, no se disimula
   if (process.env.RESEND_API_KEY && process.env.MAIL_MODE !== "console") {
     try {
-      await sendWithResend({ to, subject, html, text, fromName });
+      await withRetries(() => sendWithResend({ to, subject, html, text, fromName }), {
+        isTransient: isTransientResend,
+      });
       console.log(`[mail] Enviado a ${to}: ${subject}`);
       return true;
     } catch (err) {
@@ -133,13 +156,11 @@ export async function sendMail({ to, subject, html, text, fromName }) {
   if (hasSmtp || !skipEthereal) {
     try {
       const transporter = await getTransporter();
-      const info = await transporter.sendMail({
-        from: buildFrom(fromName),
-        to,
-        subject,
-        html,
-        text,
-      });
+      const message = { from: buildFrom(fromName), to, subject, html, text };
+      // Con SMTP real se reintenta; con Ethereal (pruebas) no merece la pena esperar
+      const info = hasSmtp
+        ? await withRetries(() => transporter.sendMail(message))
+        : await transporter.sendMail(message);
       const preview = nodemailer.getTestMessageUrl(info);
       console.log(
         `[mail] Enviado a ${to}: ${subject}${preview ? `\n[mail] Vista previa: ${preview}` : ""}`

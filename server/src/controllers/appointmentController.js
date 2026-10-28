@@ -14,6 +14,20 @@ import { canClientChange, cancellationMessage } from "../utils/cancellation.js";
 
 const ACTIVE_STATUSES = ["pending", "confirmed"];
 
+// Segunda comprobación, ya guardada la cita. Dos reservas que se solapan en parte y llegan a
+// la vez pueden pasar las dos la primera comprobación; al volver a mirar, al menos una ve a la
+// otra y se retira. En el peor caso se rechazan las dos, pero nunca quedan dos citas solapadas
+function findConflict(appointment) {
+  return Appointment.exists({
+    _id: { $ne: appointment._id },
+    salon: appointment.salon,
+    stylist: appointment.stylist,
+    status: { $in: ACTIVE_STATUSES },
+    start: { $lt: appointment.end },
+    end: { $gt: appointment.start },
+  });
+}
+
 export async function createAppointment(req, res) {
   const salon = req.salon._id;
   const { stylistId, serviceId, start, notes } = req.body;
@@ -70,6 +84,11 @@ export async function createAppointment(req, res) {
     // Si la cita ya cae dentro de la ventana, la confirmación hace de recordatorio
     reminderSentAt: initialReminderSentAt(startDate),
   });
+
+  if (await findConflict(appointment)) {
+    await Appointment.deleteOne({ _id: appointment._id });
+    return res.status(409).json({ message: "Ese hueco ya está ocupado" });
+  }
 
   emitToStylist(stylist._id, "appointment:created", {
     stylistId: stylist._id,
@@ -288,12 +307,23 @@ export async function rescheduleAppointment(req, res) {
     return res.status(409).json({ message: "Ese hueco ya está ocupado" });
   }
 
-  const oldStart = appointment.start;
+  const previous = {
+    start: appointment.start,
+    end: appointment.end,
+    reminderSentAt: appointment.reminderSentAt,
+  };
+  const oldStart = previous.start;
   appointment.start = newStart;
   appointment.end = newEnd;
   // Nueva hora, nuevo recordatorio (salvo que ya caiga dentro de la ventana)
   appointment.reminderSentAt = initialReminderSentAt(newStart);
   await appointment.save();
+
+  if (await findConflict(appointment)) {
+    appointment.set(previous); // vuelve a la hora que tenía
+    await appointment.save();
+    return res.status(409).json({ message: "Ese hueco ya está ocupado" });
+  }
 
   emitToStylist(stylist._id, "appointment:updated", {
     stylistId: stylist._id,
